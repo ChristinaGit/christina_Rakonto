@@ -1,0 +1,7 @@
+include ':ShortStoryMaker'
+include ':StoryContentProvider'
+include ':CommonLibrary'
+
+project(':ShortStoryMaker').projectDir = new File('shortstorymaker')
+project(':StoryContentProvider').projectDir = new File('storycontentprovider')
+project(':CommonLibrary').projectDir = new File('../christina_CommonLibrary/commonlibrary')
