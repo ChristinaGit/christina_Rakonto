@@ -53,10 +53,10 @@ public final class StoryFrameDao extends ContentProviderDao<StoryFrame> {
 
         model.setId(_FullProjection.getId(cursor));
         model.setStoryId(_FullProjection.getStoryId(cursor));
-        model.setTextPosition(_FullProjection.getSubtextStart(cursor));
-        final String image = _FullProjection.getImage(cursor);
-        if (image != null) {
-            model.setImageUri(Uri.parse(image));
+        model.setTextPosition(_FullProjection.getTextPosition(cursor));
+        final String imageUri = _FullProjection.getImage(cursor);
+        if (imageUri != null) {
+            model.setImageUri(Uri.parse(imageUri));
         }
 
         return model;
@@ -113,7 +113,7 @@ public final class StoryFrameDao extends ContentProviderDao<StoryFrame> {
             return cursor.getLong(INDEX_STORY_ID);
         }
 
-        public static int getSubtextStart(@NonNull final Cursor cursor) {
+        public static int getTextPosition(@NonNull final Cursor cursor) {
             return cursor.getInt(INDEX_TEXT_POSITION);
         }
 
