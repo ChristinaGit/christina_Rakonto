@@ -10,7 +10,7 @@ public final class StoryDaoManager {
     @Nullable
     private static ContentResolver _contentResolver;
 
-    public static void initialize(@NonNull ContentResolver contentResolver) {
+    public static void initialize(@NonNull final ContentResolver contentResolver) {
         Contracts.requireNonNull(contentResolver, "contentResolver == null");
 
         if (_contentResolver != null) {

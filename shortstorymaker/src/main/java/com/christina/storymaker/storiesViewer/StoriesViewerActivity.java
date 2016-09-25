@@ -1,22 +1,22 @@
 package com.christina.storymaker.storiesViewer;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toolbar;
 
 import com.christina.content.story.observer.StoryContentObserver;
 import com.christina.storymaker.R;
 import com.christina.storymaker.core.StoryContentObserverProvider;
 
-public class StoriesViewerActivity extends AppCompatActivity
+public class StoriesViewerActivity extends Activity
     implements StoryContentObserverProvider {
     @NonNull
     @Override
@@ -56,7 +56,7 @@ public class StoriesViewerActivity extends AppCompatActivity
 
         findViews();
 
-        setSupportActionBar(_toolbarView);
+        setActionBar(_toolbarView);
         _fabView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,7 +66,7 @@ public class StoriesViewerActivity extends AppCompatActivity
             }
         });
 
-        getSupportFragmentManager().beginTransaction()
+        getFragmentManager().beginTransaction()
                                    .add(R.id.content_container, StoriesViewerFragment.create())
                                    .commit();
     }

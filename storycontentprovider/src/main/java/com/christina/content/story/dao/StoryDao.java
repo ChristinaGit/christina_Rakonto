@@ -15,7 +15,7 @@ import com.christina.content.story.database.StoryTable;
 import com.christina.content.story.model.Story;
 
 public final class StoryDao extends ContentProviderDao<Story> {
-    public StoryDao(@NonNull ContentResolver contentResolver) {
+    public StoryDao(@NonNull final ContentResolver contentResolver) {
         super(contentResolver, _FullProjection.PROJECTION);
     }
 

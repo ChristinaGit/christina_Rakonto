@@ -30,22 +30,22 @@ public final class StoryContract {
 
     public static final String TYPE_STORIES = DIR_TYPE;
 
-    private static final String[] _contentTypesMap = _createContentTypesMap();
+    private static final String[] _CONTENT_TYPES_MAP = _createContentTypesMap();
 
     @NonNull
-    public static String getType(int code) {
-        return _contentTypesMap[StoryContentCode.getQueryCode(code)];
+    public static String getType(final int code) {
+        return _CONTENT_TYPES_MAP[StoryContentCode.getQueryCode(code)];
     }
 
     @NonNull
-    public static String getStoryPath(@NonNull String id) {
+    public static String getStoryPath(@NonNull final String id) {
         Contracts.requireNonNull(id, "id == null");
 
         return UriUtils.combine(SEGMENT, id);
     }
 
     @NonNull
-    public static Uri getStoryUri(@NonNull String id) {
+    public static Uri getStoryUri(@NonNull final String id) {
         Contracts.requireNonNull(id, "id == null");
 
         return StoryContentContract.CONTENT_URI.buildUpon().path(getStoryPath(id)).build();
@@ -62,7 +62,7 @@ public final class StoryContract {
     }
 
     @NonNull
-    public static String extractStoryId(@NonNull Uri uri) {
+    public static String extractStoryId(@NonNull final Uri uri) {
         Contracts.requireNonNull(uri, "uri == null");
 
         return uri.getLastPathSegment();

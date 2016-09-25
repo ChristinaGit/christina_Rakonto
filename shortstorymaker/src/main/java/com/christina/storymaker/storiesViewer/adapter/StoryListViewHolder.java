@@ -16,7 +16,7 @@ public final class StoryListViewHolder extends AbstractRecyclerViewHolder {
     public final CardView cardView;
 
     @NonNull
-    public final Button expandStoryView;
+    public final Button editStoryView;
 
     @NonNull
     public final Button shareStoryView;
@@ -27,21 +27,26 @@ public final class StoryListViewHolder extends AbstractRecyclerViewHolder {
     @NonNull
     public final ImageView storyPreviewView;
 
+    @NonNull
+    public final TextView storyTextView;
+
     public StoryListViewHolder(@NonNull final View itemView) {
         super(itemView);
 
         Contracts.requireNonNull(itemView, "itemView == null");
 
         cardView = (CardView) itemView.findViewById(R.id.story_card);
-        expandStoryView = (Button) itemView.findViewById(R.id.explore_story);
+        editStoryView = (Button) itemView.findViewById(R.id.edit_story);
         shareStoryView = (Button) itemView.findViewById(R.id.share_story);
         storyNameView = (TextView) itemView.findViewById(R.id.story_name);
         storyPreviewView = (ImageView) itemView.findViewById(R.id.story_preview);
+        storyTextView = (TextView) itemView.findViewById(R.id.story_text);
 
         Contracts.requireNonNull(cardView);
-        Contracts.requireNonNull(expandStoryView);
+        Contracts.requireNonNull(editStoryView);
         Contracts.requireNonNull(shareStoryView);
         Contracts.requireNonNull(storyPreviewView);
         Contracts.requireNonNull(storyNameView);
+        Contracts.requireNonNull(storyTextView);
     }
 }

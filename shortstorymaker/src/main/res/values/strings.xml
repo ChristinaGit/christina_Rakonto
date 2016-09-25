@@ -2,6 +2,8 @@
     <string name="app_name">Short Story Maker</string>
 
     <string name="action_settings">Settings</string>
+    <string name="action_share_story">Share</string>
+    <string name="action_edit_story">Edit</string>
 
     <string name="message_story_deleted">Story deleted</string>
 </resources>

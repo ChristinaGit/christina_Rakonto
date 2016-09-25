@@ -54,7 +54,7 @@ public final class StoryContentObserver extends ContentObserver {
 
                     _storyChanged.onEvent(new StoryObserverEventArgs(id));
                 } else if (StoryContract.DIR_TYPE.equals(type)) {
-                    _storyChanged.onEvent(new StoryObserverEventArgs());
+                    _storyChanged.onEvent(StoryObserverEventArgs.EMPTY);
                 }
             } else if (StoryFrameContract.ENTITY_TYPE_CODE == entityTypeCode) {
                 final String type = StoryFrameContract.getType(code);
@@ -70,7 +70,7 @@ public final class StoryContentObserver extends ContentObserver {
 
                     _storyFrameChanged.onEvent(new StoryObserverEventArgs(id));
                 } else if (StoryFrameContract.DIR_TYPE.equals(type)) {
-                    _storyFrameChanged.onEvent(new StoryObserverEventArgs());
+                    _storyFrameChanged.onEvent(StoryObserverEventArgs.EMPTY);
                 }
             }
         }

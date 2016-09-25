@@ -1,15 +1,15 @@
 package com.christina.storymaker.storiesViewer;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.Loader;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -91,7 +91,7 @@ public class StoriesViewerFragment extends Fragment {
     protected final StoryContentObserver getStoryContentObserver() {
         StoryContentObserver result = null;
 
-        final FragmentActivity activity = getActivity();
+        final Activity activity = getActivity();
         if (activity instanceof StoryContentObserverProvider) {
             result = ((StoryContentObserverProvider) activity).getStoryContentObserver();
         }
@@ -143,7 +143,7 @@ public class StoriesViewerFragment extends Fragment {
         new EventHandler<StoryObserverEventArgs>() {
             @Override
             public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
-                if (!_deletedStoriesIds.remove(eventArgs.id)) {
+                if (!_deletedStoriesIds.remove(eventArgs.getId())) {
                     startStoriesLoading();
                 }
             }
@@ -170,7 +170,7 @@ public class StoriesViewerFragment extends Fragment {
             @Override
             public void onLoadFinished(final Loader<StoriesLoaderResult> loader,
                                        final StoriesLoaderResult data) {
-                _stories = data.stories;
+                _stories = data.getStories();
 
                 onStoriesLoaded();
             }

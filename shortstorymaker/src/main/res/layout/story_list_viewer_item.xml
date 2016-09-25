@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/story_card"
+    style="@style/CardView.Light"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    card_view:cardCornerRadius="4dp"
+    app:cardCornerRadius="4dp"
     tools:showIn="@layout/story_list_viewer">
 
     <LinearLayout
@@ -15,34 +16,68 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/story_preview"
+        <android.support.percent.PercentFrameLayout
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            tools:background="@android:color/holo_orange_light"
-            tools:src="@android:drawable/star_big_on"/>
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/story_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <ImageView
+                android:id="@+id/story_preview"
+                app:layout_aspectRatio="178%"
+                app:layout_widthPercent="100%"/>
+        </android.support.percent.PercentFrameLayout>
 
         <LinearLayout
-            style="?android:buttonBarStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
 
-            <Button
-                android:id="@+id/share_story"
-                style="?android:buttonBarButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+            android:layout_marginTop="@dimen/card_content_vertical_margin"
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/explore_story"
-                style="?android:buttonBarButtonStyle"
+            <TextView
+                android:id="@+id/story_name"
+                style="?android:textAppearanceListItem"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/card_content_horizontal_margin"
+                android:layout_marginStart="@dimen/card_content_horizontal_margin"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="@dimen/card_primary_text_size"/>
+
+            <TextView
+                android:id="@+id/story_text"
+                style="?android:textAppearanceListItemSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/card_content_horizontal_margin"
+                android:layout_marginStart="@dimen/card_content_horizontal_margin"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@android:color/secondary_text_dark"
+                android:textSize="@dimen/card_secondary_text_size"/>
+
+            <LinearLayout
+                style="?android:buttonBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/card_action_margin"
+                android:layout_marginStart="@dimen/card_action_margin"
+                android:layout_marginTop="@dimen/card_action_margin">
+
+                <Button
+                    android:id="@+id/share_story"
+                    style="?android:buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_share_story"/>
+
+                <Button
+                    android:id="@+id/edit_story"
+                    style="?android:buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_edit_story"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

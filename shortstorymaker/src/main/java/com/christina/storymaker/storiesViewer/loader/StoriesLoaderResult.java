@@ -7,10 +7,15 @@ import com.christina.content.story.model.Story;
 import java.util.List;
 
 public final class StoriesLoaderResult {
-    @Nullable
-    public final List<Story> stories;
-
     public StoriesLoaderResult(@Nullable final List<Story> stories) {
-        this.stories = stories;
+        _stories = stories;
     }
+
+    @Nullable
+    public final List<Story> getStories() {
+        return _stories;
+    }
+
+    @Nullable
+    private final List<Story> _stories;
 }

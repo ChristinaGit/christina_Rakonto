@@ -7,7 +7,7 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.data.MimeTypeUtils;
 import com.christina.common.data.UriUtils;
 
-public class StoryFrameContract {
+public final class StoryFrameContract {
     public final static String TYPE = "frame";
 
     public final static String ITEM_TYPE =
@@ -22,9 +22,11 @@ public class StoryFrameContract {
 
     private static int _codeIndexer = 0;
 
-    public static final int CODE_STORY_FRAME = StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
+    public static final int CODE_STORY_FRAME =
+        StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
 
-    public static final int CODE_STORY_FRAMES = StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
+    public static final int CODE_STORY_FRAMES =
+        StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
 
     public static final int CODE_STORY_FRAMES_BY_STORY =
         StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
@@ -33,22 +35,22 @@ public class StoryFrameContract {
 
     public static final String TYPE_STORY_FRAMES = DIR_TYPE;
 
-    private static final String[] _contentTypesMap = _createContentTypesMap();
+    private static final String[] _CONTENT_TYPES_MAP = _createContentTypesMap();
 
     @NonNull
-    public static String getType(int code) {
-        return _contentTypesMap[StoryContentCode.getQueryCode(code)];
+    public static String getType(final int code) {
+        return _CONTENT_TYPES_MAP[StoryContentCode.getQueryCode(code)];
     }
 
     @NonNull
-    public static String getStoryFramePath(@NonNull String id) {
+    public static String getStoryFramePath(@NonNull final String id) {
         Contracts.requireNonNull(id, "id == null");
 
         return UriUtils.combine(SEGMENT, id);
     }
 
     @NonNull
-    public static Uri getStoryFrameUri(@NonNull String id) {
+    public static Uri getStoryFrameUri(@NonNull final String id) {
         Contracts.requireNonNull(id, "id == null");
 
         return StoryContentContract.CONTENT_URI.buildUpon().path(getStoryFramePath(id)).build();
@@ -65,26 +67,26 @@ public class StoryFrameContract {
     }
 
     @NonNull
-    public static String getStoryFramesByStoryPath(@NonNull String storyId) {
+    public static String getStoryFramesByStoryPath(@NonNull final String storyId) {
         return UriUtils.combine(StoryContract.SEGMENT, storyId, SEGMENT);
     }
 
     @NonNull
-    public static Uri getStoryFramesByStoryUri(@NonNull String storyId) {
+    public static Uri getStoryFramesByStoryUri(@NonNull final String storyId) {
         return StoryContentContract.CONTENT_URI.buildUpon()
                                                .path(getStoryFramesByStoryPath(storyId))
                                                .build();
     }
 
     @NonNull
-    public static String extractStoryFrameId(@NonNull Uri uri) {
+    public static String extractStoryFrameId(@NonNull final Uri uri) {
         Contracts.requireNonNull(uri, "uri == null");
 
         return uri.getLastPathSegment();
     }
 
     @NonNull
-    public static String extractStoryId(@NonNull Uri uri) {
+    public static String extractStoryId(@NonNull final Uri uri) {
         Contracts.requireNonNull(uri, "uri == null");
 
         return uri.getPathSegments().get(2);
@@ -96,7 +98,8 @@ public class StoryFrameContract {
 
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAME)] = TYPE_STORY_FRAME;
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAMES)] = TYPE_STORY_FRAMES;
-        contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAMES_BY_STORY)] = TYPE_STORY_FRAMES;
+        contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAMES_BY_STORY)] =
+            TYPE_STORY_FRAMES;
 
         return contentTypesMap;
     }

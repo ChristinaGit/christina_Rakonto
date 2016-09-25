@@ -12,15 +12,15 @@ public final class StoryContentCode {
 
     private static final int QUERY_MASK = (Integer.MAX_VALUE >> ENTITY_CODE_SHIFT) + 1;
 
-    public static int make(int entityTypeCode, int queryCode) {
+    public static int make(final int entityTypeCode, final int queryCode) {
         return (entityTypeCode << ENTITY_CODE_SHIFT) | queryCode;
     }
 
-    public static int getQueryCode(int storyCode) {
+    public static int getQueryCode(final int storyCode) {
         return storyCode & QUERY_MASK;
     }
 
-    public static int getEntityTypeCode(int storyCode) {
+    public static int getEntityTypeCode(final int storyCode) {
         return storyCode >> ENTITY_CODE_SHIFT;
     }
 
@@ -30,7 +30,7 @@ public final class StoryContentCode {
     public static final class Matcher {
 
         @NonNull
-        private static final UriMatcher _uriMatcher = _createUriMatcher();
+        private static final UriMatcher _URI_MATCHER = _createUriMatcher();
 
         @NonNull
         private static UriMatcher _createUriMatcher() {
@@ -56,10 +56,10 @@ public final class StoryContentCode {
             return uriMatcher;
         }
 
-        public static int get(@NonNull Uri uri) {
+        public static int get(@NonNull final Uri uri) {
             Contracts.requireNonNull(uri, "uri == null");
 
-            return _uriMatcher.match(uri);
+            return _URI_MATCHER.match(uri);
         }
 
         private Matcher() {
