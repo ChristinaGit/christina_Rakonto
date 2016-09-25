@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.Menu;
@@ -16,29 +17,11 @@ import com.christina.content.story.observer.StoryContentObserver;
 import com.christina.storymaker.R;
 import com.christina.storymaker.core.StoryContentObserverProvider;
 
-public class StoriesViewerActivity extends Activity
-    implements StoryContentObserverProvider {
+public class StoriesViewerActivity extends Activity implements StoryContentObserverProvider {
     @NonNull
     @Override
     public final StoryContentObserver getStoryContentObserver() {
         return _storyContentObserver;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @CallSuper
@@ -49,7 +32,7 @@ public class StoriesViewerActivity extends Activity
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity);
@@ -57,26 +40,48 @@ public class StoriesViewerActivity extends Activity
         findViews();
 
         setActionBar(_toolbarView);
-        _fabView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null)
-                        .show();
-            }
-        });
+        if (_fabView != null) {
+            _fabView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View view) {
+                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null)
+                            .show();
+                }
+            });
+        }
 
         getFragmentManager().beginTransaction()
-                                   .add(R.id.content_container, StoriesViewerFragment.create())
-                                   .commit();
+                            .add(R.id.content_container, StoriesViewerFragment.create())
+                            .commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @NonNull
     private final StoryContentObserver _storyContentObserver = new StoryContentObserver();
 
+    @Nullable
     private ViewGroup _contentContainerView;
 
+    @Nullable
     private FloatingActionButton _fabView;
 
+    @Nullable
     private Toolbar _toolbarView;
 }

@@ -6,6 +6,12 @@ import com.christina.content.story.dao.StoryDaoManager;
 import com.christina.content.story.database.StoryDatabase;
 import com.christina.storymaker.debug.FakeDatabase;
 
+/**
+ * TODO:
+ * <ul>
+ * <li>Animate FAB;</li>
+ * </ul>
+ */
 public class ShortStoryMaker extends Application {
     @Override
     public void onCreate() {

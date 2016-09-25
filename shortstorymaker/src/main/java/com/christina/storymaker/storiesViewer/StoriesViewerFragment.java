@@ -107,7 +107,7 @@ public class StoriesViewerFragment extends Fragment {
         getLoaderManager().destroyLoader(LOADER_ID_STORIES);
     }
 
-    protected void onDeleteStory(int position) {
+    protected void onDeleteStory(final int position) {
         if (_storyListAdapter != null) {
             final long itemId = _storyListAdapter.getItemId(position);
 
@@ -136,7 +136,7 @@ public class StoriesViewerFragment extends Fragment {
     }
 
     @NonNull
-    private Collection<Long> _deletedStoriesIds = new ArrayList<>();
+    private final Collection<Long> _deletedStoriesIds = new ArrayList<>();
 
     @NonNull
     private final EventHandler<StoryObserverEventArgs> _storyChangedHandler =
@@ -199,7 +199,7 @@ public class StoriesViewerFragment extends Fragment {
             }
         };
 
-    private void _onInitializeStoryListView(@NonNull RecyclerView storyListView) {
+    private void _onInitializeStoryListView(@NonNull final RecyclerView storyListView) {
         final Context context = storyListView.getContext();
         final Resources resources = context.getResources();
 
