@@ -48,13 +48,13 @@ public final class StoryContentObserver extends ContentObserver {
                     long id;
                     try {
                         id = Long.parseLong(idString);
-                    } catch (NumberFormatException e) {
+                    } catch (final NumberFormatException e) {
                         id = Model.NO_ID;
                     }
 
-                    _storyChanged.onEvent(new StoryObserverEventArgs(id));
+                    _storyChanged.rise(new StoryObserverEventArgs(id));
                 } else if (StoryContract.DIR_TYPE.equals(type)) {
-                    _storyChanged.onEvent(StoryObserverEventArgs.EMPTY);
+                    _storyChanged.rise(StoryObserverEventArgs.EMPTY);
                 }
             } else if (StoryFrameContract.ENTITY_TYPE_CODE == entityTypeCode) {
                 final String type = StoryFrameContract.getType(code);
@@ -64,13 +64,13 @@ public final class StoryContentObserver extends ContentObserver {
                     long id;
                     try {
                         id = Long.parseLong(idString);
-                    } catch (NumberFormatException e) {
+                    } catch (final NumberFormatException e) {
                         id = Model.NO_ID;
                     }
 
-                    _storyFrameChanged.onEvent(new StoryObserverEventArgs(id));
+                    _storyFrameChanged.rise(new StoryObserverEventArgs(id));
                 } else if (StoryFrameContract.DIR_TYPE.equals(type)) {
-                    _storyFrameChanged.onEvent(StoryObserverEventArgs.EMPTY);
+                    _storyFrameChanged.rise(StoryObserverEventArgs.EMPTY);
                 }
             }
         }

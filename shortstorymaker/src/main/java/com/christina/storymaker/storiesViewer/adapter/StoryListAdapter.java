@@ -112,7 +112,7 @@ public final class StoryListAdapter
         @Override
         public void onClick(final View v) {
             final long storyId = (long) v.getTag(R.id.holder_story_id);
-            _editStory.onEvent(new StoryContentEventArgs(storyId));
+            _editStory.rise(new StoryContentEventArgs(storyId));
         }
     };
 
@@ -123,7 +123,7 @@ public final class StoryListAdapter
         @Override
         public void onClick(final View v) {
             final long storyId = (long) v.getTag(R.id.holder_story_id);
-            _shareStory.onEvent(new StoryContentEventArgs(storyId));
+            _shareStory.rise(new StoryContentEventArgs(storyId));
         }
     };
 
@@ -134,7 +134,7 @@ public final class StoryListAdapter
         @Override
         public void onClick(final View v) {
             final long storyId = (long) v.getTag(R.id.holder_story_id);
-            _viewStory.onEvent(new StoryContentEventArgs(storyId));
+            _viewStory.rise(new StoryContentEventArgs(storyId));
         }
     };
 
