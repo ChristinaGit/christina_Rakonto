@@ -31,8 +31,8 @@ public final class StoryDatabase extends SqlLiteDatabaseWrapper {
 
     @Override
     public final void onCreate(final SQLiteDatabase db) {
-        db.execSQL(Table.Story.CREATE);
-        db.execSQL(Table.StoryFrame.CREATE);
+        db.execSQL(StoryTable.Story.CREATE);
+        db.execSQL(StoryTable.StoryFrame.CREATE);
     }
 
     @Override

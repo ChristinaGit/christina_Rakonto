@@ -11,40 +11,12 @@ import android.support.annotation.Nullable;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.dao.ContentProviderDao;
 import com.christina.content.story.contract.StoryContract;
-import com.christina.content.story.database.Table;
+import com.christina.content.story.database.StoryTable;
 import com.christina.content.story.model.Story;
 
 public final class StoryDao extends ContentProviderDao<Story> {
     public StoryDao(@NonNull ContentResolver contentResolver) {
         super(contentResolver, _FullProjection.PROJECTION);
-    }
-
-    @NonNull
-    @Override
-    protected final Uri getModelUri(final long id) {
-        return StoryContract.getStoryUri(String.valueOf(id));
-    }
-
-    @NonNull
-    @Override
-    protected final Uri getModelUri() {
-        return StoryContract.getStoriesUri();
-    }
-
-    @Override
-    protected final long extractId(@NonNull final Uri modelUri) {
-        Contracts.requireNonNull(modelUri, "modelUri == null");
-
-        return Long.parseLong(StoryContract.extractStoryId(modelUri));
-    }
-
-    @NonNull
-    @Override
-    protected final Story[] createModelArray(
-        @IntRange(from = 0, to = Integer.MAX_VALUE) final int size) {
-        Contracts.requireInRange(size, 0, Integer.MAX_VALUE);
-
-        return new Story[size];
     }
 
     @NonNull
@@ -68,9 +40,20 @@ public final class StoryDao extends ContentProviderDao<Story> {
         final String preview = _FullProjection.getPreview(cursor);
         if (preview != null) {
             model.setPreviewUri(Uri.parse(preview));
+        } else {
+            model.setPreviewUri(null);
         }
 
         return model;
+    }
+
+    @NonNull
+    @Override
+    protected final Story[] createModelArray(
+        @IntRange(from = 0, to = Integer.MAX_VALUE) final int size) {
+        Contracts.requireInRange(size, 0, Integer.MAX_VALUE);
+
+        return new Story[size];
     }
 
     @NonNull
@@ -80,19 +63,38 @@ public final class StoryDao extends ContentProviderDao<Story> {
 
         final ContentValues values = new ContentValues(_FullProjection.COLUMN_COUNT);
 
-        values.put(Table.Story.COLUMN_NAME, model.getName());
-        values.put(Table.Story.COLUMN_CREATE_DATE, model.getCreateDate());
-        values.put(Table.Story.COLUMN_MODIFY_DATE, model.getModifyDate());
-        values.put(Table.Story.COLUMN_TEXT, model.getText());
+        values.put(StoryTable.Story.COLUMN_NAME, model.getName());
+        values.put(StoryTable.Story.COLUMN_CREATE_DATE, model.getCreateDate());
+        values.put(StoryTable.Story.COLUMN_MODIFY_DATE, model.getModifyDate());
+        values.put(StoryTable.Story.COLUMN_TEXT, model.getText());
 
         final Uri previewUri = model.getPreviewUri();
         if (previewUri == null) {
-            values.putNull(Table.Story.COLUMN_PREVIEW);
+            values.putNull(StoryTable.Story.COLUMN_PREVIEW);
         } else {
-            values.put(Table.Story.COLUMN_PREVIEW, previewUri.toString());
+            values.put(StoryTable.Story.COLUMN_PREVIEW, previewUri.toString());
         }
 
         return values;
+    }
+
+    @Override
+    protected final long extractId(@NonNull final Uri modelUri) {
+        Contracts.requireNonNull(modelUri, "modelUri == null");
+
+        return Long.parseLong(StoryContract.extractStoryId(modelUri));
+    }
+
+    @NonNull
+    @Override
+    protected final Uri getModelUri() {
+        return StoryContract.getStoriesUri();
+    }
+
+    @NonNull
+    @Override
+    protected final Uri getModelUri(final long id) {
+        return StoryContract.getStoryUri(String.valueOf(id));
     }
 
     private final static class _FullProjection {
@@ -143,12 +145,12 @@ public final class StoryDao extends ContentProviderDao<Story> {
 
         static {
             PROJECTION = new String[_indexer];
-            PROJECTION[INDEX_ID] = Table.COLUMN_ID;
-            PROJECTION[INDEX_NAME] = Table.Story.COLUMN_NAME;
-            PROJECTION[INDEX_CREATE_DATE] = Table.Story.COLUMN_CREATE_DATE;
-            PROJECTION[INDEX_MODIFY_DATE] = Table.Story.COLUMN_MODIFY_DATE;
-            PROJECTION[INDEX_TEXT] = Table.Story.COLUMN_TEXT;
-            PROJECTION[INDEX_PREVIEW] = Table.Story.COLUMN_PREVIEW;
+            PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
+            PROJECTION[INDEX_NAME] = StoryTable.Story.COLUMN_NAME;
+            PROJECTION[INDEX_CREATE_DATE] = StoryTable.Story.COLUMN_CREATE_DATE;
+            PROJECTION[INDEX_MODIFY_DATE] = StoryTable.Story.COLUMN_MODIFY_DATE;
+            PROJECTION[INDEX_TEXT] = StoryTable.Story.COLUMN_TEXT;
+            PROJECTION[INDEX_PREVIEW] = StoryTable.Story.COLUMN_PREVIEW;
         }
     }
 }

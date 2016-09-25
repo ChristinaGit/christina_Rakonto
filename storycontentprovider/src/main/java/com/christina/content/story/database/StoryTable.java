@@ -1,9 +1,9 @@
 package com.christina.content.story.database;
 
-public final class Table {
+public final class StoryTable {
     public static final String COLUMN_ID = "id";
 
-    private Table() {
+    private StoryTable() {
     }
 
     public static final class Story {
@@ -28,10 +28,10 @@ public final class Table {
                 COLUMN_MODIFY_DATE + " INTEGER NOT NULL, " +
                 COLUMN_TEXT + " TEXT, " +
                 COLUMN_PREVIEW + " TEXT)";
+        //@formatter:on
 
         private Story() {
         }
-        //@formatter:on
     }
 
     public static final class StoryFrame {
@@ -41,9 +41,7 @@ public final class Table {
 
         public static final String COLUMN_TEXT_POSITION = "textPosition";
 
-        public static final String COLUMN_IMAGE = "image";
-
-        public static final String COLUMN_STATE = "state";
+        public static final String COLUMN_IMAGE = "image";;
 
         //@formatter:off
         public static final String CREATE =
@@ -51,8 +49,7 @@ public final class Table {
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_STORY_ID + " INTEGER NOT NULL, " +
                 COLUMN_TEXT_POSITION + " INTEGER NOT NULL, " +
-                COLUMN_IMAGE + " TEXT, " +
-                COLUMN_STATE + " INTEGER NOT NULL)";
+                COLUMN_IMAGE + " TEXT)";
         //@formatter:on
 
         private StoryFrame() {

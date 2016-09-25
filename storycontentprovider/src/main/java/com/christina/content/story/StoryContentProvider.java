@@ -11,11 +11,11 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.data.QueryUtils;
 import com.christina.common.data.content.ContentProviderBase;
 import com.christina.common.data.database.Database;
-import com.christina.content.story.contract.StoryCode;
+import com.christina.content.story.contract.StoryContentCode;
 import com.christina.content.story.contract.StoryContract;
 import com.christina.content.story.contract.StoryFrameContract;
 import com.christina.content.story.database.StoryDatabase;
-import com.christina.content.story.database.Table;
+import com.christina.content.story.database.StoryTable;
 
 public final class StoryContentProvider extends ContentProviderBase {
     @Nullable
@@ -27,8 +27,8 @@ public final class StoryContentProvider extends ContentProviderBase {
 
         final Cursor result;
 
-        final int code = StoryCode.get(uri);
-        final int entityCode = StoryCode.getEntityTypeCode(code);
+        final int code = StoryContentCode.Matcher.get(uri);
+        final int entityCode = StoryContentCode.getEntityTypeCode(code);
 
         if (StoryContract.ENTITY_TYPE_CODE == entityCode) {
             result = _queryStoryEntity(code, uri, projection, selection, selectionArgs, sortOrder);
@@ -49,8 +49,8 @@ public final class StoryContentProvider extends ContentProviderBase {
 
         final String result;
 
-        final int code = StoryCode.get(uri);
-        final int entityCode = StoryCode.getEntityTypeCode(code);
+        final int code = StoryContentCode.Matcher.get(uri);
+        final int entityCode = StoryContentCode.getEntityTypeCode(code);
 
         if (StoryContract.ENTITY_TYPE_CODE == entityCode) {
             result = StoryContract.getType(code);
@@ -70,11 +70,11 @@ public final class StoryContentProvider extends ContentProviderBase {
 
         final Uri result;
 
-        final int code = StoryCode.get(uri);
+        final int code = StoryContentCode.Matcher.get(uri);
 
-        if (StoryContract.CODE_STORY == code) {
+        if (StoryContract.CODE_STORIES == code) {
             result = _insertStory(values);
-        } else if (StoryFrameContract.CODE_STORY_FRAME == code) {
+        } else if (StoryFrameContract.CODE_STORY_FRAMES == code) {
             result = _insertStoryFrame(values);
         } else {
             throw new IllegalArgumentException("Unsupported uri: " + uri);
@@ -90,8 +90,8 @@ public final class StoryContentProvider extends ContentProviderBase {
 
         final int result;
 
-        final int code = StoryCode.get(uri);
-        final int entityCode = StoryCode.getEntityTypeCode(code);
+        final int code = StoryContentCode.Matcher.get(uri);
+        final int entityCode = StoryContentCode.getEntityTypeCode(code);
 
         if (StoryContract.ENTITY_TYPE_CODE == entityCode) {
             result = _deleteStoryEntity(code, uri, selection, selectionArgs);
@@ -112,8 +112,8 @@ public final class StoryContentProvider extends ContentProviderBase {
 
         final int result;
 
-        final int code = StoryCode.get(uri);
-        final int entityCode = StoryCode.getEntityTypeCode(code);
+        final int code = StoryContentCode.Matcher.get(uri);
+        final int entityCode = StoryContentCode.getEntityTypeCode(code);
 
         if (StoryContract.ENTITY_TYPE_CODE == entityCode) {
             result = _updateStoryEntity(code, uri, values, selection, selectionArgs);
@@ -132,42 +132,25 @@ public final class StoryContentProvider extends ContentProviderBase {
         return new StoryDatabase(context);
     }
 
-    private int _updateStoryFrameEntity(int code, @NonNull final Uri uri,
-                                        @Nullable final ContentValues values,
-                                        @Nullable final String selection,
-                                        @Nullable final String[] selectionArgs) {
-        Contracts.requireNonNull(uri, "uri == null");
+    private int _deleteStories(@Nullable final String selection,
+                               @Nullable final String[] selectionArgs) {
+        _deleteStoryFrames(
+            StoryTable.StoryFrame.COLUMN_STORY_ID + " IN (SELECT " + StoryTable.COLUMN_ID + " FROM " +
+            StoryTable.Story.NAME + " WHERE " + selection + " )", selectionArgs);
 
-        int result = 0;
+        final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
 
-        if (StoryFrameContract.CODE_STORY_FRAME == code) {
-            result += _updateStoryFrame(StoryFrameContract.extractStoryId(uri), values);
-        } else if (StoryFrameContract.CODE_STORY_FRAMES == code) {
-            result += _updateStoryFrames(values, selection, selectionArgs);
-        } else {
-            throw new IllegalArgumentException("Unsupported uri: " + uri);
-        }
+        final int result = getDatabase().delete(StoryTable.Story.NAME, selection, selectionArgs);
+
+        _notifyStoryChanges(changesIds);
 
         return result;
     }
 
-    private int _updateStoryEntity(int code, @NonNull final Uri uri,
-                                   @Nullable final ContentValues values,
-                                   @Nullable final String selection,
-                                   @Nullable final String[] selectionArgs) {
-        Contracts.requireNonNull(uri, "uri == null");
+    private int _deleteStory(@NonNull String id) {
+        Contracts.requireNonNull(id, "id == null");
 
-        int result = 0;
-
-        if (StoryContract.CODE_STORY == code) {
-            result += _updateStory(StoryContract.extractStoryId(uri), values);
-        } else if (StoryContract.CODE_STORIES == code) {
-            result += _updateStories(values, selection, selectionArgs);
-        } else {
-            throw new IllegalArgumentException("Unsupported uri: " + uri);
-        }
-
-        return result;
+        return _deleteStories(StoryTable.COLUMN_ID + "=?", new String[]{id});
     }
 
     private int _deleteStoryEntity(int code, @NonNull final Uri uri,
@@ -188,6 +171,12 @@ public final class StoryContentProvider extends ContentProviderBase {
         return result;
     }
 
+    private int _deleteStoryFrame(@NonNull String id) {
+        Contracts.requireNonNull(id, "id == null");
+
+        return _deleteStoryFrames(StoryTable.COLUMN_ID + "=?", new String[]{id});
+    }
+
     private int _deleteStoryFrameEntity(int code, @NonNull final Uri uri,
                                         @Nullable final String selection,
                                         @Nullable final String[] selectionArgs) {
@@ -196,7 +185,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         int result = 0;
 
         if (StoryFrameContract.CODE_STORY_FRAME == code) {
-            result += _deleteStoryFrame(StoryFrameContract.extractStoryId(uri));
+            result += _deleteStoryFrame(StoryFrameContract.extractStoryFrameId(uri));
         } else if (StoryFrameContract.CODE_STORY_FRAMES == code) {
             result += _deleteStoryFrames(selection, selectionArgs);
         } else {
@@ -204,6 +193,126 @@ public final class StoryContentProvider extends ContentProviderBase {
         }
 
         return result;
+    }
+
+    private int _deleteStoryFrames(@Nullable final String selection,
+                                   @Nullable final String[] selectionArgs) {
+        final long[] changesIds = _getStoryFrameChangesIds(selection, selectionArgs);
+
+        final int result = getDatabase().delete(StoryTable.StoryFrame.NAME, selection, selectionArgs);
+
+        _notifyStoryFrameChanges(changesIds);
+
+        return result;
+    }
+
+    @Nullable
+    private long[] _getStoryChangesIds(@Nullable String selection,
+                                       @Nullable final String[] selectionArgs) {
+        long[] result = null;
+        try (final Cursor cursor = getDatabase().query(StoryTable.Story.NAME,
+                                                       new String[]{StoryTable.COLUMN_ID}, selection,
+                                                       selectionArgs)) {
+            if (cursor != null) {
+                result = new long[cursor.getCount()];
+
+                for (int i = 0; cursor.moveToNext(); i++) {
+                    result[i] = cursor.getLong(0);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Nullable
+    private long[] _getStoryFrameChangesIds(@Nullable String selection,
+                                            @Nullable final String[] selectionArgs) {
+        long[] result = null;
+        try (final Cursor cursor = getDatabase().query(StoryTable.StoryFrame.NAME,
+                                                       new String[]{StoryTable.COLUMN_ID}, selection,
+                                                       selectionArgs)) {
+            if (cursor != null) {
+                result = new long[cursor.getCount()];
+
+                for (int i = 0; cursor.moveToNext(); i++) {
+                    result[i] = cursor.getLong(0);
+                }
+            }
+        }
+        return result;
+    }
+
+    @Nullable
+    private Uri _insertStory(@Nullable final ContentValues values) {
+        Uri result = null;
+
+        if (values != null) {
+            final long id = getDatabase().insert(StoryTable.Story.NAME, values);
+
+            if (id >= 0) {
+                result = StoryContract.getStoryUri(String.valueOf(id));
+
+                notifyChange(result);
+            }
+        }
+
+        return result;
+    }
+
+    @Nullable
+    private Uri _insertStoryFrame(@Nullable final ContentValues values) {
+        Uri result = null;
+
+        if (values != null) {
+            final long id = getDatabase().insert(StoryTable.StoryFrame.NAME, values);
+
+            if (id >= 0) {
+                result = StoryFrameContract.getStoryFrameUri(String.valueOf(id));
+
+                notifyChange(result);
+            }
+        }
+
+        return result;
+    }
+
+    private void _notifyStoryChanges(@Nullable long... storyIds) {
+        if (storyIds != null) {
+            for (final long storyId : storyIds) {
+                final String id = String.valueOf(storyId);
+                final Uri notifyUri = StoryContract.getStoryUri(id);
+
+                notifyChange(notifyUri);
+            }
+        }
+    }
+
+    private void _notifyStoryFrameChanges(@Nullable long... storyFrameIds) {
+        if (storyFrameIds != null) {
+            for (final long storyFrameId : storyFrameIds) {
+                final String id = String.valueOf(storyFrameId);
+                final Uri notifyUri = StoryFrameContract.getStoryFrameUri(id);
+
+                notifyChange(notifyUri);
+            }
+        }
+    }
+
+    @Nullable
+    private Cursor _queryStories(@Nullable final String[] projection,
+                                 @Nullable final String selection,
+                                 @Nullable final String[] selectionArgs,
+                                 @Nullable final String sortOrder) {
+        return getDatabase().query(StoryTable.Story.NAME, projection, selection, selectionArgs,
+                                   sortOrder);
+    }
+
+    @Nullable
+    private Cursor _queryStory(@NonNull String id, @Nullable final String[] projection,
+                               @Nullable final String sortOrder) {
+        Contracts.requireNonNull(id, "id == null");
+
+        return _queryStories(projection, StoryTable.COLUMN_ID + "=?", new String[]{id}, sortOrder);
     }
 
     @Nullable
@@ -224,6 +333,14 @@ public final class StoryContentProvider extends ContentProviderBase {
         }
 
         return result;
+    }
+
+    @Nullable
+    private Cursor _queryStoryFrame(@NonNull String id, @Nullable final String[] projection,
+                                    @Nullable final String sortOrder) {
+        Contracts.requireNonNull(id, "id == null");
+
+        return _queryStoryFrames(projection, StoryTable.COLUMN_ID + "=?", new String[]{id}, sortOrder);
     }
 
     @Nullable
@@ -252,138 +369,12 @@ public final class StoryContentProvider extends ContentProviderBase {
         return result;
     }
 
-    private int _deleteStories(@Nullable final String selection,
-                               @Nullable final String[] selectionArgs) {
-        _deleteStoryFrames(
-            Table.StoryFrame.COLUMN_STORY_ID + " IN (SELECT " + Table.COLUMN_ID + " FROM " +
-                Table.Story.NAME + " WHERE " + selection + " )", selectionArgs);
-
-        final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
-
-        final int result = getDatabase().delete(Table.Story.NAME, selection, selectionArgs);
-
-        _notifyStoryChanges(changesIds);
-
-        return result;
-    }
-
-    private int _deleteStory(@NonNull String id) {
-        Contracts.requireNonNull(id, "id == null");
-
-        return _deleteStories(Table.COLUMN_ID + "=?", new String[]{id});
-    }
-
-    @Nullable
-    private Uri _insertStory(@Nullable final ContentValues values) {
-        Uri result = null;
-
-        if (values != null) {
-            final long id = getDatabase().insert(Table.Story.NAME, values);
-
-            if (id >= 0) {
-                result = StoryContract.getStoryUri(String.valueOf(id));
-
-                notifyChange(result);
-            }
-        }
-
-        return result;
-    }
-
-    private int _updateStories(@Nullable final ContentValues values,
-                               @Nullable final String selection,
-                               @Nullable final String[] selectionArgs) {
-        final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
-
-        final int result = getDatabase().update(Table.Story.NAME, values, selection, selectionArgs);
-
-        _notifyStoryChanges(changesIds);
-
-        return result;
-    }
-
-    private int _updateStory(@NonNull String id, @Nullable final ContentValues values) {
-        Contracts.requireNonNull(id, "id == null");
-
-        return _updateStories(values, Table.COLUMN_ID + "=?", new String[]{id});
-    }
-
-    @Nullable
-    private Cursor _queryStories(@Nullable final String[] projection,
-                                 @Nullable final String selection,
-                                 @Nullable final String[] selectionArgs,
-                                 @Nullable final String sortOrder) {
-        return getDatabase().query(Table.Story.NAME, projection, selection, selectionArgs,
-                                   sortOrder);
-    }
-
-    @Nullable
-    private Cursor _queryStory(@NonNull String id, @Nullable final String[] projection,
-                               @Nullable final String sortOrder) {
-        Contracts.requireNonNull(id, "id == null");
-
-        return _queryStories(projection, Table.COLUMN_ID + "=?", new String[]{id}, sortOrder);
-    }
-
-    private int _deleteStoryFrames(@Nullable final String selection,
-                                   @Nullable final String[] selectionArgs) {
-        final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
-
-        final int result = getDatabase().delete(Table.StoryFrame.NAME, selection, selectionArgs);
-
-        _notifyStoryFrameChanges(changesIds);
-
-        return result;
-    }
-
-    private int _deleteStoryFrame(@NonNull String id) {
-        Contracts.requireNonNull(id, "id == null");
-
-        return _deleteStoryFrames(Table.COLUMN_ID + "=?", new String[]{id});
-    }
-
-    @Nullable
-    private Uri _insertStoryFrame(@Nullable final ContentValues values) {
-        Uri result = null;
-
-        if (values != null) {
-            final long id = getDatabase().insert(Table.StoryFrame.NAME, values);
-
-            if (id >= 0) {
-                result = StoryFrameContract.getStoryFrameUri(String.valueOf(id));
-
-                notifyChange(result);
-            }
-        }
-
-        return result;
-    }
-
-    private int _updateStoryFrames(@Nullable final ContentValues values,
-                                   @Nullable final String selection,
-                                   @Nullable final String[] selectionArgs) {
-        final long[] changesIds = _getStoryFrameChangesIds(selection, selectionArgs);
-
-        final int result =
-            getDatabase().update(Table.StoryFrame.NAME, values, selection, selectionArgs);
-
-        _notifyStoryFrameChanges(changesIds);
-
-        return result;
-    }
-
-    private int _updateStoryFrame(@NonNull String id, @Nullable final ContentValues values) {
-        Contracts.requireNonNull(id, "id == null");
-
-        return _updateStoryFrames(values, Table.COLUMN_ID + "=?", new String[]{id});
-    }
-
     @Nullable
     private Cursor _queryStoryFrames(@Nullable final String[] projection,
                                      @Nullable final String selection,
                                      @Nullable final String[] selectionArgs,
                                      @Nullable final String sortOrder) {
-        return getDatabase().query(Table.StoryFrame.NAME, projection, selection, selectionArgs,
+        return getDatabase().query(StoryTable.StoryFrame.NAME, projection, selection, selectionArgs,
                                    sortOrder);
     }
 
@@ -396,73 +387,82 @@ public final class StoryContentProvider extends ContentProviderBase {
         Contracts.requireNonNull(storyId, "storyId == null");
 
         selection +=
-            QueryUtils.appendWhereEquals(selection, Table.StoryFrame.COLUMN_STORY_ID, storyId);
+            QueryUtils.appendWhereEquals(selection, StoryTable.StoryFrame.COLUMN_STORY_ID, storyId);
         return _queryStoryFrames(projection, selection, selectionArgs, sortOrder);
     }
 
-    @Nullable
-    private Cursor _queryStoryFrame(@NonNull String id, @Nullable final String[] projection,
-                                    @Nullable final String sortOrder) {
+    private int _updateStories(@Nullable final ContentValues values,
+                               @Nullable final String selection,
+                               @Nullable final String[] selectionArgs) {
+        final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
+
+        final int result = getDatabase().update(StoryTable.Story.NAME, values, selection, selectionArgs);
+
+        _notifyStoryChanges(changesIds);
+
+        return result;
+    }
+
+    private int _updateStory(@NonNull String id, @Nullable final ContentValues values) {
         Contracts.requireNonNull(id, "id == null");
 
-        return _queryStoryFrames(projection, Table.COLUMN_ID + "=?", new String[]{id}, sortOrder);
+        return _updateStories(values, StoryTable.COLUMN_ID + "=?", new String[]{id});
     }
 
-    @Nullable
-    private long[] _getStoryChangesIds(@Nullable String selection,
-                                       @Nullable final String[] selectionArgs) {
-        long[] result = null;
-        try (final Cursor cursor = getDatabase().query(Table.Story.NAME,
-                                                       new String[]{Table.COLUMN_ID}, selection,
-                                                       selectionArgs)) {
-            if (cursor != null) {
-                result = new long[cursor.getCount()];
+    private int _updateStoryEntity(int code, @NonNull final Uri uri,
+                                   @Nullable final ContentValues values,
+                                   @Nullable final String selection,
+                                   @Nullable final String[] selectionArgs) {
+        Contracts.requireNonNull(uri, "uri == null");
 
-                for (int i = 0; cursor.moveToNext(); i++) {
-                    result[i] = cursor.getLong(0);
-                }
-            }
+        int result = 0;
+
+        if (StoryContract.CODE_STORY == code) {
+            result += _updateStory(StoryContract.extractStoryId(uri), values);
+        } else if (StoryContract.CODE_STORIES == code) {
+            result += _updateStories(values, selection, selectionArgs);
+        } else {
+            throw new IllegalArgumentException("Unsupported uri: " + uri);
         }
+
         return result;
     }
 
-    private void _notifyStoryChanges(@Nullable long... storyIds) {
-        if (storyIds != null) {
-            for (final long storyId : storyIds) {
-                final String id = String.valueOf(storyId);
-                final Uri notifyUri = StoryContract.getStoryUri(id);
+    private int _updateStoryFrame(@NonNull String id, @Nullable final ContentValues values) {
+        Contracts.requireNonNull(id, "id == null");
 
-                notifyChange(notifyUri);
-            }
-        }
+        return _updateStoryFrames(values, StoryTable.COLUMN_ID + "=?", new String[]{id});
     }
 
-    @Nullable
-    private long[] _getStoryFrameChangesIds(@Nullable String selection,
-                                            @Nullable final String[] selectionArgs) {
-        long[] result = null;
-        try (final Cursor cursor = getDatabase().query(Table.StoryFrame.NAME,
-                                                       new String[]{Table.COLUMN_ID}, selection,
-                                                       selectionArgs)) {
-            if (cursor != null) {
-                result = new long[cursor.getCount()];
+    private int _updateStoryFrameEntity(int code, @NonNull final Uri uri,
+                                        @Nullable final ContentValues values,
+                                        @Nullable final String selection,
+                                        @Nullable final String[] selectionArgs) {
+        Contracts.requireNonNull(uri, "uri == null");
 
-                for (int i = 0; cursor.moveToNext(); i++) {
-                    result[i] = cursor.getLong(0);
-                }
-            }
+        int result = 0;
+
+        if (StoryFrameContract.CODE_STORY_FRAME == code) {
+            result += _updateStoryFrame(StoryFrameContract.extractStoryFrameId(uri), values);
+        } else if (StoryFrameContract.CODE_STORY_FRAMES == code) {
+            result += _updateStoryFrames(values, selection, selectionArgs);
+        } else {
+            throw new IllegalArgumentException("Unsupported uri: " + uri);
         }
+
         return result;
     }
 
-    private void _notifyStoryFrameChanges(@Nullable long... storyFrameIds) {
-        if (storyFrameIds != null) {
-            for (final long storyFrameId : storyFrameIds) {
-                final String id = String.valueOf(storyFrameId);
-                final Uri notifyUri = StoryFrameContract.getStoryFrameUri(id);
+    private int _updateStoryFrames(@Nullable final ContentValues values,
+                                   @Nullable final String selection,
+                                   @Nullable final String[] selectionArgs) {
+        final long[] changesIds = _getStoryFrameChangesIds(selection, selectionArgs);
 
-                notifyChange(notifyUri);
-            }
-        }
+        final int result =
+            getDatabase().update(StoryTable.StoryFrame.NAME, values, selection, selectionArgs);
+
+        _notifyStoryFrameChanges(changesIds);
+
+        return result;
     }
 }

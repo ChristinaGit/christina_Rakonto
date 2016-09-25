@@ -11,31 +11,12 @@ import android.support.annotation.Nullable;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.dao.ContentProviderDao;
 import com.christina.content.story.contract.StoryFrameContract;
-import com.christina.content.story.database.Table;
+import com.christina.content.story.database.StoryTable;
 import com.christina.content.story.model.StoryFrame;
 
 public final class StoryFrameDao extends ContentProviderDao<StoryFrame> {
     public StoryFrameDao(@NonNull ContentResolver contentResolver) {
         super(contentResolver, _FullProjection.PROJECTION);
-    }
-
-    @NonNull
-    @Override
-    protected final Uri getModelUri() {
-        return StoryFrameContract.getStoryFramesUri();
-    }
-
-    @NonNull
-    @Override
-    protected final Uri getModelUri(final long id) {
-        return StoryFrameContract.getStoryFrameUri(String.valueOf(id));
-    }
-
-    @Override
-    protected final long extractId(@NonNull final Uri modelUri) {
-        Contracts.requireNonNull(modelUri, "modelUri == null");
-
-        return Long.parseLong(StoryFrameContract.extractStoryFrameId(modelUri));
     }
 
     @NonNull
@@ -57,28 +38,11 @@ public final class StoryFrameDao extends ContentProviderDao<StoryFrame> {
         final String imageUri = _FullProjection.getImage(cursor);
         if (imageUri != null) {
             model.setImageUri(Uri.parse(imageUri));
+        } else {
+            model.setImageUri(null);
         }
 
         return model;
-    }
-
-    @NonNull
-    @Override
-    protected final ContentValues getContentValues(@NonNull final StoryFrame model) {
-        Contracts.requireNonNull(model, "model == null");
-
-        final ContentValues values = new ContentValues(_FullProjection.COLUMN_COUNT);
-
-        values.put(Table.StoryFrame.COLUMN_STORY_ID, model.getStoryId());
-        values.put(Table.StoryFrame.COLUMN_TEXT_POSITION, model.getTextPosition());
-        final Uri imageUri = model.getImageUri();
-        if (imageUri == null) {
-            values.putNull(Table.StoryFrame.COLUMN_IMAGE);
-        } else {
-            values.put(Table.StoryFrame.COLUMN_IMAGE, imageUri.toString());
-        }
-
-        return values;
     }
 
     @NonNull
@@ -88,6 +52,44 @@ public final class StoryFrameDao extends ContentProviderDao<StoryFrame> {
         Contracts.requireInRange(size, 0, Integer.MAX_VALUE);
 
         return new StoryFrame[size];
+    }
+
+    @NonNull
+    @Override
+    protected final ContentValues getContentValues(@NonNull final StoryFrame model) {
+        Contracts.requireNonNull(model, "model == null");
+
+        final ContentValues values = new ContentValues(_FullProjection.COLUMN_COUNT);
+
+        values.put(StoryTable.StoryFrame.COLUMN_STORY_ID, model.getStoryId());
+        values.put(StoryTable.StoryFrame.COLUMN_TEXT_POSITION, model.getTextPosition());
+        final Uri imageUri = model.getImageUri();
+        if (imageUri == null) {
+            values.putNull(StoryTable.StoryFrame.COLUMN_IMAGE);
+        } else {
+            values.put(StoryTable.StoryFrame.COLUMN_IMAGE, imageUri.toString());
+        }
+
+        return values;
+    }
+
+    @Override
+    protected final long extractId(@NonNull final Uri modelUri) {
+        Contracts.requireNonNull(modelUri, "modelUri == null");
+
+        return Long.parseLong(StoryFrameContract.extractStoryFrameId(modelUri));
+    }
+
+    @NonNull
+    @Override
+    protected final Uri getModelUri() {
+        return StoryFrameContract.getStoryFramesUri();
+    }
+
+    @NonNull
+    @Override
+    protected final Uri getModelUri(final long id) {
+        return StoryFrameContract.getStoryFrameUri(String.valueOf(id));
     }
 
     private final static class _FullProjection {
@@ -124,10 +126,10 @@ public final class StoryFrameDao extends ContentProviderDao<StoryFrame> {
 
         static {
             PROJECTION = new String[_indexer];
-            PROJECTION[INDEX_ID] = Table.COLUMN_ID;
-            PROJECTION[INDEX_STORY_ID] = Table.StoryFrame.COLUMN_STORY_ID;
-            PROJECTION[INDEX_TEXT_POSITION] = Table.StoryFrame.COLUMN_TEXT_POSITION;
-            PROJECTION[INDEX_IMAGE] = Table.StoryFrame.COLUMN_IMAGE;
+            PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
+            PROJECTION[INDEX_STORY_ID] = StoryTable.StoryFrame.COLUMN_STORY_ID;
+            PROJECTION[INDEX_TEXT_POSITION] = StoryTable.StoryFrame.COLUMN_TEXT_POSITION;
+            PROJECTION[INDEX_IMAGE] = StoryTable.StoryFrame.COLUMN_IMAGE;
         }
     }
 }

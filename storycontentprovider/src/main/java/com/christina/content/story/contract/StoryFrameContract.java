@@ -22,12 +22,12 @@ public class StoryFrameContract {
 
     private static int _codeIndexer = 0;
 
-    public static final int CODE_STORY_FRAME = StoryCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
+    public static final int CODE_STORY_FRAME = StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
 
-    public static final int CODE_STORY_FRAMES = StoryCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
+    public static final int CODE_STORY_FRAMES = StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
 
     public static final int CODE_STORY_FRAMES_BY_STORY =
-        StoryCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
+        StoryContentCode.make(ENTITY_TYPE_CODE, _codeIndexer++);
 
     public static final String TYPE_STORY_FRAME = ITEM_TYPE;
 
@@ -37,7 +37,7 @@ public class StoryFrameContract {
 
     @NonNull
     public static String getType(int code) {
-        return _contentTypesMap[StoryCode.getQueryCode(code)];
+        return _contentTypesMap[StoryContentCode.getQueryCode(code)];
     }
 
     @NonNull
@@ -94,9 +94,9 @@ public class StoryFrameContract {
     private static String[] _createContentTypesMap() {
         final String[] contentTypesMap = new String[_codeIndexer];
 
-        contentTypesMap[StoryCode.getQueryCode(CODE_STORY_FRAME)] = TYPE_STORY_FRAME;
-        contentTypesMap[StoryCode.getQueryCode(CODE_STORY_FRAMES)] = TYPE_STORY_FRAMES;
-        contentTypesMap[StoryCode.getQueryCode(CODE_STORY_FRAMES_BY_STORY)] = TYPE_STORY_FRAMES;
+        contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAME)] = TYPE_STORY_FRAME;
+        contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAMES)] = TYPE_STORY_FRAMES;
+        contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAMES_BY_STORY)] = TYPE_STORY_FRAMES;
 
         return contentTypesMap;
     }

@@ -13,10 +13,6 @@ public final class Story extends Model {
         return _createDate;
     }
 
-    public final void setCreateDate() {
-        setCreateDate(System.currentTimeMillis());
-    }
-
     public final void setCreateDate(final long createDate) {
         _createDate = createDate;
     }
@@ -25,21 +21,8 @@ public final class Story extends Model {
         return _modifyDate;
     }
 
-    public final void setModifyDate() {
-        setModifyDate(System.currentTimeMillis());
-    }
-
     public final void setModifyDate(final long modifyDate) {
         _modifyDate = modifyDate;
-    }
-
-    @Nullable
-    public final String getText() {
-        return _text;
-    }
-
-    public final void setText(@Nullable final String text) {
-        _text = text;
     }
 
     @Nullable
@@ -60,16 +43,33 @@ public final class Story extends Model {
         _previewUri = previewUri;
     }
 
+    @Nullable
+    public final String getText() {
+        return _text;
+    }
+
+    public final void setText(@Nullable final String text) {
+        _text = text;
+    }
+
+    public final void setCreateDate() {
+        setCreateDate(System.currentTimeMillis());
+    }
+
+    public final void setModifyDate() {
+        setModifyDate(System.currentTimeMillis());
+    }
+
     private long _createDate;
 
     private long _modifyDate;
-
-    @Nullable
-    private String _text;
 
     @Nullable
     private String _name;
 
     @Nullable
     private Uri _previewUri;
+
+    @Nullable
+    private String _text;
 }

@@ -1,24 +1,23 @@
 package com.christina.content.story.dao;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.christina.common.contract.Contracts;
 
-public final class DaoManager {
+public final class StoryDaoManager {
     @Nullable
     private static ContentResolver _contentResolver;
 
-    public static void initialize(@NonNull Context context) {
-        Contracts.requireNonNull(context, "context == null");
+    public static void initialize(@NonNull ContentResolver contentResolver) {
+        Contracts.requireNonNull(contentResolver, "contentResolver == null");
 
         if (_contentResolver != null) {
-            throw new IllegalStateException("DaoManager already initialized.");
+            throw new IllegalStateException("StoryDaoManager already initialized.");
         }
 
-        _contentResolver = context.getContentResolver();
+        _contentResolver = contentResolver;
     }
 
     @NonNull
@@ -34,13 +33,13 @@ public final class DaoManager {
     @NonNull
     private static ContentResolver _getContentResolver() {
         if (_contentResolver == null) {
-            throw new IllegalStateException("DaoManager not initialized.");
+            throw new IllegalStateException("StoryDaoManager not initialized.");
         }
 
         return _contentResolver;
     }
 
-    private DaoManager() {
+    private StoryDaoManager() {
     }
 
     private static final class _StoryDaoInstanceHolder {

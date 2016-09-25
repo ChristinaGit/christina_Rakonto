@@ -9,6 +9,15 @@ public final class StoryFrame extends Model {
     public StoryFrame() {
     }
 
+    @Nullable
+    public final Uri getImageUri() {
+        return _imageUri;
+    }
+
+    public final void setImageUri(@Nullable final Uri imageUri) {
+        _imageUri = imageUri;
+    }
+
     public final long getStoryId() {
         return _storyId;
     }
@@ -26,18 +35,9 @@ public final class StoryFrame extends Model {
     }
 
     @Nullable
-    public final Uri getImageUri() {
-        return _imageUri;
-    }
-
-    public final void setImageUri(@Nullable final Uri imageUri) {
-        _imageUri = imageUri;
-    }
+    private Uri _imageUri;
 
     private long _storyId;
 
     private int _textPosition;
-
-    @Nullable
-    private Uri _imageUri;
 }
