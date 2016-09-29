@@ -18,7 +18,7 @@ public final class StoryDatabase extends SqlLiteDatabaseWrapper {
     }
 
     public StoryDatabase(@NonNull final Context context,
-                         @Nullable final DatabaseErrorHandler errorHandler) {
+        @Nullable final DatabaseErrorHandler errorHandler) {
         super(context, NAME, null, VERSION, errorHandler);
     }
 
@@ -37,6 +37,6 @@ public final class StoryDatabase extends SqlLiteDatabaseWrapper {
 
     @Override
     public final void onUpgrade(final SQLiteDatabase db, final int oldVersion,
-                                final int newVersion) {
+        final int newVersion) {
     }
 }

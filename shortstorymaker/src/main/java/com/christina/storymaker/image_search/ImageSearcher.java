@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ImageSearcher {
     public void find(@NonNull final String text,
-                     @NonNull final AsyncCallback<List<Uri>, Exception> callback) {
+        @NonNull final AsyncCallback<List<Uri>, Exception> callback) {
         final List<Uri> result = new ArrayList<>();
         result.add(
             Uri.parse("http://fullhdpictures.com/wp-content/uploads/2015/10/Sea-Images.jpg"));

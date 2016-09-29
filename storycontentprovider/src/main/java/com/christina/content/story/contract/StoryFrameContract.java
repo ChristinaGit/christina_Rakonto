@@ -73,9 +73,10 @@ public final class StoryFrameContract {
 
     @NonNull
     public static Uri getStoryFramesByStoryUri(@NonNull final String storyId) {
-        return StoryContentContract.CONTENT_URI.buildUpon()
-                                               .path(getStoryFramesByStoryPath(storyId))
-                                               .build();
+        return StoryContentContract.CONTENT_URI
+            .buildUpon()
+            .path(getStoryFramesByStoryPath(storyId))
+            .build();
     }
 
     @NonNull

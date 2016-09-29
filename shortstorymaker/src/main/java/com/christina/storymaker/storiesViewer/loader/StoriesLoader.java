@@ -1,8 +1,8 @@
 package com.christina.storymaker.storiesViewer.loader;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.content.AsyncTaskLoader;
 
 import com.christina.content.story.dao.StoryDaoManager;
 
@@ -13,7 +13,7 @@ public final class StoriesLoader extends AsyncTaskLoader<StoriesLoaderResult> {
 
     @Override
     public final StoriesLoaderResult loadInBackground() {
-        return new StoriesLoaderResult(StoryDaoManager.getStoryDao().get());
+        return new StoriesLoaderResult(StoryDaoManager.getStoryDao().get().asList());
     }
 
     @Override
@@ -21,5 +21,12 @@ public final class StoriesLoader extends AsyncTaskLoader<StoriesLoaderResult> {
         super.onStartLoading();
 
         forceLoad();
+    }
+
+    @Override
+    protected void onStopLoading() {
+        super.onStopLoading();
+
+        cancelLoad();
     }
 }

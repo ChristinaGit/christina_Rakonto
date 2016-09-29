@@ -1,15 +1,17 @@
 package com.christina.storymaker.storiesViewer.adapter;
 
-import android.content.res.ColorStateList;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.RippleDrawable;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
-import android.text.TextUtils;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
@@ -23,8 +25,8 @@ import com.christina.content.story.model.Story;
 import com.christina.storymaker.R;
 import com.christina.storymaker.core.StoryContentEventArgs;
 
-public final class StoryListAdapter
-    extends AbstractRecyclerViewAdapter<Story, StoryListViewHolder> {
+public final class StoriesAdapter
+    extends AbstractRecyclerViewAdapter<Story, StoriesItemViewHolder> {
 
     @NonNull
     public final Event<StoryContentEventArgs> onEditStory() {
@@ -42,38 +44,23 @@ public final class StoryListAdapter
     }
 
     @Override
-    public StoryListViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
+    public StoriesItemViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        final View view = inflater.inflate(R.layout.story_list_viewer_item, parent, false);
-        return new StoryListViewHolder(view);
+        final View view = inflater.inflate(R.layout.stories_viewer_item, parent, false);
+        return new StoriesItemViewHolder(view);
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull final StoryListViewHolder holder,
-                                    @NonNull final ListItem listItem, final int position) {
+    protected void onBindViewHolder(@NonNull final StoriesItemViewHolder holder,
+        @NonNull final ListItem listItem, final int position) {
         Contracts.requireNonNull(holder, "holder == null");
         Contracts.requireNonNull(listItem, "listItem == null");
 
-        if (listItem instanceof StoryListItem) {
-            final Story story = ((StoryListItem) listItem).story;
+        if (listItem instanceof StoriesItem) {
+            final Story story = ((StoriesItem) listItem).getStory();
 
-            final String storyName = story.getName();
-            if (!TextUtils.isEmpty(storyName)) {
-                holder.storyNameView.setVisibility(View.VISIBLE);
-                holder.storyNameView.setText(storyName);
-            } else {
-                holder.storyNameView.setVisibility(View.GONE);
-                holder.storyNameView.setText(null);
-            }
-
-            final String storyText = story.getText();
-            if (!TextUtils.isEmpty(storyText)) {
-                holder.storyTextView.setVisibility(View.VISIBLE);
-                holder.storyTextView.setText(storyText);
-            } else {
-                holder.storyTextView.setVisibility(View.GONE);
-                holder.storyTextView.setText(null);
-            }
+            holder.storyNameView.setText(story.getName());
+            holder.storyTextView.setText(story.getText());
 
             holder.cardView.setTag(R.id.holder_story_id, story.getId());
             holder.cardView.setOnClickListener(_viewStoryOnClick);
@@ -84,13 +71,14 @@ public final class StoryListAdapter
             holder.editStoryView.setTag(R.id.holder_story_id, story.getId());
             holder.editStoryView.setOnClickListener(_editStoryOnClick);
 
-            Glide.with(holder.getContext())
-                 .load(story.getPreviewUri())
-                 .asBitmap()
-                 .centerCrop()
-                 .into(new StoryCardViewTarget(holder))
-                 .getRequest()
-                 .begin();
+            Glide
+                .with(holder.getContext())
+                .load(story.getPreviewUri())
+                .asBitmap()
+                .centerCrop()
+                .into(new StoryCardViewTarget(holder))
+                .getRequest()
+                .begin();
         } else {
             throw new IllegalArgumentException(
                 "Unsupported list item type: " + listItem.getClass());
@@ -102,7 +90,7 @@ public final class StoryListAdapter
     protected ListItem onWrapItem(@NonNull final Story story) {
         Contracts.requireNonNull(story, "story == null");
 
-        return new StoryListItem(story);
+        return new StoriesItem(story);
     }
 
     @NonNull
@@ -140,11 +128,12 @@ public final class StoryListAdapter
 
     private static final class StoryCardViewTarget extends BitmapImageViewTarget
         implements Palette.PaletteAsyncListener {
-        public StoryCardViewTarget(@NonNull final StoryListViewHolder holder) {
+        public StoryCardViewTarget(@NonNull final StoriesItemViewHolder holder) {
             super(holder.storyPreviewView);
-            _holder = holder;
 
             Contracts.requireNonNull(holder, "holder == null");
+
+            _holder = holder;
         }
 
         @Override
@@ -155,31 +144,55 @@ public final class StoryListAdapter
                 final int titleColor = swatch.getTitleTextColor();
                 final int bodyColor = swatch.getBodyTextColor();
 
-                _holder.cardView.setCardBackgroundColor(backgroundColor);
+                final int animationDuration = _holder
+                    .getContext()
+                    .getResources()
+                    .getInteger(android.R.integer.config_shortAnimTime);
+
+                animateCardBackgroundColor(_holder.cardView, backgroundColor, animationDuration);
                 _holder.storyNameView.setTextColor(titleColor);
                 _holder.storyTextView.setTextColor(bodyColor);
                 _holder.editStoryView.setTextColor(titleColor);
                 _holder.shareStoryView.setTextColor(titleColor);
-
-                _holder.cardView.setBackground(_createCardViewBackground(titleColor));
             }
         }
 
         @Override
         public void onResourceReady(final Bitmap resource,
-                                    final GlideAnimation<? super Bitmap> glideAnimation) {
+            final GlideAnimation<? super Bitmap> glideAnimation) {
             super.onResourceReady(resource, glideAnimation);
 
             Palette.from(resource).generate(this);
         }
 
-        @NonNull
-        private final StoryListViewHolder _holder;
+        @Override
+        protected void setResource(final Bitmap resource) {
+            super.setResource(resource);
 
-        private Drawable _createCardViewBackground(final int color) {
-            return new RippleDrawable(ColorStateList.valueOf(color),
-                                      _holder.cardView.getBackground(),
-                                      _holder.cardView.getBackground());
+            getView().startAnimation(getFadeInAnimation());
+        }
+
+        @NonNull
+        private final StoriesItemViewHolder _holder;
+
+        private void animateCardBackgroundColor(@NonNull final CardView cardView,
+            @ColorInt final int colorTo, final long duration) {
+            final int colorFrom = cardView.getCardBackgroundColor().getDefaultColor();
+            final ValueAnimator animation =
+                ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+            animation.setDuration(duration);
+            animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(final ValueAnimator animator) {
+                    cardView.setCardBackgroundColor((int) animator.getAnimatedValue());
+                }
+            });
+            animation.start();
+        }
+
+        @NonNull
+        private Animation getFadeInAnimation() {
+            return AnimationUtils.loadAnimation(_holder.getContext(), android.R.anim.fade_in);
         }
     }
 }

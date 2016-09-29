@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.christina.common.contract.Contracts;
+import com.christina.content.story.dao.story.StoryDao;
+import com.christina.content.story.dao.storyFrame.StoryFrameDao;
 
 public final class StoryDaoManager {
     @Nullable
@@ -14,7 +16,7 @@ public final class StoryDaoManager {
         Contracts.requireNonNull(contentResolver, "contentResolver == null");
 
         if (_contentResolver != null) {
-            throw new IllegalStateException("StoryDaoManager already initialized.");
+            throw new IllegalStateException("StoryDaoManager is already initialized.");
         }
 
         _contentResolver = contentResolver;

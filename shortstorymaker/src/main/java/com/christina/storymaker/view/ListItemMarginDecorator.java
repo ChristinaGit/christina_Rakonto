@@ -12,7 +12,7 @@ public class ListItemMarginDecorator extends RecyclerView.ItemDecoration {
 
     @Override
     public void getItemOffsets(final Rect outRect, final View view, final RecyclerView parent,
-                               final RecyclerView.State state) {
+        final RecyclerView.State state) {
         super.getItemOffsets(outRect, view, parent, state);
 
         outRect.bottom += _verticalMargin / 2;

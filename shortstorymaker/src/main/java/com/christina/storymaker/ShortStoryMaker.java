@@ -3,13 +3,17 @@ package com.christina.storymaker;
 import android.app.Application;
 
 import com.christina.content.story.dao.StoryDaoManager;
-import com.christina.content.story.database.StoryDatabase;
 import com.christina.storymaker.debug.FakeDatabase;
 
 /**
  * TODO:
  * <ul>
  * <li>Animate FAB;</li>
+ * <li>Implement two-phased loads;</li>
+ * <li>Implement card view loading;</li>
+ * <li>Implement stories list position restoring;</li>
+ * <li>Hide FAB on scroll;</li>
+ * <li>Fix fragment state;</li>
  * </ul>
  */
 public class ShortStoryMaker extends Application {
@@ -19,7 +23,6 @@ public class ShortStoryMaker extends Application {
 
         StoryDaoManager.initialize(getContentResolver());
 
-        deleteDatabase(StoryDatabase.NAME);
-        new FakeDatabase().create(getApplicationContext());
+        new FakeDatabase(false).create(getApplicationContext());
     }
 }

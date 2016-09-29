@@ -41,7 +41,9 @@ public final class StoryTable {
 
         public static final String COLUMN_TEXT_POSITION = "textPosition";
 
-        public static final String COLUMN_IMAGE = "image";;
+        public static final String COLUMN_IMAGE = "image";
+
+        ;
 
         //@formatter:off
         public static final String CREATE =

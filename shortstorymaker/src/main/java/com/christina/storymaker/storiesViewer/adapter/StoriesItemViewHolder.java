@@ -11,7 +11,8 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.view.recyclerView.AbstractRecyclerViewHolder;
 import com.christina.storymaker.R;
 
-public final class StoryListViewHolder extends AbstractRecyclerViewHolder {
+@SuppressWarnings("PublicField")
+public final class StoriesItemViewHolder extends AbstractRecyclerViewHolder {
     @NonNull
     public final CardView cardView;
 
@@ -30,7 +31,7 @@ public final class StoryListViewHolder extends AbstractRecyclerViewHolder {
     @NonNull
     public final TextView storyTextView;
 
-    public StoryListViewHolder(@NonNull final View itemView) {
+    public StoriesItemViewHolder(@NonNull final View itemView) {
         super(itemView);
 
         Contracts.requireNonNull(itemView, "itemView == null");
