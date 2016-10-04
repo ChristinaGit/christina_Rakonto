@@ -14,6 +14,8 @@ import com.christina.storymaker.debug.FakeDatabase;
  * <li>Implement stories list position restoring;</li>
  * <li>Hide FAB on scroll;</li>
  * <li>Fix fragment state;</li>
+ * <li>Add custom provider permissions;</li>
+ * <li>Convert layouts to ConstraintLayout;</li>
  * </ul>
  */
 public class ShortStoryMaker extends Application {

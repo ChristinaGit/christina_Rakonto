@@ -135,8 +135,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         @Nullable final String[] selectionArgs) {
         _deleteStoryFrames(
             StoryTable.StoryFrame.COLUMN_STORY_ID + " IN (SELECT " + StoryTable.COLUMN_ID +
-            " FROM " +
-            StoryTable.Story.NAME + " WHERE " + selection + " )", selectionArgs);
+            " FROM " + StoryTable.Story.NAME + " WHERE " + selection + " )", selectionArgs);
 
         final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
 
@@ -315,6 +314,8 @@ public final class StoryContentProvider extends ContentProviderBase {
     private Cursor _queryStoryEntity(final int code, @NonNull final Uri uri,
         @Nullable final String[] projection, @Nullable final String selection,
         @Nullable final String[] selectionArgs, @Nullable final String sortOrder) {
+        Contracts.requireNonNull(uri, "uri == null");
+
         final Cursor result;
 
         if (StoryContract.CODE_STORY == code) {

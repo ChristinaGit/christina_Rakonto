@@ -1,5 +1,12 @@
 <resources>
-    <string name="app_name">Short Story Maker</string>
+    <string name="application_name">Short Story Maker</string>
+
+    <string name="story_permission_group_description">story_permission_group_description</string>
+    <string name="story_permission_group_label">story_permission_group_label</string>
+    <string name="story_permission_read_description">story_permission_read_description</string>
+    <string name="story_permission_read_label">story_permission_read_label</string>
+    <string name="story_permission_write_description">story_permission_write_description</string>
+    <string name="story_permission_write_label">story_permission_write_label</string>
 
     <string name="action_settings">Wipe</string>
     <string name="action_share_story">Share</string>
@@ -7,5 +14,7 @@
 
     <string name="message_story_deleted">Story deleted</string>
 
-    <string name="story_creation_next_step">Next</string>
+    <string name="story_creator_next_step">Next</string>
+    <string name="story_creator_previous_step">Previous</string>
+    <string name="story_creator_input_hint">Your beautiful story…</string>
 </resources>

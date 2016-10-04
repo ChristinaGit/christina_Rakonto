@@ -1,21 +1,11 @@
 package com.christina.storymaker.storiesViewer.adapter;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
-import android.graphics.Bitmap;
-import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
-import android.support.v7.graphics.Palette;
-import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.BaseEvent;
 import com.christina.common.event.Event;
@@ -75,6 +65,7 @@ public final class StoriesAdapter
                 .with(holder.getContext())
                 .load(story.getPreviewUri())
                 .asBitmap()
+                .animate(android.R.anim.fade_in)
                 .centerCrop()
                 .into(new StoryCardViewTarget(holder))
                 .getRequest()
@@ -125,74 +116,4 @@ public final class StoriesAdapter
             _viewStory.rise(new StoryContentEventArgs(storyId));
         }
     };
-
-    private static final class StoryCardViewTarget extends BitmapImageViewTarget
-        implements Palette.PaletteAsyncListener {
-        public StoryCardViewTarget(@NonNull final StoriesItemViewHolder holder) {
-            super(holder.storyPreviewView);
-
-            Contracts.requireNonNull(holder, "holder == null");
-
-            _holder = holder;
-        }
-
-        @Override
-        public void onGenerated(final Palette palette) {
-            final Palette.Swatch swatch = palette.getMutedSwatch();
-            if (swatch != null) {
-                final int backgroundColor = swatch.getRgb();
-                final int titleColor = swatch.getTitleTextColor();
-                final int bodyColor = swatch.getBodyTextColor();
-
-                final int animationDuration = _holder
-                    .getContext()
-                    .getResources()
-                    .getInteger(android.R.integer.config_shortAnimTime);
-
-                animateCardBackgroundColor(_holder.cardView, backgroundColor, animationDuration);
-                _holder.storyNameView.setTextColor(titleColor);
-                _holder.storyTextView.setTextColor(bodyColor);
-                _holder.editStoryView.setTextColor(titleColor);
-                _holder.shareStoryView.setTextColor(titleColor);
-            }
-        }
-
-        @Override
-        public void onResourceReady(final Bitmap resource,
-            final GlideAnimation<? super Bitmap> glideAnimation) {
-            super.onResourceReady(resource, glideAnimation);
-
-            Palette.from(resource).generate(this);
-        }
-
-        @Override
-        protected void setResource(final Bitmap resource) {
-            super.setResource(resource);
-
-            getView().startAnimation(getFadeInAnimation());
-        }
-
-        @NonNull
-        private final StoriesItemViewHolder _holder;
-
-        private void animateCardBackgroundColor(@NonNull final CardView cardView,
-            @ColorInt final int colorTo, final long duration) {
-            final int colorFrom = cardView.getCardBackgroundColor().getDefaultColor();
-            final ValueAnimator animation =
-                ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
-            animation.setDuration(duration);
-            animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(final ValueAnimator animator) {
-                    cardView.setCardBackgroundColor((int) animator.getAnimatedValue());
-                }
-            });
-            animation.start();
-        }
-
-        @NonNull
-        private Animation getFadeInAnimation() {
-            return AnimationUtils.loadAnimation(_holder.getContext(), android.R.anim.fade_in);
-        }
-    }
 }

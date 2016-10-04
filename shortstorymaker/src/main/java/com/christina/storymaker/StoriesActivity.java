@@ -39,6 +39,9 @@ public class StoriesActivity extends AppCompatActivity
                 onFabClick();
                 break;
             }
+            default: {
+                throw new IllegalArgumentException("Click at unknown view.");
+            }
         }
     }
 
@@ -66,6 +69,7 @@ public class StoriesActivity extends AppCompatActivity
             }
             default: {
                 handled = super.onOptionsItemSelected(item);
+                break;
             }
         }
 
@@ -97,7 +101,7 @@ public class StoriesActivity extends AppCompatActivity
         }
 
         if (_fabView != null) {
-            _fabView.setOnClickListener(this);
+            _fabView.setOnClickListener(/*Listener*/ this);
         }
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -110,7 +114,7 @@ public class StoriesActivity extends AppCompatActivity
     }
 
     protected void onFabClick() {
-        NewStoryActivity.startForResult(this, RC_CREATE_NEW_STORY);
+        StoryCreatorActivity.startForResult(/*Activity*/ this, RC_CREATE_NEW_STORY);
     }
 
     @NonNull

@@ -49,21 +49,40 @@ public final class StoriesViewerFragment extends Fragment {
     }
 
     @Nullable
+    public final StoryContentObserver getStoryContentObserver() {
+        final StoryContentObserver result;
+
+        if (_storyContentObserver != null) {
+            result = _storyContentObserver;
+        } else {
+            final Activity activity = getActivity();
+            if (activity instanceof StoryContentObserverProvider) {
+                result = ((StoryContentObserverProvider) activity).getStoryContentObserver();
+            } else {
+                result = null;
+            }
+        }
+
+        return result;
+    }
+
+    public final void setStoryContentObserver(
+        @Nullable final StoryContentObserver storyContentObserver) {
+        _storyContentObserver = storyContentObserver;
+    }
+
+    @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
         @Nullable final Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.stories_viewer, container, false);
-    }
-
-    @Override
-    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        _storiesView = (RecyclerView) view.findViewById(R.id.story_list);
-        onInitializeStoriesView(_storiesView);
+        final View view = inflater.inflate(R.layout.stories_viewer, container, false);
 
         _storyLoadingProgressView =
             (ContentLoadingProgressBar) view.findViewById(R.id.story_loading_progress);
+        _storiesView = (RecyclerView) view.findViewById(R.id.story_list);
+        onInitializeStoriesView(_storiesView);
+
+        return view;
     }
 
     @Override
@@ -74,6 +93,11 @@ public final class StoriesViewerFragment extends Fragment {
             _savedState = savedInstanceState.getParcelable(KEY_SAVED_STATE);
             getSavedState().setScrollPositionRestored(false);
         }
+
+        final StoryContentObserver storyContentObserver = getStoryContentObserver();
+        if (storyContentObserver != null) {
+            storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
+        }
     }
 
     @Override
@@ -82,16 +106,6 @@ public final class StoriesViewerFragment extends Fragment {
 
         if (getStories() == null) {
             startStoriesLoading();
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        if (storyContentObserver != null) {
-            storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
         }
     }
 
@@ -107,20 +121,13 @@ public final class StoriesViewerFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
 
         final StoryContentObserver storyContentObserver = getStoryContentObserver();
         if (storyContentObserver != null) {
             storyContentObserver.onStoryChanged().removeHandler(_storyChangedHandler);
         }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        stopStoriesLoading();
     }
 
     @NonNull
@@ -150,18 +157,6 @@ public final class StoriesViewerFragment extends Fragment {
         }
 
         return _storiesLayoutManager;
-    }
-
-    @Nullable
-    protected final StoryContentObserver getStoryContentObserver() {
-        StoryContentObserver result = null;
-
-        final Activity activity = getActivity();
-        if (activity instanceof StoryContentObserverProvider) {
-            result = ((StoryContentObserverProvider) activity).getStoryContentObserver();
-        }
-
-        return result;
     }
 
     protected final void startStoriesLoading() {
@@ -226,7 +221,7 @@ public final class StoriesViewerFragment extends Fragment {
         final StoriesViewerSavedState savedState = getSavedState();
         if (!savedState.isScrollPositionRestored()) {
             final int scrollPosition = savedState.getScrollPosition();
-            getStoriesLayoutManager().scrollToPosition(scrollPosition);
+            getStoriesLayoutManager().scrollToPositionWithOffset(scrollPosition, 0);
             savedState.setScrollPositionRestored(true);
         }
     }
@@ -249,6 +244,8 @@ public final class StoriesViewerFragment extends Fragment {
         new EventHandler<StoryObserverEventArgs>() {
             @Override
             public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
+                Contracts.requireNonNull(eventArgs, "eventArgs == null");
+
                 if (!_deletedStoriesIds.remove(eventArgs.getId())) {
                     startStoriesLoading();
                 }
@@ -283,6 +280,9 @@ public final class StoriesViewerFragment extends Fragment {
                 onDeleteStory(viewHolder.getAdapterPosition());
             }
         };
+
+    @Nullable
+    private StoryContentObserver _storyContentObserver;
 
     @Nullable
     private ContentLoadingProgressBar _storyLoadingProgressView;

@@ -2,6 +2,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.christina.storymaker">
 
+    <permission-group
+        android:name="com.christina.permission-group.STORIES"
+        android:description="@string/story_permission_group_description"
+        android:label="@string/story_permission_group_label"/>
+
+    <permission
+        android:name="com.christina.provider.stories.permission.READ"
+        android:description="@string/story_permission_read_description"
+        android:label="@string/story_permission_read_label"
+        android:permissionGroup="com.christina.permission-group.STORIES"/>
+    <permission
+        android:name="com.christina.provider.stories.permission.WRITE"
+        android:description="@string/story_permission_write_description"
+        android:label="@string/story_permission_write_label"
+        android:permissionGroup="com.christina.permission-group.STORIES"/>
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
@@ -9,14 +25,17 @@
         android:name=".ShortStoryMaker"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="@string/application_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".StoriesActivity"
-            android:label="@string/app_name"
+            android:label="@string/application_name"
             android:theme="@style/AppTheme.NoActionBar">
+
             <intent-filter>
+
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -24,7 +43,7 @@
         </activity>
 
         <activity
-            android:name=".NewStoryActivity"
+            android:name=".StoryCreatorActivity"
             android:windowSoftInputMode="adjustResize"/>
 
         <provider
