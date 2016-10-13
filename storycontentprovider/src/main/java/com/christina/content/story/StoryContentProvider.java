@@ -7,15 +7,15 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.christina.api.story.contract.StoryContentCode;
+import com.christina.api.story.contract.StoryContract;
+import com.christina.api.story.contract.StoryFrameContract;
+import com.christina.api.story.database.StoryTable;
 import com.christina.common.contract.Contracts;
-import com.christina.common.data.QueryUtils;
 import com.christina.common.data.content.ContentProviderBase;
 import com.christina.common.data.database.Database;
-import com.christina.content.story.contract.StoryContentCode;
-import com.christina.content.story.contract.StoryContract;
-import com.christina.content.story.contract.StoryFrameContract;
-import com.christina.content.story.database.StoryDatabase;
-import com.christina.content.story.database.StoryTable;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public final class StoryContentProvider extends ContentProviderBase {
     @Nullable
@@ -374,11 +374,11 @@ public final class StoryContentProvider extends ContentProviderBase {
     @Nullable
     private Cursor _queryStoryFramesByStory(@NonNull final String storyId,
         @Nullable final String[] projection, @Nullable String selection,
-        @Nullable final String[] selectionArgs, @Nullable final String sortOrder) {
+        @Nullable String[] selectionArgs, @Nullable final String sortOrder) {
         Contracts.requireNonNull(storyId, "storyId == null");
 
-        selection +=
-            QueryUtils.appendWhereEquals(selection, StoryTable.StoryFrame.COLUMN_STORY_ID, storyId);
+        selection += " AND " + StoryTable.StoryFrame.COLUMN_STORY_ID + "=?";
+        selectionArgs = ArrayUtils.add(selectionArgs, storyId);
         return _queryStoryFrames(projection, selection, selectionArgs, sortOrder);
     }
 

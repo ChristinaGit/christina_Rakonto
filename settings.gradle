@@ -1,7 +1,10 @@
-include ':ShortStoryMaker'
+include ':StoryApp'
+include ':StoryApi'
 include ':StoryContentProvider'
 include ':CommonLibrary'
 
-project(':ShortStoryMaker').projectDir = new File('shortstorymaker')
+project(':StoryApp').projectDir = new File('storyapp')
+project(':StoryApi').projectDir = new File('storyapi')
+project(':StoryContentProvider').projectDir = new File('storycontentprovider')
 project(':StoryContentProvider').projectDir = new File('storycontentprovider')
 project(':CommonLibrary').projectDir = new File('../christina_CommonLibrary/commonlibrary')
