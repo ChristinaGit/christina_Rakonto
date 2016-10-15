@@ -1,6 +1,7 @@
 package com.christina.app.story.fragment.storyTextPartsEditor;
 
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -22,7 +23,6 @@ import com.christina.app.story.fragment.BaseStoryFragment;
 import com.christina.app.story.fragment.storyTextPartsEditor.adapter.StoryTextPartsAdapter;
 import com.christina.app.story.fragment.storyTextPartsEditor.loader.StoryLoader;
 import com.christina.app.story.fragment.storyTextPartsEditor.loader.StoryLoaderResult;
-import com.christina.common.FragmentUtils;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.EventHandler;
 
@@ -31,32 +31,20 @@ import org.apache.commons.collections4.IterableUtils;
 import java.util.List;
 
 public class StoryTextPartsEditorFragment extends BaseStoryFragment {
-    public final static String ARG_STORY_ID = "story_id";
+    protected static int loaderIndexer = 0;
 
-    protected static int _loaderIndexer = 0;
+    private static final int LOADER_ID_STORY = loaderIndexer++;
 
-    private static final int LOADER_ID_STORY = _loaderIndexer++;
-
-    public static void putStoryId(@NonNull final StoryTextPartsEditorFragment fragment,
-        final long storyId) {
-        Contracts.requireNonNull(fragment, "fragment == null");
-
-        FragmentUtils.getArguments(fragment).putLong(ARG_STORY_ID, storyId);
+    public final long getStoryId() {
+        return _storyId;
     }
 
-    public static long getStoryId(@NonNull final StoryTextPartsEditorFragment fragment) {
-        Contracts.requireNonNull(fragment, "fragment == null");
+    public final void setStoryId(final long storyId) {
+        if (storyId != _storyId) {
+            _storyId = storyId;
 
-        final long storyId;
-
-        final Bundle arguments = fragment.getArguments();
-        if (arguments != null) {
-            storyId = arguments.getLong(ARG_STORY_ID, Story.NO_ID);
-        } else {
-            storyId = Story.NO_ID;
+            onStoryIdChanged();
         }
-
-        return storyId;
     }
 
     @Nullable
@@ -161,6 +149,13 @@ public class StoryTextPartsEditorFragment extends BaseStoryFragment {
         getLoaderManager().destroyLoader(LOADER_ID_STORY);
     }
 
+    @CallSuper
+    protected void onStoryIdChanged() {
+        if (isAdded() && isResumed()) {
+            startStoryLoading();
+        }
+    }
+
     protected void onStoryLoaded() {
         final List<String> storyTextParts = getStoryTextParts();
         if (storyTextParts != null) {
@@ -182,6 +177,8 @@ public class StoryTextPartsEditorFragment extends BaseStoryFragment {
     @Nullable
     private List<StoryFrame> _storyFrames;
 
+    private long _storyId = Story.NO_ID;
+
     @Nullable
     private StoryTextPartsAdapter _storyTextPartsAdapter;
 
@@ -191,8 +188,7 @@ public class StoryTextPartsEditorFragment extends BaseStoryFragment {
             @Override
             public Loader<StoryLoaderResult> onCreateLoader(final int id, final Bundle args) {
                 if (id == LOADER_ID_STORY) {
-                    return new StoryLoader(getActivity(),
-                        getStoryId(StoryTextPartsEditorFragment.this));
+                    return new StoryLoader(getActivity(), getStoryId());
                 } else {
                     throw new IllegalArgumentException("Illegal loader id.");
                 }

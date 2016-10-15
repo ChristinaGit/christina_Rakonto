@@ -1,4 +1,4 @@
-package com.christina.app.story.operation.createStory;
+package com.christina.app.story.operation.editStory;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,14 +8,14 @@ import com.christina.api.story.model.Story;
 import com.christina.app.story.fragment.storyTextEditor.StoryTextEditorFragment;
 import com.christina.app.story.fragment.storyTextPartsEditor.StoryTextPartsEditorFragment;
 
-public class CreateStoryStepsAdapter extends FragmentStatePagerAdapter {
-    protected static int _positionIndexer = 0;
+public class EditStoryScreensAdapter extends FragmentStatePagerAdapter {
+    protected static int positionIndexer = 0;
 
-    private static final int POSITION_TEXT_EDITOR = _positionIndexer++;
+    private static final int POSITION_TEXT_EDITOR = positionIndexer++;
 
-    private static final int POSITION_TEXT_PARTS_EDITOR = _positionIndexer++;
+    private static final int POSITION_TEXT_PARTS_EDITOR = positionIndexer++;
 
-    public CreateStoryStepsAdapter(final FragmentManager fragmentManager) {
+    public EditStoryScreensAdapter(final FragmentManager fragmentManager) {
         super(fragmentManager);
     }
 
@@ -29,7 +29,7 @@ public class CreateStoryStepsAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return _positionIndexer;
+        return positionIndexer;
     }
 
     @Override
@@ -38,11 +38,11 @@ public class CreateStoryStepsAdapter extends FragmentStatePagerAdapter {
 
         if (position == POSITION_TEXT_EDITOR) {
             final StoryTextEditorFragment stepFragment = new StoryTextEditorFragment();
-            StoryTextEditorFragment.putStoryId(stepFragment, getStoryId());
+            stepFragment.setStoryId(getStoryId());
             fragment = stepFragment;
         } else if (position == POSITION_TEXT_PARTS_EDITOR) {
             final StoryTextPartsEditorFragment stepFragment = new StoryTextPartsEditorFragment();
-            StoryTextPartsEditorFragment.putStoryId(stepFragment, getStoryId());
+            stepFragment.setStoryId(getStoryId());
             fragment = stepFragment;
         } else {
             throw new IllegalArgumentException("Illegal position: " + position);
@@ -50,8 +50,6 @@ public class CreateStoryStepsAdapter extends FragmentStatePagerAdapter {
 
         return fragment;
     }
-
-
 
     private long _storyId = Story.NO_ID;
 }

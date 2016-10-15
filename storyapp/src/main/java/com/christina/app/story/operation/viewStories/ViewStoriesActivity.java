@@ -1,12 +1,14 @@
 package com.christina.app.story.operation.viewStories;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -15,18 +17,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toolbar;
 
-import com.christina.app.story.R;
-import com.christina.app.story.operation.createStory.CreateStoryActivity;
-import com.christina.content.story.StoryDatabase;
 import com.christina.api.story.observer.StoryContentObserver;
+import com.christina.app.story.R;
 import com.christina.app.story.core.StoryContentObserverProvider;
 import com.christina.app.story.fragment.storiesViewer.StoriesViewerFragment;
+import com.christina.app.story.operation.editStory.EditStoryActivity;
+import com.christina.common.contract.Contracts;
+import com.christina.content.story.StoryDatabase;
 
 public class ViewStoriesActivity extends AppCompatActivity
     implements StoryContentObserverProvider, View.OnClickListener {
-    protected static int rcIndexer = 0;
+    protected static int requestCodeIndexer = 0;
 
-    public static final int RC_CREATE_NEW_STORY = rcIndexer++;
+    protected static final int REQUEST_CODE_INSERT_STORY = requestCodeIndexer++;
+
+    protected static int resultCodeIndexer = 100;
+
+    public static final int RESULT_UNSUPPORTED_ACTION = resultCodeIndexer++;
 
     @NonNull
     @Override
@@ -78,6 +85,11 @@ public class ViewStoriesActivity extends AppCompatActivity
         return handled;
     }
 
+    @Nullable
+    protected final Mode getMode() {
+        return _mode;
+    }
+
     @CallSuper
     protected void findViews() {
         _toolbarView = (Toolbar) findViewById(R.id.toolbar);
@@ -86,37 +98,88 @@ public class ViewStoriesActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onActivityResult(final int requestCode, final int resultCode,
+        final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_INSERT_STORY) {
+            onInsertStoryResult(resultCode, data);
+        }
+    }
+
+    @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_view_stories);
+        _mode = onHandleIntent(getIntent());
 
-        findViews();
+        if (getMode() != null) {
 
-        setActionBar(_toolbarView);
+            setContentView(R.layout.activity_view_stories);
 
-        final ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayShowHomeEnabled(false);
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(false);
-        }
+            findViews();
 
-        if (_fabView != null) {
-            _fabView.setOnClickListener(/*Listener*/ this);
-        }
+            setActionBar(_toolbarView);
 
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragmentManager.findFragmentById(R.id.content_container) == null) {
-            fragmentManager
-                .beginTransaction()
-                .add(R.id.content_container, new StoriesViewerFragment())
-                .commit();
+            final ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayShowHomeEnabled(false);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayHomeAsUpEnabled(false);
+            }
+
+            if (_fabView != null) {
+                _fabView.setOnClickListener(/*Listener*/ this);
+            }
+
+            final FragmentManager fragmentManager = getSupportFragmentManager();
+            if (fragmentManager.findFragmentById(R.id.content_container) == null) {
+                fragmentManager
+                    .beginTransaction()
+                    .add(R.id.content_container, new StoriesViewerFragment())
+                    .commit();
+            }
+        } else {
+            finish();
         }
     }
 
     protected void onFabClick() {
-        CreateStoryActivity.startForResult(/*Activity*/ this, RC_CREATE_NEW_STORY);
+        EditStoryActivity.startInsertForResult(/*Activity*/ this, REQUEST_CODE_INSERT_STORY);
+    }
+
+    @Nullable
+    protected Mode onHandleIntent(@NonNull final Intent intent) {
+        Contracts.requireNonNull(intent, "intent == null");
+
+        final Mode mode;
+
+        final String action = getIntent().getAction();
+        switch (action) {
+            case Intent.ACTION_MAIN:
+            case Intent.ACTION_VIEW: {
+                mode = onHandleViewIntent(intent);
+                break;
+            }
+            default: {
+                setResult(RESULT_UNSUPPORTED_ACTION);
+                mode = null;
+                break;
+            }
+        }
+
+        return mode;
+    }
+
+    protected void onInsertStoryResult(final int resultCode, @Nullable final Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (_contentContainerView != null) {
+                Snackbar
+                    .make(_contentContainerView, R.string.message_story_inserted,
+                        Snackbar.LENGTH_SHORT)
+                    .show();
+            }
+        }
     }
 
     @NonNull
@@ -129,5 +192,18 @@ public class ViewStoriesActivity extends AppCompatActivity
     private FloatingActionButton _fabView;
 
     @Nullable
+    private Mode _mode;
+
+    @Nullable
     private Toolbar _toolbarView;
+
+    private Mode onHandleViewIntent(@NonNull final Intent intent) {
+        Contracts.requireNonNull(intent, "intent == null");
+
+        return Mode.VIEW;
+    }
+
+    private enum Mode {
+        VIEW
+    }
 }

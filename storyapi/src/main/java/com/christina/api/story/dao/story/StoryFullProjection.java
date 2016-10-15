@@ -66,7 +66,7 @@ public final class StoryFullProjection {
     }
 
     static {
-        PROJECTION = new String[_indexer];
+        PROJECTION = new String[COLUMN_COUNT];
         PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
         PROJECTION[INDEX_NAME] = StoryTable.Story.COLUMN_NAME;
         PROJECTION[INDEX_CREATE_DATE] = StoryTable.Story.COLUMN_CREATE_DATE;

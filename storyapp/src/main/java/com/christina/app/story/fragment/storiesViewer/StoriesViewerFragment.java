@@ -37,9 +37,9 @@ import java.util.List;
 public final class StoriesViewerFragment extends BaseStoryFragment {
     private static final String KEY_SAVED_STATE = "saved_state";
 
-    protected static int _loaderIndexer = 0;
+    protected static int loaderIndexer = 0;
 
-    private static final int LOADER_ID_STORIES = _loaderIndexer++;
+    private static final int LOADER_ID_STORIES = loaderIndexer++;
 
     @Nullable
     @Override

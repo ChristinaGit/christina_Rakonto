@@ -12,6 +12,7 @@
     <string name="action_share_story">Share</string>
     <string name="action_edit_story">Edit</string>
 
+    <string name="message_story_inserted">Story created</string>
     <string name="message_story_deleted">Story deleted</string>
 
     <string name="story_creator_next_step">Next</string>

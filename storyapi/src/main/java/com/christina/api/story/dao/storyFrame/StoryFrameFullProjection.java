@@ -48,7 +48,7 @@ final class StoryFrameFullProjection {
     }
 
     static {
-        PROJECTION = new String[_indexer];
+        PROJECTION = new String[COLUMN_COUNT];
         PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
         PROJECTION[INDEX_STORY_ID] = StoryTable.StoryFrame.COLUMN_STORY_ID;
         PROJECTION[INDEX_TEXT_POSITION] = StoryTable.StoryFrame.COLUMN_TEXT_POSITION;
