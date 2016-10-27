@@ -122,9 +122,11 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
 
     protected final void nextStep() {
         if (_stepPagerView != null) {
-            final int nextStep = _stepPagerView.getCurrentItem() + 1;
+            final int currentStep = _stepPagerView.getCurrentItem();
+            final int nextStep = currentStep + 1;
             if (nextStep < getEditStoryScreensAdapter().getCount()) {
-                onStepChanging();
+                onLeaveStep(currentStep);
+                onEnterStep(nextStep);
 
                 _stepPagerView.setCurrentItem(nextStep, true);
             }
@@ -133,9 +135,11 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
 
     protected final void previousStep() {
         if (_stepPagerView != null) {
-            final int previousStep = _stepPagerView.getCurrentItem() - 1;
+            final int currentStep = _stepPagerView.getCurrentItem();
+            final int previousStep = currentStep - 1;
             if (previousStep >= 0) {
-                onStepChanging();
+                onLeaveStep(currentStep);
+                onEnterStep(previousStep);
 
                 _stepPagerView.setCurrentItem(previousStep, true);
             }
@@ -208,6 +212,13 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         }
         if (_nextStepView != null) {
             _nextStepView.setOnClickListener(null);
+        }
+    }
+
+    protected void onEnterStep(final int position) {
+        final Fragment item = getEditStoryScreensAdapter().getFragment(position);
+        if (item instanceof StoryEditorFragment) {
+            ((StoryEditorFragment) item).onStartEditing();
         }
     }
 
@@ -310,6 +321,13 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         return intentHandled;
     }
 
+    protected void onLeaveStep(final int position) {
+        final Fragment item = getEditStoryScreensAdapter().getFragment(position);
+        if (item instanceof StoryEditorFragment) {
+            ((StoryEditorFragment) item).onStopEditing();
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -324,16 +342,6 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
                 savedState.setActivePage(0);
             }
             outState.putParcelable(KEY_SAVED_STATE, savedState);
-        }
-    }
-
-    protected void onStepChanging() {
-        if (_stepPagerView != null) {
-            final int currentItem = _stepPagerView.getCurrentItem();
-            final Fragment item = getEditStoryScreensAdapter().getFragment(currentItem);
-            if (item instanceof StoryEditorFragment) {
-                ((StoryEditorFragment) item).saveStoryChanges();
-            }
         }
     }
 

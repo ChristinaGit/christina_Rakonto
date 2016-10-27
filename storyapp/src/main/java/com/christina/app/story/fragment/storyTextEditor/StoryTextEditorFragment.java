@@ -15,7 +15,8 @@ import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
 import com.christina.app.story.fragment.StoryEditorFragment;
 import com.christina.app.story.fragment.singleStory.BaseSingleStoryFragment;
-import com.christina.common.BaseTextWatcher;
+import com.christina.common.ImeUtils;
+import com.christina.common.SimpleTextWatcher;
 
 public final class StoryTextEditorFragment extends BaseSingleStoryFragment
     implements StoryEditorFragment {
@@ -54,7 +55,24 @@ public final class StoryTextEditorFragment extends BaseSingleStoryFragment
     }
 
     @Override
-    public void saveStoryChanges() {
+    public void onStartEditing() {
+        if (getStory() == null) {
+            startStoryLoading();
+        }
+
+        if (_storyTextView != null) {
+            ImeUtils.showIme(_storyTextView);
+        }
+    }
+
+    @Override
+    public void onStopEditing() {
+        if (_storyTextView != null) {
+            ImeUtils.hideIme(_storyTextView);
+        }
+    }
+
+    protected final void saveStoryChanges() {
         final Story story = getStory();
         if (story != null) {
             story.setModifyDate();
@@ -90,7 +108,7 @@ public final class StoryTextEditorFragment extends BaseSingleStoryFragment
     }
 
     @NonNull
-    private final TextWatcher _storyTextWatcher = new BaseTextWatcher() {
+    private final TextWatcher _storyTextWatcher = new SimpleTextWatcher() {
         @Override
         public void afterTextChanged(final Editable s) {
             final String storyText;
