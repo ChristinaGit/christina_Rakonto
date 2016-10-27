@@ -2,10 +2,13 @@ package com.christina.api.story.util;
 
 import android.support.annotation.NonNull;
 
+import com.christina.common.contract.Contracts;
+
 import org.apache.commons.collections4.Predicate;
 
 public final class StoryPredicate {
     private StoryPredicate() {
+        Contracts.unreachable();
     }
 
     public static final class Story {
@@ -28,6 +31,7 @@ public final class StoryPredicate {
         }
 
         private Story() {
+            Contracts.unreachable();
         }
     }
 
@@ -70,6 +74,7 @@ public final class StoryPredicate {
         }
 
         private StoryFrame() {
+            Contracts.unreachable();
         }
     }
 }

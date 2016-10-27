@@ -1,11 +1,8 @@
 package com.christina.app.story.fragment.storyTextPartsEditor;
 
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,40 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.christina.api.story.model.Story;
-import com.christina.api.story.model.StoryFrame;
-import com.christina.api.story.observer.StoryContentObserver;
-import com.christina.api.story.observer.StoryObserverEventArgs;
-import com.christina.api.story.util.StoryPredicate;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryTextUtils;
-import com.christina.app.story.fragment.BaseStoryFragment;
+import com.christina.app.story.fragment.singleStory.BaseSingleStoryFragment;
 import com.christina.app.story.fragment.storyTextPartsEditor.adapter.StoryTextPartsAdapter;
-import com.christina.app.story.fragment.storyTextPartsEditor.loader.StoryLoader;
-import com.christina.app.story.fragment.storyTextPartsEditor.loader.StoryLoaderResult;
 import com.christina.common.contract.Contracts;
-import com.christina.common.event.EventHandler;
-
-import org.apache.commons.collections4.IterableUtils;
 
 import java.util.List;
 
-public class StoryTextPartsEditorFragment extends BaseStoryFragment {
-    protected static int loaderIndexer = 0;
-
-    private static final int LOADER_ID_STORY = loaderIndexer++;
-
-    public final long getStoryId() {
-        return _storyId;
-    }
-
-    public final void setStoryId(final long storyId) {
-        if (storyId != _storyId) {
-            _storyId = storyId;
-
-            onStoryIdChanged();
-        }
-    }
-
+public class StoryTextPartsEditorFragment extends BaseSingleStoryFragment {
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
@@ -58,47 +30,6 @@ public class StoryTextPartsEditorFragment extends BaseStoryFragment {
         onInitializeStoryTextPartsView(_storyTextPartsView);
 
         return view;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        if (storyContentObserver != null) {
-            storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
-            storyContentObserver.onStoryFrameChanged().addHandler(_storyFramesChangedHandler);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (getStory() == null) {
-            startStoryLoading();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        if (storyContentObserver != null) {
-            storyContentObserver.onStoryChanged().removeHandler(_storyChangedHandler);
-            storyContentObserver.onStoryFrameChanged().removeHandler(_storyFramesChangedHandler);
-        }
-    }
-
-    @Nullable
-    protected final Story getStory() {
-        return _story;
-    }
-
-    @Nullable
-    protected final List<StoryFrame> getStoryFrames() {
-        return _storyFrames;
     }
 
     @Nullable
@@ -141,21 +72,7 @@ public class StoryTextPartsEditorFragment extends BaseStoryFragment {
         return _storyTextPartsLayoutManager;
     }
 
-    protected final void startStoryLoading() {
-        getLoaderManager().restartLoader(LOADER_ID_STORY, null, _storyLoaderCallbacks);
-    }
-
-    protected final void stopStoryLoading() {
-        getLoaderManager().destroyLoader(LOADER_ID_STORY);
-    }
-
-    @CallSuper
-    protected void onStoryIdChanged() {
-        if (isAdded() && isResumed()) {
-            startStoryLoading();
-        }
-    }
-
+    @Override
     protected void onStoryLoaded() {
         final List<String> storyTextParts = getStoryTextParts();
         if (storyTextParts != null) {
@@ -165,6 +82,7 @@ public class StoryTextPartsEditorFragment extends BaseStoryFragment {
         }
     }
 
+    @Override
     protected void onStoryReset() {
         final StoryTextPartsAdapter storyTextPartsAdapter = getStoryTextPartsAdapter();
         storyTextPartsAdapter.removeItems(false);
@@ -172,74 +90,7 @@ public class StoryTextPartsEditorFragment extends BaseStoryFragment {
     }
 
     @Nullable
-    private Story _story;
-
-    @Nullable
-    private List<StoryFrame> _storyFrames;
-
-    private long _storyId = Story.NO_ID;
-
-    @Nullable
     private StoryTextPartsAdapter _storyTextPartsAdapter;
-
-    @NonNull
-    private final LoaderManager.LoaderCallbacks<StoryLoaderResult> _storyLoaderCallbacks =
-        new LoaderManager.LoaderCallbacks<StoryLoaderResult>() {
-            @Override
-            public Loader<StoryLoaderResult> onCreateLoader(final int id, final Bundle args) {
-                if (id == LOADER_ID_STORY) {
-                    return new StoryLoader(getActivity(), getStoryId());
-                } else {
-                    throw new IllegalArgumentException("Illegal loader id.");
-                }
-            }
-
-            @Override
-            public void onLoadFinished(final Loader<StoryLoaderResult> loader,
-                final StoryLoaderResult data) {
-                _story = data.getStory();
-                _storyFrames = data.getStoryFrames();
-
-                onStoryLoaded();
-            }
-
-            @Override
-            public void onLoaderReset(final Loader<StoryLoaderResult> loader) {
-                _story = null;
-                _storyFrames = null;
-
-                onStoryReset();
-            }
-        };
-
-    @NonNull
-    private final EventHandler<StoryObserverEventArgs> _storyChangedHandler =
-        new EventHandler<StoryObserverEventArgs>() {
-            @Override
-            public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
-                Contracts.requireNonNull(eventArgs, "eventArgs == null");
-
-                final Story story = getStory();
-                if (story != null && story.getId() == eventArgs.getId()) {
-                    startStoryLoading();
-                }
-            }
-        };
-
-    @NonNull
-    private final EventHandler<StoryObserverEventArgs> _storyFramesChangedHandler =
-        new EventHandler<StoryObserverEventArgs>() {
-            @Override
-            public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
-                Contracts.requireNonNull(eventArgs, "eventArgs == null");
-
-                final long storyId = eventArgs.getId();
-                if (IterableUtils.find(getStoryFrames(),
-                    StoryPredicate.StoryFrame.storyIdEquals(storyId)) != null) {
-                    startStoryLoading();
-                }
-            }
-        };
 
     @Nullable
     private LinearLayoutManager _storyTextPartsLayoutManager;

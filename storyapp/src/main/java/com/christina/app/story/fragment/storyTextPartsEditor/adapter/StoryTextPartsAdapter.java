@@ -14,7 +14,8 @@ public final class StoryTextPartsAdapter
     @Override
     public StoryTextPartViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        final View view = inflater.inflate(R.layout.fragment_story_text_parts_editor_item, parent, false);
+        final View view =
+            inflater.inflate(R.layout.fragment_story_text_parts_editor_item, parent, false);
         return new StoryTextPartViewHolder(view);
     }
 

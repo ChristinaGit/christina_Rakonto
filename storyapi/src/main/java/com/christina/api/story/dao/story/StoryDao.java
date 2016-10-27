@@ -5,13 +5,13 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.christina.api.story.contract.StoryContract;
+import com.christina.api.story.model.Story;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.dao.ContentProviderDao;
 import com.christina.common.data.model.factory.ContentModelCollectionFactory;
 import com.christina.common.data.model.factory.ContentModelFactory;
 import com.christina.common.data.model.factory.ModelContentExtractor;
-import com.christina.api.story.contract.StoryContract;
-import com.christina.api.story.model.Story;
 
 public final class StoryDao extends ContentProviderDao<Story> {
     public StoryDao(@NonNull final ContentResolver contentResolver) {

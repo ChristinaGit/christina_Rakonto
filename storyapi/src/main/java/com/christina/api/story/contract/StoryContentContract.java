@@ -2,25 +2,38 @@ package com.christina.api.story.contract;
 
 import android.net.Uri;
 
+import com.christina.common.contract.Contracts;
 import com.christina.common.data.UriSchemes;
 import com.christina.common.data.UriUtils;
 
 public final class StoryContentContract {
-    public static final String COMPANY_NAME = "com.christina";
+    public static final String COMPANY_NAME;
 
-    public static final String AUTHORITY = COMPANY_NAME + ".provider";
+    public static final String AUTHORITY;
 
-    public static final String CONTENT_URI_STRING =
-        UriSchemes.CONTENT + UriUtils.SCHEMA_SEPARATOR + AUTHORITY;
+    public static final String CONTENT_URI_STRING;
 
-    public static final Uri CONTENT_URI = Uri.parse(CONTENT_URI_STRING);
+    public static final Uri CONTENT_URI;
 
-    private static int _entityTypeCodeIndexer = 0;
+    public static final int ENTITY_CODE_STORY;
 
-    public static final int ENTITY_CODE_STORY = _entityTypeCodeIndexer++;
+    public static final int ENTITY_CODE_STORY_FRAME;
 
-    public static final int ENTITY_CODE_STORY_FRAME = _entityTypeCodeIndexer++;
+    static {
+        COMPANY_NAME = "com.christina";
+
+        AUTHORITY = COMPANY_NAME + ".provider";
+
+        CONTENT_URI_STRING = UriSchemes.CONTENT + UriUtils.SCHEMA_SEPARATOR + AUTHORITY;
+
+        CONTENT_URI = Uri.parse(CONTENT_URI_STRING);
+
+        int entityTypeCodeIndexer = 0;
+        ENTITY_CODE_STORY = entityTypeCodeIndexer++;
+        ENTITY_CODE_STORY_FRAME = entityTypeCodeIndexer++;
+    }
 
     private StoryContentContract() {
+        Contracts.unreachable();
     }
 }

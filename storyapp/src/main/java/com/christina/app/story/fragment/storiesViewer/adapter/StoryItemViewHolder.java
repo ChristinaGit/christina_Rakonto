@@ -7,9 +7,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.christina.app.story.R;
 import com.christina.common.contract.Contracts;
 import com.christina.common.view.recyclerView.BaseRecyclerViewHolder;
-import com.christina.app.story.R;
 
 @SuppressWarnings("PublicField")
 public final class StoryItemViewHolder extends BaseRecyclerViewHolder {

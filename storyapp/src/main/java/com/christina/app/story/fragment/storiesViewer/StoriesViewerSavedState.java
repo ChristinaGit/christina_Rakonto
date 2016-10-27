@@ -7,14 +7,14 @@ import android.support.annotation.NonNull;
 
 import com.christina.common.contract.Contracts;
 
-public class StoriesViewerSavedState implements Parcelable {
+public final class StoriesViewerSavedState implements Parcelable {
     public static final Creator<StoriesViewerSavedState> CREATOR =
         new Creator<StoriesViewerSavedState>() {
             @Override
-            public StoriesViewerSavedState createFromParcel(@NonNull final Parcel in) {
-                Contracts.requireNonNull(in, "in == null");
+            public StoriesViewerSavedState createFromParcel(@NonNull final Parcel source) {
+                Contracts.requireNonNull(source, "in == null");
 
-                return new StoriesViewerSavedState(in);
+                return new StoriesViewerSavedState(source);
             }
 
             @Override

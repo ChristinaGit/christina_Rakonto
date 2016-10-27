@@ -3,10 +3,10 @@ package com.christina.api.story.dao.story;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
+import com.christina.api.story.model.Story;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.model.factory.ContentModelFactory;
 import com.christina.common.data.model.factory.DefaultModelCollectionFactory;
-import com.christina.api.story.model.Story;
 
 public final class StoryCollectionFactory extends DefaultModelCollectionFactory<Story> {
     public StoryCollectionFactory(@NonNull final ContentModelFactory<Story> modelFactory) {

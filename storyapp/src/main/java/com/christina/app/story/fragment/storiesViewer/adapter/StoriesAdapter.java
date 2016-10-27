@@ -6,13 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.christina.api.story.model.Story;
+import com.christina.app.story.R;
+import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.BaseEvent;
 import com.christina.common.event.Event;
 import com.christina.common.view.recyclerView.BaseStableRecyclerViewAdapter;
-import com.christina.api.story.model.Story;
-import com.christina.app.story.R;
-import com.christina.app.story.core.StoryContentEventArgs;
 
 public final class StoriesAdapter
     extends BaseStableRecyclerViewAdapter<Story, StoryListItem, StoryItemViewHolder> {
@@ -45,9 +45,6 @@ public final class StoriesAdapter
         Contracts.requireNonNull(holder, "holder == null");
         Contracts.requireNonNull(listItem, "listItem == null");
 
-        holder.storyNameView.setText(listItem.getStoryName());
-        holder.storyTextView.setText(listItem.getStoryText());
-
         holder.cardView.setTag(R.id.holder_story_id, listItem.getId());
         holder.cardView.setOnClickListener(_viewStoryOnClick);
 
@@ -56,6 +53,9 @@ public final class StoriesAdapter
 
         holder.editStoryView.setTag(R.id.holder_story_id, listItem.getId());
         holder.editStoryView.setOnClickListener(_editStoryOnClick);
+
+        holder.storyNameView.setText(listItem.getStoryName());
+        holder.storyTextView.setText(listItem.getStoryText());
 
         Glide
             .with(holder.getContext())
@@ -73,7 +73,7 @@ public final class StoriesAdapter
     protected StoryListItem onWrapItem(@NonNull final Story item) {
         Contracts.requireNonNull(item, "item == null");
 
-        return new ModelStoryListItem(item);
+        return new StoryListItem(item);
     }
 
     @NonNull

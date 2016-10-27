@@ -112,5 +112,6 @@ public final class StoryTextUtils {
     }
 
     private StoryTextUtils() {
+        Contracts.unreachable();
     }
 }

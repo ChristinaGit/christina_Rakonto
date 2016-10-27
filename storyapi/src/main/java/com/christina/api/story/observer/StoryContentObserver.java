@@ -6,12 +6,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
-import com.christina.common.data.model.Model;
-import com.christina.common.event.BaseEvent;
-import com.christina.common.event.Event;
 import com.christina.api.story.contract.StoryContentCode;
 import com.christina.api.story.contract.StoryContract;
 import com.christina.api.story.contract.StoryFrameContract;
+import com.christina.common.data.model.Model;
+import com.christina.common.event.BaseEvent;
+import com.christina.common.event.Event;
 
 public final class StoryContentObserver extends ContentObserver {
     public StoryContentObserver() {

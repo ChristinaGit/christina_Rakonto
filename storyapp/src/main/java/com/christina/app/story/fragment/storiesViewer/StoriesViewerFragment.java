@@ -17,25 +17,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.christina.common.contract.Contracts;
-import com.christina.common.event.EventHandler;
-import com.christina.common.view.ItemSpacingDecorator;
 import com.christina.api.story.dao.StoryDaoManager;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.api.story.observer.StoryObserverEventArgs;
 import com.christina.app.story.R;
+import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.app.story.fragment.BaseStoryFragment;
 import com.christina.app.story.fragment.storiesViewer.adapter.StoriesAdapter;
 import com.christina.app.story.fragment.storiesViewer.loader.StoriesLoader;
 import com.christina.app.story.fragment.storiesViewer.loader.StoriesLoaderResult;
+import com.christina.app.story.operation.editStory.EditStoryActivity;
+import com.christina.common.ConstantBuilder;
+import com.christina.common.contract.Contracts;
+import com.christina.common.event.EventHandler;
+import com.christina.common.view.ItemSpacingDecorator;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public final class StoriesViewerFragment extends BaseStoryFragment {
-    private static final String KEY_SAVED_STATE = "saved_state";
+    private static final String KEY_SAVED_STATE =
+        ConstantBuilder.savedStateKey(StoriesViewerFragment.class, "saved_state");
 
     protected static int loaderIndexer = 0;
 
@@ -80,6 +84,14 @@ public final class StoriesViewerFragment extends BaseStoryFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        final StoriesAdapter storiesAdapter = getStoriesAdapter();
+        storiesAdapter.onEditStory().addHandler(_editStoryHandler);
+    }
+
+    @Override
     public void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -88,6 +100,14 @@ public final class StoriesViewerFragment extends BaseStoryFragment {
             savedState.setScrollPosition(getStoriesLayoutManager().findFirstVisibleItemPosition());
             outState.putParcelable(KEY_SAVED_STATE, savedState);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        final StoriesAdapter storiesAdapter = getStoriesAdapter();
+        storiesAdapter.onEditStory().removeHandler(_editStoryHandler);
     }
 
     @Override
@@ -102,6 +122,10 @@ public final class StoriesViewerFragment extends BaseStoryFragment {
 
     @NonNull
     protected final StoriesViewerSavedState getSavedState() {
+        if (_savedState == null) {
+            _savedState = new StoriesViewerSavedState();
+        }
+
         return _savedState;
     }
 
@@ -211,6 +235,15 @@ public final class StoriesViewerFragment extends BaseStoryFragment {
     private final Collection<Long> _deletedStoriesIds = new ArrayList<>();
 
     @NonNull
+    private final EventHandler<StoryContentEventArgs> _editStoryHandler =
+        new EventHandler<StoryContentEventArgs>() {
+            @Override
+            public void onEvent(@NonNull final StoryContentEventArgs eventArgs) {
+                EditStoryActivity.startEdit(getActivity(), eventArgs.getId());
+            }
+        };
+
+    @NonNull
     private final EventHandler<StoryObserverEventArgs> _storyChangedHandler =
         new EventHandler<StoryObserverEventArgs>() {
             @Override
@@ -223,7 +256,8 @@ public final class StoriesViewerFragment extends BaseStoryFragment {
             }
         };
 
-    private StoriesViewerSavedState _savedState = new StoriesViewerSavedState();
+    @Nullable
+    private StoriesViewerSavedState _savedState;
 
     @Nullable
     private List<Story> _stories;

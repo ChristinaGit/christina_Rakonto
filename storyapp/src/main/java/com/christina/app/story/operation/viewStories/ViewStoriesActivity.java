@@ -10,23 +10,20 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toolbar;
 
-import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryContentObserverProvider;
 import com.christina.app.story.fragment.storiesViewer.StoriesViewerFragment;
+import com.christina.app.story.operation.BaseStoryActivity;
 import com.christina.app.story.operation.editStory.EditStoryActivity;
 import com.christina.common.contract.Contracts;
 import com.christina.content.story.StoryDatabase;
 
-public class ViewStoriesActivity extends AppCompatActivity
-    implements StoryContentObserverProvider, View.OnClickListener {
+public class ViewStoriesActivity extends BaseStoryActivity implements View.OnClickListener {
     protected static int requestCodeIndexer = 0;
 
     protected static final int REQUEST_CODE_INSERT_STORY = requestCodeIndexer++;
@@ -34,12 +31,6 @@ public class ViewStoriesActivity extends AppCompatActivity
     protected static int resultCodeIndexer = 100;
 
     public static final int RESULT_UNSUPPORTED_ACTION = resultCodeIndexer++;
-
-    @NonNull
-    @Override
-    public final StoryContentObserver getStoryContentObserver() {
-        return _storyContentObserver;
-    }
 
     @Override
     public void onClick(final View v) {
@@ -181,9 +172,6 @@ public class ViewStoriesActivity extends AppCompatActivity
             }
         }
     }
-
-    @NonNull
-    private final StoryContentObserver _storyContentObserver = new StoryContentObserver();
 
     @Nullable
     private ViewGroup _contentContainerView;

@@ -1,4 +1,4 @@
-package com.christina.app.story.fragment.storyTextPartsEditor.loader;
+package com.christina.app.story.fragment.singleStory.loader;
 
 import android.support.annotation.Nullable;
 
@@ -7,8 +7,8 @@ import com.christina.api.story.model.StoryFrame;
 
 import java.util.List;
 
-public final class StoryLoaderResult {
-    public StoryLoaderResult(@Nullable final Story story,
+public final class SingleStoryLoaderResult {
+    public SingleStoryLoaderResult(@Nullable final Story story,
         @Nullable final List<StoryFrame> storyFrames) {
         _story = story;
         _storyFrames = storyFrames;

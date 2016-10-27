@@ -4,9 +4,9 @@ import android.content.ContentResolver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.christina.common.contract.Contracts;
 import com.christina.api.story.dao.story.StoryDao;
 import com.christina.api.story.dao.storyFrame.StoryFrameDao;
+import com.christina.common.contract.Contracts;
 
 public final class StoryDaoManager {
     @Nullable
@@ -42,6 +42,7 @@ public final class StoryDaoManager {
     }
 
     private StoryDaoManager() {
+        Contracts.unreachable();
     }
 
     private static final class _StoryDaoInstanceHolder {

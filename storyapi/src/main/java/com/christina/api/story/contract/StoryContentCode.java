@@ -8,12 +8,17 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.data.UriUtils;
 
 public final class StoryContentCode {
-    private static final int ENTITY_CODE_SHIFT = Integer.SIZE / 2;
+    private static final int ENTITY_CODE_SHIFT;
 
-    private static final int QUERY_MASK = (Integer.MAX_VALUE >> ENTITY_CODE_SHIFT) + 1;
+    private static final int QUERY_MASK;
+
+    static {
+        ENTITY_CODE_SHIFT = Integer.SIZE / 2;
+        QUERY_MASK = Integer.MAX_VALUE >>> ENTITY_CODE_SHIFT - 1;
+    }
 
     public static int make(final int entityTypeCode, final int queryCode) {
-        return (entityTypeCode << ENTITY_CODE_SHIFT) | queryCode;
+        return entityTypeCode << ENTITY_CODE_SHIFT | queryCode;
     }
 
     public static int getQueryCode(final int storyCode) {
@@ -25,12 +30,17 @@ public final class StoryContentCode {
     }
 
     private StoryContentCode() {
+        Contracts.unreachable();
     }
 
     public static final class Matcher {
 
         @NonNull
-        private static final UriMatcher _URI_MATCHER = _createUriMatcher();
+        private static final UriMatcher _URI_MATCHER;
+
+        static {
+            _URI_MATCHER = _createUriMatcher();
+        }
 
         @NonNull
         private static UriMatcher _createUriMatcher() {
@@ -60,6 +70,7 @@ public final class StoryContentCode {
         }
 
         private Matcher() {
+            Contracts.unreachable();
         }
     }
 }

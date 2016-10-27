@@ -1,13 +1,9 @@
 package com.christina.app.story;
 
 import android.app.Application;
-import android.util.Log;
 
 import com.christina.api.story.dao.StoryDaoManager;
-import com.christina.app.story.core.StoryTextUtils;
 import com.christina.app.story.debug.FakeDatabase;
-
-import java.util.List;
 
 /**
  * TODO:
@@ -24,19 +20,9 @@ import java.util.List;
  * </ul>
  */
 public class ShortStoryMaker extends Application {
-    private static final String LOG_TAG = "ShortStoryMaker";
-
     @Override
     public void onCreate() {
         super.onCreate();
-
-        final List<String> defaultSplit = StoryTextUtils.defaultSplit(
-            "Привет! Это моя первая короткая история. Она сделана для теста. Как она вам?");
-
-        int i = 0;
-        for (final String part : defaultSplit) {
-            Log.d(LOG_TAG, "onCreate: " + i++ + " :\"" + part + "\"");
-        }
 
         StoryDaoManager.initialize(getContentResolver());
 

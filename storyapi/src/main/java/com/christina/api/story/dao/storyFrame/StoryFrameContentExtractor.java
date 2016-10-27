@@ -4,10 +4,10 @@ import android.content.ContentValues;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.christina.common.contract.Contracts;
-import com.christina.common.data.model.factory.ModelContentExtractor;
 import com.christina.api.story.database.StoryTable;
 import com.christina.api.story.model.StoryFrame;
+import com.christina.common.contract.Contracts;
+import com.christina.common.data.model.factory.ModelContentExtractor;
 
 public final class StoryFrameContentExtractor implements ModelContentExtractor<StoryFrame> {
     @NonNull

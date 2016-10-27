@@ -13,7 +13,7 @@ public final class StoriesLoader extends AsyncTaskLoader<StoriesLoaderResult> {
 
     @Override
     public final StoriesLoaderResult loadInBackground() {
-        return new StoriesLoaderResult(StoryDaoManager.getStoryDao().get().asList());
+        return new StoriesLoaderResult(StoryDaoManager.getStoryDao().getAll().asList());
     }
 
     @Override

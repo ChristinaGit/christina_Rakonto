@@ -4,8 +4,8 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.christina.common.contract.Contracts;
 import com.christina.api.story.database.StoryTable;
+import com.christina.common.contract.Contracts;
 
 public final class StoryFullProjection {
     public static final String[] PROJECTION;
@@ -73,5 +73,9 @@ public final class StoryFullProjection {
         PROJECTION[INDEX_MODIFY_DATE] = StoryTable.Story.COLUMN_MODIFY_DATE;
         PROJECTION[INDEX_TEXT] = StoryTable.Story.COLUMN_TEXT;
         PROJECTION[INDEX_PREVIEW] = StoryTable.Story.COLUMN_PREVIEW;
+    }
+
+    private StoryFullProjection() {
+        Contracts.unreachable();
     }
 }

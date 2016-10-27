@@ -1,11 +1,8 @@
 package com.christina.app.story.fragment.storyTextEditor;
 
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -15,33 +12,13 @@ import android.widget.EditText;
 
 import com.christina.api.story.dao.StoryDaoManager;
 import com.christina.api.story.model.Story;
-import com.christina.api.story.observer.StoryContentObserver;
-import com.christina.api.story.observer.StoryObserverEventArgs;
 import com.christina.app.story.R;
-import com.christina.app.story.fragment.BaseStoryFragment;
-import com.christina.app.story.fragment.storyTextEditor.loader.StoryLoader;
-import com.christina.app.story.fragment.storyTextEditor.loader.StoryLoaderResult;
+import com.christina.app.story.fragment.StoryEditorFragment;
+import com.christina.app.story.fragment.singleStory.BaseSingleStoryFragment;
 import com.christina.common.BaseTextWatcher;
-import com.christina.common.contract.Contracts;
-import com.christina.common.event.EventHandler;
 
-public final class StoryTextEditorFragment extends BaseStoryFragment {
-    protected static int loaderIndexer = 0;
-
-    private static final int LOADER_ID_STORY = loaderIndexer++;
-
-    public final long getStoryId() {
-        return _storyId;
-    }
-
-    public final void setStoryId(final long storyId) {
-        if (storyId != _storyId) {
-            _storyId = storyId;
-
-            onStoryIdChanged();
-        }
-    }
-
+public final class StoryTextEditorFragment extends BaseSingleStoryFragment
+    implements StoryEditorFragment {
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
@@ -54,25 +31,6 @@ public final class StoryTextEditorFragment extends BaseStoryFragment {
         super.onViewCreated(view, savedInstanceState);
 
         _storyTextView = (EditText) view.findViewById(R.id.story_text);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        if (storyContentObserver != null) {
-            storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (getStory() == null) {
-            startStoryLoading();
-        }
     }
 
     @Override
@@ -92,6 +50,11 @@ public final class StoryTextEditorFragment extends BaseStoryFragment {
             _storyTextView.removeTextChangedListener(_storyTextWatcher);
         }
 
+        saveStoryChanges();
+    }
+
+    @Override
+    public void saveStoryChanges() {
         final Story story = getStory();
         if (story != null) {
             story.setModifyDate();
@@ -100,35 +63,6 @@ public final class StoryTextEditorFragment extends BaseStoryFragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        if (storyContentObserver != null) {
-            storyContentObserver.onStoryChanged().removeHandler(_storyChangedHandler);
-        }
-    }
-
-    @Nullable
-    protected final Story getStory() {
-        return _story;
-    }
-
-    protected final void startStoryLoading() {
-        getLoaderManager().restartLoader(LOADER_ID_STORY, null, _storyLoaderCallbacks);
-    }
-
-    protected final void stopStoryLoading() {
-        getLoaderManager().destroyLoader(LOADER_ID_STORY);
-    }
-
-    @CallSuper
-    protected void onStoryIdChanged() {
-        if (isAdded() && isResumed()) {
-            startStoryLoading();
-        }
-    }
-
     protected void onStoryLoaded() {
         final Story story = getStory();
 
@@ -147,15 +81,13 @@ public final class StoryTextEditorFragment extends BaseStoryFragment {
         }
     }
 
+    @Override
     protected void onStoryReset() {
         if (_storyTextView != null) {
             _storyTextView.setText(null);
             _storyTextView.setEnabled(true);
         }
     }
-
-    @Nullable
-    private Story _story;
 
     @NonNull
     private final TextWatcher _storyTextWatcher = new BaseTextWatcher() {
@@ -174,50 +106,6 @@ public final class StoryTextEditorFragment extends BaseStoryFragment {
         }
     };
 
-    private long _storyId = Story.NO_ID;
-
     @Nullable
     private EditText _storyTextView;
-
-    @NonNull
-    private final LoaderManager.LoaderCallbacks<StoryLoaderResult> _storyLoaderCallbacks =
-        new LoaderManager.LoaderCallbacks<StoryLoaderResult>() {
-            @Override
-            public Loader<StoryLoaderResult> onCreateLoader(final int id, final Bundle args) {
-                if (id == LOADER_ID_STORY) {
-                    return new StoryLoader(getActivity(), getStoryId());
-                } else {
-                    throw new IllegalArgumentException("Illegal loader id.");
-                }
-            }
-
-            @Override
-            public void onLoadFinished(final Loader<StoryLoaderResult> loader,
-                final StoryLoaderResult data) {
-                _story = data.getStory();
-
-                onStoryLoaded();
-            }
-
-            @Override
-            public void onLoaderReset(final Loader<StoryLoaderResult> loader) {
-                _story = null;
-
-                onStoryReset();
-            }
-        };
-
-    @NonNull
-    private final EventHandler<StoryObserverEventArgs> _storyChangedHandler =
-        new EventHandler<StoryObserverEventArgs>() {
-            @Override
-            public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
-                Contracts.requireNonNull(eventArgs, "eventArgs == null");
-
-                final Story story = getStory();
-                if (story != null && story.getId() == eventArgs.getId()) {
-                    startStoryLoading();
-                }
-            }
-        };
 }

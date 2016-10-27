@@ -4,9 +4,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.christina.api.story.model.StoryFrame;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.model.factory.ContentModelFactory;
-import com.christina.api.story.model.StoryFrame;
 
 public final class StoryFrameModelFactory implements ContentModelFactory<StoryFrame> {
     @NonNull
