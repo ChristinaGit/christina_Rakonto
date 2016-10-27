@@ -59,17 +59,14 @@ public final class StoryTextEditorFragment extends BaseSingleStoryFragment
         if (getStory() == null) {
             startStoryLoading();
         }
-
-        if (_storyTextView != null) {
-            ImeUtils.showIme(_storyTextView);
-        }
     }
 
     @Override
     public void onStopEditing() {
-        if (_storyTextView != null) {
+        if (_storyTextView != null && _storyTextView.hasFocus()) {
             ImeUtils.hideIme(_storyTextView);
         }
+        saveStoryChanges();
     }
 
     protected final void saveStoryChanges() {
