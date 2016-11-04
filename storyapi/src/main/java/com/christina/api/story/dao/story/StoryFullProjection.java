@@ -10,21 +10,41 @@ import com.christina.common.contract.Contracts;
 public final class StoryFullProjection {
     public static final String[] PROJECTION;
 
-    private static int _indexer = 0;
+    public static final int INDEX_ID;
 
-    public static final int INDEX_ID = _indexer++;
+    public static final int INDEX_NAME;
 
-    public static final int INDEX_NAME = _indexer++;
+    public static final int INDEX_CREATE_DATE;
 
-    public static final int INDEX_CREATE_DATE = _indexer++;
+    public static final int INDEX_MODIFY_DATE;
 
-    public static final int INDEX_MODIFY_DATE = _indexer++;
+    public static final int INDEX_TEXT;
 
-    public static final int INDEX_TEXT = _indexer++;
+    public static final int INDEX_PREVIEW;
 
-    public static final int INDEX_PREVIEW = _indexer++;
+    public static final int COLUMN_COUNT;
 
-    public static final int COLUMN_COUNT = _indexer;
+    static {
+        int indexer = 0;
+
+        INDEX_ID = indexer++;
+        INDEX_NAME = indexer++;
+        INDEX_CREATE_DATE = indexer++;
+        INDEX_MODIFY_DATE = indexer++;
+        INDEX_TEXT = indexer++;
+        INDEX_PREVIEW = indexer++;
+
+        COLUMN_COUNT = indexer;
+
+        PROJECTION = new String[COLUMN_COUNT];
+
+        PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
+        PROJECTION[INDEX_NAME] = StoryTable.Story.COLUMN_NAME;
+        PROJECTION[INDEX_CREATE_DATE] = StoryTable.Story.COLUMN_CREATE_DATE;
+        PROJECTION[INDEX_MODIFY_DATE] = StoryTable.Story.COLUMN_MODIFY_DATE;
+        PROJECTION[INDEX_TEXT] = StoryTable.Story.COLUMN_TEXT;
+        PROJECTION[INDEX_PREVIEW] = StoryTable.Story.COLUMN_PREVIEW;
+    }
 
     public static long getId(@NonNull final Cursor cursor) {
         Contracts.requireNonNull(cursor, "cursor == null");
@@ -63,16 +83,6 @@ public final class StoryFullProjection {
         Contracts.requireNonNull(cursor, "cursor == null");
 
         return cursor.getString(INDEX_PREVIEW);
-    }
-
-    static {
-        PROJECTION = new String[COLUMN_COUNT];
-        PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
-        PROJECTION[INDEX_NAME] = StoryTable.Story.COLUMN_NAME;
-        PROJECTION[INDEX_CREATE_DATE] = StoryTable.Story.COLUMN_CREATE_DATE;
-        PROJECTION[INDEX_MODIFY_DATE] = StoryTable.Story.COLUMN_MODIFY_DATE;
-        PROJECTION[INDEX_TEXT] = StoryTable.Story.COLUMN_TEXT;
-        PROJECTION[INDEX_PREVIEW] = StoryTable.Story.COLUMN_PREVIEW;
     }
 
     private StoryFullProjection() {

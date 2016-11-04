@@ -38,7 +38,7 @@ import java.util.Collection;
 import java.util.List;
 
 public final class StoriesViewerFragment extends BaseStoryFragment {
-    private static final String KEY_SAVED_STATE =
+    private static final String _KEY_SAVED_STATE =
         ConstantBuilder.savedStateKey(StoriesViewerFragment.class, "saved_state");
 
     protected static int loaderIndexer = 0;
@@ -64,7 +64,7 @@ public final class StoriesViewerFragment extends BaseStoryFragment {
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState != null) {
-            _savedState = savedInstanceState.getParcelable(KEY_SAVED_STATE);
+            _savedState = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
             getSavedState().setScrollPositionRestored(false);
         }
 
@@ -98,7 +98,7 @@ public final class StoriesViewerFragment extends BaseStoryFragment {
         if (outState != null) {
             final StoriesViewerSavedState savedState = getSavedState();
             savedState.setScrollPosition(getStoriesLayoutManager().findFirstVisibleItemPosition());
-            outState.putParcelable(KEY_SAVED_STATE, savedState);
+            outState.putParcelable(_KEY_SAVED_STATE, savedState);
         }
     }
 

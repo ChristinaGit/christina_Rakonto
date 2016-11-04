@@ -54,12 +54,14 @@ public final class StoriesAdapter
         holder.editStoryView.setTag(R.id.holder_story_id, listItem.getId());
         holder.editStoryView.setOnClickListener(_editStoryOnClick);
 
-        holder.storyNameView.setText(listItem.getStoryName());
-        holder.storyTextView.setText(listItem.getStoryText());
+        final Story story = listItem.getStory();
+
+        holder.storyNameView.setText(story.getName());
+        holder.storyTextView.setText(story.getText());
 
         Glide
             .with(holder.getContext())
-            .load(listItem.getStoryPreviewUri())
+            .load(story.getPreviewUri())
             .asBitmap()
             .animate(android.R.anim.fade_in)
             .centerCrop()

@@ -1,4 +1,4 @@
-package com.christina.app.story.fragment.storyTextPartsEditor;
+package com.christina.app.story.fragment.storyFramesEditor;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,13 +12,13 @@ import android.view.ViewGroup;
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryTextUtils;
-import com.christina.app.story.fragment.singleStory.BaseSingleStoryFragment;
-import com.christina.app.story.fragment.storyTextPartsEditor.adapter.StoryTextPartsAdapter;
+import com.christina.app.story.fragment.fullSingleStory.FullSingleStoryFragment;
+import com.christina.app.story.fragment.storyFramesEditor.adapter.StoryTextPartsAdapter;
 import com.christina.common.contract.Contracts;
 
 import java.util.List;
 
-public class StoryTextPartsEditorFragment extends BaseSingleStoryFragment {
+public class StoryFramesEditorFragment extends FullSingleStoryFragment {
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,

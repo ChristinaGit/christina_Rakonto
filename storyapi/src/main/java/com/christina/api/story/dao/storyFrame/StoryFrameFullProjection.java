@@ -10,17 +10,33 @@ import com.christina.common.contract.Contracts;
 final class StoryFrameFullProjection {
     public static final String[] PROJECTION;
 
-    private static int _indexer = 0;
+    public static final int INDEX_ID;
 
-    public static final int INDEX_ID = _indexer++;
+    public static final int INDEX_STORY_ID;
 
-    public static final int INDEX_STORY_ID = _indexer++;
+    public static final int INDEX_TEXT_POSITION;
 
-    public static final int INDEX_TEXT_POSITION = _indexer++;
+    public static final int INDEX_IMAGE;
 
-    public static final int INDEX_IMAGE = _indexer++;
+    public static final int COLUMN_COUNT;
 
-    public static final int COLUMN_COUNT = _indexer;
+    static {
+        int indexer = 0;
+
+        INDEX_ID = indexer++;
+        INDEX_STORY_ID = indexer++;
+        INDEX_TEXT_POSITION = indexer++;
+        INDEX_IMAGE = indexer++;
+
+        COLUMN_COUNT = indexer;
+
+        PROJECTION = new String[COLUMN_COUNT];
+
+        PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
+        PROJECTION[INDEX_STORY_ID] = StoryTable.StoryFrame.COLUMN_STORY_ID;
+        PROJECTION[INDEX_TEXT_POSITION] = StoryTable.StoryFrame.COLUMN_TEXT_POSITION;
+        PROJECTION[INDEX_IMAGE] = StoryTable.StoryFrame.COLUMN_IMAGE;
+    }
 
     public static long getId(@NonNull final Cursor cursor) {
         Contracts.requireNonNull(cursor, "cursor == null");
@@ -45,14 +61,6 @@ final class StoryFrameFullProjection {
         Contracts.requireNonNull(cursor, "cursor == null");
 
         return cursor.getString(INDEX_IMAGE);
-    }
-
-    static {
-        PROJECTION = new String[COLUMN_COUNT];
-        PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
-        PROJECTION[INDEX_STORY_ID] = StoryTable.StoryFrame.COLUMN_STORY_ID;
-        PROJECTION[INDEX_TEXT_POSITION] = StoryTable.StoryFrame.COLUMN_TEXT_POSITION;
-        PROJECTION[INDEX_IMAGE] = StoryTable.StoryFrame.COLUMN_IMAGE;
     }
 
     private StoryFrameFullProjection() {

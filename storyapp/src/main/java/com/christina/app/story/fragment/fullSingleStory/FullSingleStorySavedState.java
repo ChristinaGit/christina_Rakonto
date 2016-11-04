@@ -1,4 +1,4 @@
-package com.christina.app.story.fragment.singleStory;
+package com.christina.app.story.fragment.fullSingleStory;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,23 +6,23 @@ import android.support.annotation.NonNull;
 
 import com.christina.common.contract.Contracts;
 
-public final class BaseSingleStorySavedState implements Parcelable {
-    public static final Creator<BaseSingleStorySavedState> CREATOR =
-        new Creator<BaseSingleStorySavedState>() {
+public final class FullSingleStorySavedState implements Parcelable {
+    public static final Creator<FullSingleStorySavedState> CREATOR =
+        new Creator<FullSingleStorySavedState>() {
             @Override
-            public BaseSingleStorySavedState createFromParcel(final Parcel source) {
+            public FullSingleStorySavedState createFromParcel(final Parcel source) {
                 Contracts.requireNonNull(source, "source == null");
 
-                return new BaseSingleStorySavedState(source);
+                return new FullSingleStorySavedState(source);
             }
 
             @Override
-            public BaseSingleStorySavedState[] newArray(final int size) {
-                return new BaseSingleStorySavedState[size];
+            public FullSingleStorySavedState[] newArray(final int size) {
+                return new FullSingleStorySavedState[size];
             }
         };
 
-    public BaseSingleStorySavedState() {
+    public FullSingleStorySavedState() {
     }
 
     public final long getStoryId() {
@@ -43,7 +43,7 @@ public final class BaseSingleStorySavedState implements Parcelable {
         Contracts.requireNonNull(dest, "dest == null");
     }
 
-    protected BaseSingleStorySavedState(@NonNull final Parcel in) {
+    protected FullSingleStorySavedState(@NonNull final Parcel in) {
         Contracts.requireNonNull(in, "in == null");
     }
 

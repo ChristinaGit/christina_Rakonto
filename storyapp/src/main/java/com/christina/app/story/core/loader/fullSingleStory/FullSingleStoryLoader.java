@@ -1,4 +1,4 @@
-package com.christina.app.story.fragment.singleStory.loader;
+package com.christina.app.story.core.loader.fullSingleStory;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,19 +10,19 @@ import com.christina.api.story.model.StoryFrame;
 
 import java.util.List;
 
-public final class SingleStoryLoader extends AsyncTaskLoader<SingleStoryLoaderResult> {
-    public SingleStoryLoader(@NonNull final Context context, final long storyId) {
+public final class FullSingleStoryLoader extends AsyncTaskLoader<FullSingleStoryLoaderResult> {
+    public FullSingleStoryLoader(@NonNull final Context context, final long storyId) {
         super(context);
 
         _storyId = storyId;
     }
 
     @Override
-    public SingleStoryLoaderResult loadInBackground() {
+    public FullSingleStoryLoaderResult loadInBackground() {
         final Story story = StoryDaoManager.getStoryDao().get(_storyId);
         final List<StoryFrame> storyFrames =
             StoryDaoManager.getStoryFrameDao().getByStoryId(_storyId).asList();
-        return new SingleStoryLoaderResult(story, storyFrames);
+        return new FullSingleStoryLoaderResult(story, storyFrames);
     }
 
     @Override

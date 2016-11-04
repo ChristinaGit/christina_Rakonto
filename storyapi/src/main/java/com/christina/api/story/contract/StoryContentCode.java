@@ -8,25 +8,25 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.data.UriUtils;
 
 public final class StoryContentCode {
-    private static final int ENTITY_CODE_SHIFT;
+    private static final int _ENTITY_CODE_SHIFT;
 
-    private static final int QUERY_MASK;
+    private static final int _QUERY_MASK;
 
     static {
-        ENTITY_CODE_SHIFT = Integer.SIZE / 2;
-        QUERY_MASK = Integer.MAX_VALUE >>> ENTITY_CODE_SHIFT - 1;
+        _ENTITY_CODE_SHIFT = Integer.SIZE / 2;
+        _QUERY_MASK = Integer.MAX_VALUE >>> _ENTITY_CODE_SHIFT - 1;
     }
 
     public static int make(final int entityTypeCode, final int queryCode) {
-        return entityTypeCode << ENTITY_CODE_SHIFT | queryCode;
+        return entityTypeCode << _ENTITY_CODE_SHIFT | queryCode;
     }
 
     public static int getQueryCode(final int storyCode) {
-        return storyCode & QUERY_MASK;
+        return storyCode & _QUERY_MASK;
     }
 
     public static int getEntityTypeCode(final int storyCode) {
-        return storyCode >> ENTITY_CODE_SHIFT;
+        return storyCode >> _ENTITY_CODE_SHIFT;
     }
 
     private StoryContentCode() {

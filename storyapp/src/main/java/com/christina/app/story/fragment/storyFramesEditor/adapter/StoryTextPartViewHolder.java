@@ -1,4 +1,4 @@
-package com.christina.app.story.fragment.storyTextPartsEditor.adapter;
+package com.christina.app.story.fragment.storyFramesEditor.adapter;
 
 import android.support.annotation.NonNull;
 import android.view.View;

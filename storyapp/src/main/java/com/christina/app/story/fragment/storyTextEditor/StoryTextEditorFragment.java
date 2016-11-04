@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +15,56 @@ import com.christina.api.story.dao.StoryDaoManager;
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
 import com.christina.app.story.fragment.StoryEditorFragment;
-import com.christina.app.story.fragment.singleStory.BaseSingleStoryFragment;
+import com.christina.app.story.fragment.fullSingleStory.FullSingleStoryFragment;
 import com.christina.common.ImeUtils;
 import com.christina.common.SimpleTextWatcher;
+import com.christina.common.event.BaseEvent;
+import com.christina.common.event.BaseNoticeEvent;
+import com.christina.common.event.Event;
+import com.christina.common.event.NoticeEvent;
 
-public final class StoryTextEditorFragment extends BaseSingleStoryFragment
+public final class StoryTextEditorFragment extends FullSingleStoryFragment
     implements StoryEditorFragment {
+    @NonNull
+    public final Event<StoryTextChangedEventArgs> onStoryTextChanged() {
+        return _storyTextChanged;
+    }
+
+    @Override
+    public boolean hasContent() {
+        final boolean hasContent;
+
+        final Story story = getStory();
+        if (story != null) {
+            hasContent = !TextUtils.isEmpty(story.getText());
+        } else {
+            hasContent = false;
+        }
+
+        return hasContent;
+    }
+
+    @NonNull
+    @Override
+    public final NoticeEvent onContentChanged() {
+        return _contentChangedChanged;
+    }
+
+    @Override
+    public void onStartEditing() {
+        if (getStory() == null) {
+            startStoryLoading();
+        }
+    }
+
+    @Override
+    public void onStopEditing() {
+        if (_storyTextView != null && _storyTextView.hasFocus()) {
+            ImeUtils.hideIme(_storyTextView);
+        }
+        saveStoryChanges();
+    }
+
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
@@ -54,21 +99,6 @@ public final class StoryTextEditorFragment extends BaseSingleStoryFragment
         saveStoryChanges();
     }
 
-    @Override
-    public void onStartEditing() {
-        if (getStory() == null) {
-            startStoryLoading();
-        }
-    }
-
-    @Override
-    public void onStopEditing() {
-        if (_storyTextView != null && _storyTextView.hasFocus()) {
-            ImeUtils.hideIme(_storyTextView);
-        }
-        saveStoryChanges();
-    }
-
     protected final void saveStoryChanges() {
         final Story story = getStory();
         if (story != null) {
@@ -93,6 +123,8 @@ public final class StoryTextEditorFragment extends BaseSingleStoryFragment
             }
 
             _storyTextView.setText(storyText);
+        } else {
+            _contentChangedChanged.rise();
         }
     }
 
@@ -105,6 +137,12 @@ public final class StoryTextEditorFragment extends BaseSingleStoryFragment
     }
 
     @NonNull
+    private final BaseNoticeEvent _contentChangedChanged = new BaseNoticeEvent();
+
+    @NonNull
+    private final BaseEvent<StoryTextChangedEventArgs> _storyTextChanged = new BaseEvent<>();
+
+    @NonNull
     private final TextWatcher _storyTextWatcher = new SimpleTextWatcher() {
         @Override
         public void afterTextChanged(final Editable s) {
@@ -114,9 +152,14 @@ public final class StoryTextEditorFragment extends BaseSingleStoryFragment
             } else {
                 storyText = null;
             }
+
             final Story story = getStory();
             if (story != null) {
+                final String oldStoryText = story.getText();
                 story.setText(storyText);
+
+                _storyTextChanged.rise(new StoryTextChangedEventArgs(oldStoryText, storyText));
+                _contentChangedChanged.rise();
             }
         }
     };

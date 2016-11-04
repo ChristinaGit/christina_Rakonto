@@ -1,4 +1,4 @@
-package com.christina.app.story.fragment.singleStory;
+package com.christina.app.story.operation.fullSingleStory;
 
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
@@ -12,9 +12,9 @@ import com.christina.api.story.model.StoryFrame;
 import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.api.story.observer.StoryObserverEventArgs;
 import com.christina.api.story.util.StoryPredicate;
-import com.christina.app.story.fragment.BaseStoryFragment;
-import com.christina.app.story.fragment.singleStory.loader.SingleStoryLoader;
-import com.christina.app.story.fragment.singleStory.loader.SingleStoryLoaderResult;
+import com.christina.app.story.core.loader.fullSingleStory.FullSingleStoryLoader;
+import com.christina.app.story.core.loader.fullSingleStory.FullSingleStoryLoaderResult;
+import com.christina.app.story.operation.BaseStoryActivity;
 import com.christina.common.ConstantBuilder;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.EventHandler;
@@ -23,9 +23,9 @@ import org.apache.commons.collections4.IterableUtils;
 
 import java.util.List;
 
-public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
-    private static final String KEY_SAVED_STATE =
-        ConstantBuilder.savedStateKey(BaseSingleStoryFragment.class, "saved_state");
+public abstract class FullSingleStoryActivity extends BaseStoryActivity {
+    private static final String _KEY_SAVED_STATE =
+        ConstantBuilder.savedStateKey(FullSingleStoryActivity.class, "saved_state");
 
     protected static int loaderIndexer = 0;
 
@@ -45,29 +45,6 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
 
     @CallSuper
     @Override
-    public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SAVED_STATE)) {
-            final BaseSingleStorySavedState savedState =
-                savedInstanceState.getParcelable(KEY_SAVED_STATE);
-
-            if (savedState != null) {
-                _savedState = savedState;
-
-                setStoryId(_savedState.getStoryId());
-            }
-        }
-
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        if (storyContentObserver != null) {
-            storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
-            storyContentObserver.onStoryFrameChanged().addHandler(_storyFramesChangedHandler);
-        }
-    }
-
-    @CallSuper
-    @Override
     public void onStart() {
         super.onStart();
 
@@ -77,25 +54,13 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
     }
 
     @Override
-    public void onSaveInstanceState(final Bundle outState) {
+    protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
 
         if (outState != null) {
-            final BaseSingleStorySavedState savedState = getSavedState();
+            final FullSingleStorySavedState savedState = getSavedState();
             savedState.setStoryId(getStoryId());
-            outState.putParcelable(KEY_SAVED_STATE, savedState);
-        }
-    }
-
-    @CallSuper
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        if (storyContentObserver != null) {
-            storyContentObserver.onStoryChanged().removeHandler(_storyChangedHandler);
-            storyContentObserver.onStoryFrameChanged().removeHandler(_storyFramesChangedHandler);
+            outState.putParcelable(_KEY_SAVED_STATE, savedState);
         }
     }
 
@@ -110,11 +75,41 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
     }
 
     protected final void startStoryLoading() {
-        getLoaderManager().restartLoader(LOADER_ID_STORY, null, _storyLoaderCallbacks);
+        getSupportLoaderManager().restartLoader(LOADER_ID_STORY, null, _storyLoaderCallbacks);
     }
 
     protected final void stopStoryLoading() {
-        getLoaderManager().destroyLoader(LOADER_ID_STORY);
+        getSupportLoaderManager().destroyLoader(LOADER_ID_STORY);
+    }
+
+    @Override
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(_KEY_SAVED_STATE)) {
+            final FullSingleStorySavedState savedState =
+                savedInstanceState.getParcelable(_KEY_SAVED_STATE);
+
+            if (savedState != null) {
+                _savedState = savedState;
+
+                setStoryId(_savedState.getStoryId());
+            }
+        }
+
+        final StoryContentObserver storyContentObserver = getStoryContentObserver();
+        storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
+        storyContentObserver.onStoryFrameChanged().addHandler(_storyFramesChangedHandler);
+    }
+
+    @CallSuper
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        final StoryContentObserver storyContentObserver = getStoryContentObserver();
+        storyContentObserver.onStoryChanged().removeHandler(_storyChangedHandler);
+        storyContentObserver.onStoryFrameChanged().removeHandler(_storyFramesChangedHandler);
     }
 
     protected void onStoryContentChanged() {
@@ -127,10 +122,7 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
 
     @CallSuper
     protected void onStoryIdChanged() {
-
-        if (isAdded() && isResumed()) {
-            startStoryLoading();
-        }
+        startStoryLoading();
     }
 
     protected abstract void onStoryLoaded();
@@ -138,7 +130,7 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
     protected abstract void onStoryReset();
 
     @Nullable
-    private BaseSingleStorySavedState _savedState;
+    private FullSingleStorySavedState _savedState;
 
     @Nullable
     private Story _story;
@@ -149,20 +141,21 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
     private long _storyId = Story.NO_ID;
 
     @NonNull
-    private final LoaderManager.LoaderCallbacks<SingleStoryLoaderResult> _storyLoaderCallbacks =
-        new LoaderManager.LoaderCallbacks<SingleStoryLoaderResult>() {
+    private final LoaderManager.LoaderCallbacks<FullSingleStoryLoaderResult> _storyLoaderCallbacks =
+        new LoaderManager.LoaderCallbacks<FullSingleStoryLoaderResult>() {
             @Override
-            public Loader<SingleStoryLoaderResult> onCreateLoader(final int id, final Bundle args) {
+            public Loader<FullSingleStoryLoaderResult> onCreateLoader(final int id,
+                final Bundle args) {
                 if (id == LOADER_ID_STORY) {
-                    return new SingleStoryLoader(getActivity(), getStoryId());
+                    return new FullSingleStoryLoader(getApplicationContext(), getStoryId());
                 } else {
                     throw new IllegalArgumentException("Illegal loader id.");
                 }
             }
 
             @Override
-            public void onLoadFinished(final Loader<SingleStoryLoaderResult> loader,
-                final SingleStoryLoaderResult data) {
+            public void onLoadFinished(final Loader<FullSingleStoryLoaderResult> loader,
+                final FullSingleStoryLoaderResult data) {
                 _story = data.getStory();
                 _storyFrames = data.getStoryFrames();
 
@@ -170,7 +163,7 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
             }
 
             @Override
-            public void onLoaderReset(final Loader<SingleStoryLoaderResult> loader) {
+            public void onLoaderReset(final Loader<FullSingleStoryLoaderResult> loader) {
                 _story = null;
                 _storyFrames = null;
 
@@ -208,9 +201,9 @@ public abstract class BaseSingleStoryFragment extends BaseStoryFragment {
         };
 
     @NonNull
-    private BaseSingleStorySavedState getSavedState() {
+    private FullSingleStorySavedState getSavedState() {
         if (_savedState == null) {
-            _savedState = new BaseSingleStorySavedState();
+            _savedState = new FullSingleStorySavedState();
         }
 
         return _savedState;
