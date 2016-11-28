@@ -13,15 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.christina.api.story.contract.StoryContentCode;
+import com.christina.api.story.contract.StoryContentContract;
 import com.christina.api.story.contract.StoryContract;
-import com.christina.api.story.dao.StoryDaoManager;
+import com.christina.api.story.dao.story.StoryDao;
 import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
+import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryTextUtils;
 import com.christina.app.story.fragment.StoryEditorFragment;
-import com.christina.app.story.operation.BaseStoryActivity;
+import com.christina.app.story.view.activity.BaseStoryActivity;
 import com.christina.common.ConstantBuilder;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.EventHandler;
@@ -29,7 +31,17 @@ import com.christina.common.view.AnimationViewUtils;
 
 import java.util.List;
 
-public class EditStoryActivity extends BaseStoryActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import lombok.val;
+
+@Accessors(prefix = "_")
+public class EditStoryActivity extends BaseStoryActivity {
     private static final String _KEY_SAVED_STATE =
         ConstantBuilder.savedStateKey(EditStoryActivity.class, "saved_state");
 
@@ -61,7 +73,8 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         context.startActivity(getInsertIntent(context));
     }
 
-    public static void startInsertForResult(@NonNull final Activity activity,
+    public static void startInsertForResult(
+        @NonNull final Activity activity,
         final int requestCode) {
         Contracts.requireNonNull(activity, "activity == null");
 
@@ -84,29 +97,13 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         context.startActivity(getEditIntent(context, storyId));
     }
 
-    public static void startEditForResult(@NonNull final Activity activity, final long storyId,
+    public static void startEditForResult(
+        @NonNull final Activity activity,
+        final long storyId,
         final int requestCode) {
         Contracts.requireNonNull(activity, "activity == null");
 
         activity.startActivityForResult(getEditIntent(activity, storyId), requestCode);
-    }
-
-    @CallSuper
-    @Override
-    public void onClick(final View v) {
-        switch (v.getId()) {
-            case R.id.next_step: {
-                nextStep();
-                break;
-            }
-            case R.id.previous_step: {
-                previousStep();
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("Click at unknown view.");
-            }
-        }
     }
 
     @NonNull
@@ -153,15 +150,6 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         }
     }
 
-    @CallSuper
-    protected void findViews() {
-        _contentContainerView = (ViewGroup) findViewById(R.id.content_container);
-        _navigationBarView = findViewById(R.id.navigation_bar);
-        _nextStepView = findViewById(R.id.next_step);
-        _previousStepView = findViewById(R.id.previous_step);
-        _stepPagerView = (ViewPager) findViewById(R.id.creation_step_pager);
-    }
-
     protected boolean isNextStepAvailable() {
         boolean isNextStepAvailable = false;
 
@@ -171,8 +159,7 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
             isNextStepAvailable = !lastStep;
 
             if (isNextStepAvailable) {
-                final StoryEditorFragment editorFragment =
-                    getEditStoryScreensAdapter().getEditorFragment(position);
+                final val editorFragment = getEditStoryScreensAdapter().getEditorFragment(position);
                 if (editorFragment != null) {
                     isNextStepAvailable = editorFragment.hasContent();
                 }
@@ -194,69 +181,10 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         return isPreviousStepAvailable;
     }
 
-    @Override
-    protected void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        final boolean initialized;
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(_KEY_SAVED_STATE)) {
-            _savedState = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
-
-            if (_savedState != null) {
-                _mode = _savedState.getMode();
-                _storyId = _savedState.getStoryId();
-
-                initialized = true;
-            } else {
-                initialized = false;
-            }
-        } else {
-            initialized = onHandleIntent(getIntent());
-        }
-
-        if (initialized) {
-            setContentView(R.layout.activity_create_story);
-
-            findViews();
-
-            if (_stepPagerView != null) {
-                final EditStoryScreensAdapter screensAdapter = getEditStoryScreensAdapter();
-                screensAdapter.setStoryId(getStoryId());
-                _stepPagerView.setAdapter(screensAdapter);
-                _stepPagerView.addOnPageChangeListener(getOnStepChangedListener());
-                _stepPagerView.setCurrentItem(getSavedState().getActivePage(), false);
-            }
-            if (_previousStepView != null) {
-                _previousStepView.setOnClickListener(/*Listener*/ this);
-            }
-            if (_nextStepView != null) {
-                _nextStepView.setOnClickListener(/*Listener*/ this);
-            }
-        } else {
-            finish();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (_stepPagerView != null) {
-            _stepPagerView.removeOnPageChangeListener(getOnStepChangedListener());
-        }
-        if (_previousStepView != null) {
-            _previousStepView.setOnClickListener(null);
-        }
-        if (_nextStepView != null) {
-            _nextStepView.setOnClickListener(null);
-        }
-    }
-
     protected void onEnterStep(final int position) {
         if (position == EditStoryScreensAdapter.POSITION_FRAMES_EDITOR &&
             getMode() == Mode.INSERT) {
-            final Story story = StoryDaoManager.getStoryDao().get(getStoryId());
+            final Story story = getStoryDao().get(getStoryId());
             if (story != null) {
                 final String storyText = story.getText();
                 if (storyText != null) {
@@ -264,15 +192,14 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
 
                     final List<String> defaultSplit = StoryTextUtils.defaultSplit(cleanStoryText);
 
-                    final StoryFrameDao storyFrameDao = StoryDaoManager.getStoryFrameDao();
+                    final StoryFrameDao storyFrameDao = getStoryFrameDao();
                     int textPosition = 0;
                     for (final String part : defaultSplit) {
                         textPosition += part.length();
 
-                        final StoryFrame storyFrame = storyFrameDao.create();
+                        final StoryFrame storyFrame = storyFrameDao.create(getStoryId());
                         if (storyFrame != null) {
-                            storyFrame.setStoryId(story.getId());
-                            storyFrame.setTextPosition(textPosition);
+                            //                            storyFrame.setTextPosition(textPosition);
 
                             storyFrameDao.update(storyFrame);
                         }
@@ -287,6 +214,12 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         if (item != null) {
             item.onStartEditing();
         }
+    }
+
+    @Nullable
+    @Override
+    protected View getSnackbarParentView() {
+        return null;
     }
 
     protected boolean onHandleEditIntent(@NonNull final Intent intent) {
@@ -305,7 +238,7 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
                     setResult(RESULT_NO_DATA);
                 }
                 if (storyId != Story.NO_ID) {
-                    final Story story = StoryDaoManager.getStoryDao().get(storyId);
+                    final Story story = getStoryDao().get(storyId);
                     if (story != null) {
                         _storyId = storyId;
 
@@ -340,14 +273,14 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
 
         final boolean intentHandled;
 
-        final Story story = StoryDaoManager.getStoryDao().create();
+        final Story story = getStoryDao().create();
         if (story != null) {
             _storyId = story.getId();
 
-            story.setCreateDate();
-            story.setModifyDate();
+            story.setCreateDate(System.currentTimeMillis());
+            story.setModifyDate(System.currentTimeMillis());
 
-            StoryDaoManager.getStoryDao().update(story);
+            getStoryDao().update(story);
 
             final Intent resultData = new Intent();
             resultData.setData(StoryContract.getStoryUri(String.valueOf(story.getId())));
@@ -399,6 +332,8 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
     protected void onPause() {
         super.onPause();
 
+        getContentResolver().unregisterContentObserver(getStoryContentObserver());
+
         getEditStoryScreensAdapter()
             .onContentChanged()
             .removeHandler(_editFragmentContentChangedHandler);
@@ -408,11 +343,70 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
     protected void onResume() {
         super.onResume();
 
+        getContentResolver().registerContentObserver(StoryContentContract.CONTENT_URI,
+                                                     true,
+                                                     getStoryContentObserver());
+
         getEditStoryScreensAdapter()
             .onContentChanged()
             .addHandler(_editFragmentContentChangedHandler);
 
         _updateNavigationButtons();
+    }
+
+    @Override
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getStoryViewComponent().inject(this);
+
+        final boolean initialized;
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(_KEY_SAVED_STATE)) {
+            _savedState = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
+
+            if (_savedState != null) {
+                _mode = _savedState.getMode();
+                _storyId = _savedState.getStoryId();
+
+                initialized = true;
+            } else {
+                initialized = false;
+            }
+        } else {
+            initialized = onHandleIntent(getIntent());
+        }
+
+        if (initialized) {
+            setContentView(R.layout.activity_create_story);
+
+            bindViews();
+
+            if (_stepPagerView != null) {
+                final EditStoryScreensAdapter screensAdapter = getEditStoryScreensAdapter();
+                screensAdapter.setStoryId(getStoryId());
+                _stepPagerView.setAdapter(screensAdapter);
+                _stepPagerView.addOnPageChangeListener(getOnStepChangedListener());
+                _stepPagerView.setCurrentItem(getSavedState().getActivePage(), false);
+            }
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (_stepPagerView != null) {
+            _stepPagerView.removeOnPageChangeListener(getOnStepChangedListener());
+        }
+        if (_previousStepView != null) {
+            _previousStepView.setOnClickListener(null);
+        }
+        if (_nextStepView != null) {
+            _nextStepView.setOnClickListener(null);
+        }
     }
 
     @Override
@@ -432,32 +426,50 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
         }
     }
 
+    @BindView(R.id.content_container)
     @Nullable
-    private ViewGroup _contentContainerView;
+    /*package-private*/ ViewGroup _contentContainerView;
+
+    @BindView(R.id.navigation_bar)
+    @Nullable
+    /*package-private*/ View _navigationBarView;
+
+    @BindView(R.id.next_step)
+    @Nullable
+    /*package-private*/ View _nextStepView;
+
+    @BindView(R.id.previous_step)
+    @Nullable
+    /*package-private*/ View _previousStepView;
+
+    @BindView(R.id.creation_step_pager)
+    @Nullable
+    /*package-private*/ ViewPager _stepPagerView;
+
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    /*package-private*/ StoryContentObserver _storyContentObserver;
+
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    /*package-private*/ StoryDao _storyDao;
+
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    /*package-private*/ StoryFrameDao _storyFrameDao;
+
+    @OnClick(R.id.next_step)
+    /*package-private*/ void onNextStepClick() {
+        nextStep();
+    }
+
+    @OnClick(R.id.next_step)
+    /*package-private*/ void onPreviousStepClick() {
+        previousStep();
+    }
 
     @Nullable
     private EditStoryScreensAdapter _editStoryScreensAdapter;
-
-    @Nullable
-    private Mode _mode;
-
-    @Nullable
-    private View _navigationBarView;
-
-    @Nullable
-    private View _nextStepView;
-
-    @Nullable
-    private ViewPager.OnPageChangeListener _onStepChangedListener;
-
-    @Nullable
-    private View _previousStepView;
-
-    @Nullable
-    private EditStorySavedState _savedState;
-
-    @Nullable
-    private ViewPager _stepPagerView;
 
     @NonNull
     private final EventHandler<Integer> _editFragmentContentChangedHandler =
@@ -470,6 +482,15 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
             }
         };
 
+    @Nullable
+    private Mode _mode;
+
+    @Nullable
+    private ViewPager.OnPageChangeListener _onStepChangedListener;
+
+    @Nullable
+    private EditStorySavedState _savedState;
+
     private long _storyId = Story.NO_ID;
 
     private void _updateNavigationButtons() {
@@ -479,19 +500,25 @@ public class EditStoryActivity extends BaseStoryActivity implements View.OnClick
 
             if (_nextStepView != null) {
                 final int visibility = nextStepAvailable ? View.VISIBLE : View.GONE;
-                AnimationViewUtils.animateSetVisibility(_nextStepView, visibility,
-                    R.anim.fade_in_short, R.anim.fade_out_short);
+                AnimationViewUtils.animateSetVisibility(_nextStepView,
+                                                        visibility,
+                                                        R.anim.fade_in_short,
+                                                        R.anim.fade_out_short);
             }
             if (_previousStepView != null) {
                 final int visibility = previousStepAvailable ? View.VISIBLE : View.GONE;
-                AnimationViewUtils.animateSetVisibility(_previousStepView, visibility,
-                    R.anim.fade_in_short, R.anim.fade_out_short);
+                AnimationViewUtils.animateSetVisibility(_previousStepView,
+                                                        visibility,
+                                                        R.anim.fade_in_short,
+                                                        R.anim.fade_out_short);
             }
             if (_navigationBarView != null) {
                 final int visibility =
                     nextStepAvailable || previousStepAvailable ? View.VISIBLE : View.GONE;
-                AnimationViewUtils.animateSetVisibility(_navigationBarView, visibility,
-                    R.anim.slide_in_bottom_medium, R.anim.slide_out_bottom_medium);
+                AnimationViewUtils.animateSetVisibility(_navigationBarView,
+                                                        visibility,
+                                                        R.anim.slide_in_bottom_medium,
+                                                        R.anim.slide_out_bottom_medium);
             }
         }
     }

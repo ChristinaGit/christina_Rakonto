@@ -33,17 +33,17 @@ public class EditStoryScreensAdapter extends FragmentStatePagerAdapter {
         Contracts.requireNonNull(fragmentManager, "fragmentManager == null");
     }
 
-    @NonNull
-    public final Event<Integer> onContentChanged() {
-        return _contentChanged;
-    }
-
     public final long getStoryId() {
         return _storyId;
     }
 
     public final void setStoryId(final long storyId) {
         _storyId = storyId;
+    }
+
+    @NonNull
+    public final Event<Integer> onContentChanged() {
+        return _contentChanged;
     }
 
     @Override
@@ -130,13 +130,13 @@ public class EditStoryScreensAdapter extends FragmentStatePagerAdapter {
         }
     }
 
-    protected void onDestroyStoryEditorFragment(@NonNull final StoryEditorFragment editorFragment,
-        final int position) {
+    protected void onDestroyStoryEditorFragment(
+        @NonNull final StoryEditorFragment editorFragment, final int position) {
         Contracts.requireNonNull(editorFragment, "editorFragment == null");
 
         final NoticeEventHandler internalHandler = _internalContentChangedHandlers.get(position);
         if (internalHandler != null) {
-            editorFragment.onContentChanged().removeHandler(internalHandler);
+            editorFragment.getOnContentChangedEvent().removeHandler(internalHandler);
             _internalContentChangedHandlers.remove(position);
         }
     }
@@ -166,7 +166,7 @@ public class EditStoryScreensAdapter extends FragmentStatePagerAdapter {
             };
             _internalContentChangedHandlers.append(position, internalHandler);
         }
-        editorFragment.onContentChanged().addHandler(internalHandler);
+        editorFragment.getOnContentChangedEvent().addHandler(internalHandler);
     }
 
     @NonNull

@@ -6,22 +6,30 @@ import android.support.annotation.NonNull;
 
 import com.christina.api.story.model.Story;
 import com.christina.common.contract.Contracts;
-import com.christina.common.data.model.factory.ContentModelFactory;
+import com.christina.common.data.dao.factory.ModelFactory;
 
-public final class StoryModelFactory implements ContentModelFactory<Story> {
+import lombok.val;
+
+public final class StoryModelFactory implements ModelFactory<Story> {
+    public StoryModelFactory(@NonNull final StoryFullProjection fullProjection) {
+        Contracts.requireNonNull(fullProjection, "fullProjection == null");
+
+        _fullProjection = fullProjection;
+    }
+
     @NonNull
     @Override
-    public final Story create(@NonNull final Cursor cursor) {
-        Contracts.requireNonNull(cursor, "cursor == null");
+    public final Story create(@NonNull final Cursor argument) {
+        Contracts.requireNonNull(argument, "argument == null");
 
-        final Story model = create();
+        final val model = create();
 
-        model.setId(StoryFullProjection.getId(cursor));
-        model.setName(StoryFullProjection.getName(cursor));
-        model.setCreateDate(StoryFullProjection.getCreateDate(cursor));
-        model.setModifyDate(StoryFullProjection.getModifyDate(cursor));
-        model.setText(StoryFullProjection.getText(cursor));
-        final String preview = StoryFullProjection.getPreview(cursor);
+        model.setId(_fullProjection.getId(argument));
+        model.setName(_fullProjection.getName(argument));
+        model.setCreateDate(_fullProjection.getCreateDate(argument));
+        model.setModifyDate(_fullProjection.getModifyDate(argument));
+        model.setText(_fullProjection.getText(argument));
+        final String preview = _fullProjection.getPreview(argument);
         if (preview != null) {
             model.setPreviewUri(Uri.parse(preview));
         } else {
@@ -36,4 +44,7 @@ public final class StoryModelFactory implements ContentModelFactory<Story> {
     public final Story create() {
         return new Story();
     }
+
+    @NonNull
+    private final StoryFullProjection _fullProjection;
 }

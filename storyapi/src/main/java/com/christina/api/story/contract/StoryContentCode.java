@@ -46,17 +46,25 @@ public final class StoryContentCode {
         private static UriMatcher _createUriMatcher() {
             final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-            uriMatcher.addURI(StoryContentContract.AUTHORITY,
-                StoryContract.getStoryPath(UriUtils.NUMBER_PLACEHOLDER), StoryContract.CODE_STORY);
-            uriMatcher.addURI(StoryContentContract.AUTHORITY, StoryContract.getStoriesPath(),
+            uriMatcher.addURI(
+                StoryContentContract.AUTHORITY,
+                StoryContract.getStoryPath(UriUtils.NUMBER_PLACEHOLDER),
+                StoryContract.CODE_STORY);
+            uriMatcher.addURI(
+                StoryContentContract.AUTHORITY,
+                StoryContract.getStoriesPath(),
                 StoryContract.CODE_STORIES);
 
-            uriMatcher.addURI(StoryContentContract.AUTHORITY,
+            uriMatcher.addURI(
+                StoryContentContract.AUTHORITY,
                 StoryFrameContract.getStoryFramePath(UriUtils.NUMBER_PLACEHOLDER),
                 StoryFrameContract.CODE_STORY_FRAME);
-            uriMatcher.addURI(StoryContentContract.AUTHORITY,
-                StoryFrameContract.getStoryFramesPath(), StoryFrameContract.CODE_STORY_FRAMES);
-            uriMatcher.addURI(StoryContentContract.AUTHORITY,
+            uriMatcher.addURI(
+                StoryContentContract.AUTHORITY,
+                StoryFrameContract.getStoryFramesPath(),
+                StoryFrameContract.CODE_STORY_FRAMES);
+            uriMatcher.addURI(
+                StoryContentContract.AUTHORITY,
                 StoryFrameContract.getStoryFramesByStoryPath(UriUtils.NUMBER_PLACEHOLDER),
                 StoryFrameContract.CODE_STORY_FRAMES_BY_STORY);
 

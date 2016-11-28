@@ -9,99 +9,74 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryTextUtils;
 import com.christina.app.story.fragment.fullSingleStory.FullSingleStoryFragment;
-import com.christina.app.story.fragment.storyFramesEditor.adapter.StoryTextPartsAdapter;
+import com.christina.app.story.fragment.storyFramesEditor.adapter.StoryFramesAdapter;
 import com.christina.common.contract.Contracts;
-
-import java.util.List;
 
 public class StoryFramesEditorFragment extends FullSingleStoryFragment {
     @Nullable
     @Override
-    public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
+    public View onCreateFragmentView(
+        final LayoutInflater inflater,
+        @Nullable final ViewGroup container,
         @Nullable final Bundle savedInstanceState) {
-        final View view =
-            inflater.inflate(R.layout.fragment_story_text_parts_editor, container, false);
+        final View view = inflater.inflate(R.layout.fragment_story_frames_editor, container, false);
 
-        _storyTextPartsView = (RecyclerView) view.findViewById(R.id.raw_story_frames);
-        onInitializeStoryTextPartsView(_storyTextPartsView);
+        _storyFramesView = (RecyclerView) view.findViewById(R.id.story_frames);
+        onInitializeStoryFramesView(_storyFramesView);
 
         return view;
     }
 
-    @Nullable
-    protected final List<String> getStoryTextParts() {
-        final List<String> storyTextParts;
-
-        String storyText = null;
-
-        final Story story = getStory();
-        if (story != null) {
-            storyText = story.getText();
+    @NonNull
+    protected final StoryFramesAdapter getStoryFramesAdapter() {
+        if (_storyFramesAdapter == null) {
+            _storyFramesAdapter = new StoryFramesAdapter();
         }
-
-        if (storyText != null) {
-            storyText = StoryTextUtils.cleanup(storyText);
-
-            storyTextParts = StoryTextUtils.defaultSplit(storyText);
-        } else {
-            storyTextParts = null;
-        }
-
-        return storyTextParts;
+        return _storyFramesAdapter;
     }
 
     @NonNull
-    protected final StoryTextPartsAdapter getStoryTextPartsAdapter() {
-        if (_storyTextPartsAdapter == null) {
-            _storyTextPartsAdapter = new StoryTextPartsAdapter();
-        }
-        return _storyTextPartsAdapter;
-    }
-
-    @NonNull
-    protected final LinearLayoutManager getStoryTextPartsLayoutManager() {
-        if (_storyTextPartsLayoutManager == null) {
-            _storyTextPartsLayoutManager =
+    protected final LinearLayoutManager getStoryFramesLayoutManager() {
+        if (_storyFramesLayoutManager == null) {
+            _storyFramesLayoutManager =
                 new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         }
 
-        return _storyTextPartsLayoutManager;
+        return _storyFramesLayoutManager;
     }
 
     @Override
     protected void onStoryLoaded() {
-        final List<String> storyTextParts = getStoryTextParts();
-        if (storyTextParts != null) {
-            getStoryTextPartsAdapter().setItems(storyTextParts);
-        } else {
-            getStoryTextPartsAdapter().removeItems();
-        }
+        //        final List<String> storyTextParts = getStoryTextParts();
+        //        if (storyTextParts != null) {
+        //            getStoryFramesAdapter().setItems(storyTextParts);
+        //        } else {
+        //            getStoryFramesAdapter().removeItems();
+        //        }
     }
 
     @Override
     protected void onStoryReset() {
-        final StoryTextPartsAdapter storyTextPartsAdapter = getStoryTextPartsAdapter();
-        storyTextPartsAdapter.removeItems(false);
-        storyTextPartsAdapter.notifyDataSetChanged();
+        final StoryFramesAdapter storyFramesAdapter = getStoryFramesAdapter();
+        storyFramesAdapter.removeItems(false);
+        storyFramesAdapter.notifyDataSetChanged();
     }
 
     @Nullable
-    private StoryTextPartsAdapter _storyTextPartsAdapter;
+    private StoryFramesAdapter _storyFramesAdapter;
 
     @Nullable
-    private LinearLayoutManager _storyTextPartsLayoutManager;
+    private LinearLayoutManager _storyFramesLayoutManager;
 
     @Nullable
-    private RecyclerView _storyTextPartsView;
+    private RecyclerView _storyFramesView;
 
-    private void onInitializeStoryTextPartsView(@NonNull final RecyclerView rawStoryFramesView) {
-        Contracts.requireNonNull(rawStoryFramesView, "rawStoryFramesView == null");
+    private void onInitializeStoryFramesView(@NonNull final RecyclerView storyFramesView) {
+        Contracts.requireNonNull(storyFramesView, "storyFramesView == null");
 
-        rawStoryFramesView.setLayoutManager(getStoryTextPartsLayoutManager());
-        rawStoryFramesView.setAdapter(getStoryTextPartsAdapter());
+        storyFramesView.setLayoutManager(getStoryFramesLayoutManager());
+        storyFramesView.setAdapter(getStoryFramesAdapter());
     }
 }

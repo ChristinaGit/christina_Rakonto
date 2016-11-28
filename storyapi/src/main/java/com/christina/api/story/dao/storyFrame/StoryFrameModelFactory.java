@@ -6,20 +6,29 @@ import android.support.annotation.NonNull;
 
 import com.christina.api.story.model.StoryFrame;
 import com.christina.common.contract.Contracts;
-import com.christina.common.data.model.factory.ContentModelFactory;
+import com.christina.common.data.dao.factory.ModelFactory;
 
-public final class StoryFrameModelFactory implements ContentModelFactory<StoryFrame> {
+import lombok.val;
+
+public final class StoryFrameModelFactory implements ModelFactory<StoryFrame> {
+    public StoryFrameModelFactory(@NonNull final StoryFrameFullProjection fullProjection) {
+        Contracts.requireNonNull(fullProjection, "fullProjection == null");
+
+        _fullProjection = fullProjection;
+    }
+
     @NonNull
     @Override
-    public final StoryFrame create(@NonNull final Cursor cursor) {
-        Contracts.requireNonNull(cursor, "cursor == null");
+    public final StoryFrame create(@NonNull final Cursor argument) {
+        Contracts.requireNonNull(argument, "argument == null");
 
-        final StoryFrame model = create();
+        final val model = create();
 
-        model.setId(StoryFrameFullProjection.getId(cursor));
-        model.setStoryId(StoryFrameFullProjection.getStoryId(cursor));
-        model.setTextPosition(StoryFrameFullProjection.getTextPosition(cursor));
-        final String imageUri = StoryFrameFullProjection.getImage(cursor);
+        model.setId(_fullProjection.getId(argument));
+        model.setStoryId(_fullProjection.getStoryId(argument));
+        model.setTextStartPosition(_fullProjection.getTextStartPosition(argument));
+        model.setTextEndPosition(_fullProjection.getTextEndPosition(argument));
+        final String imageUri = _fullProjection.getImage(argument);
         if (imageUri != null) {
             model.setImageUri(Uri.parse(imageUri));
         } else {
@@ -34,4 +43,7 @@ public final class StoryFrameModelFactory implements ContentModelFactory<StoryFr
     public final StoryFrame create() {
         return new StoryFrame();
     }
+
+    @NonNull
+    private final StoryFrameFullProjection _fullProjection;
 }

@@ -20,4 +20,9 @@ android {
 
 dependencies {
     compile project(":CommonLibrary")
+
+    compile 'com.google.dagger:dagger:2.5'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.5'
+
+    provided 'org.projectlombok:lombok:1.16.10'
 }

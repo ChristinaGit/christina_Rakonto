@@ -8,7 +8,7 @@ public interface StoryEditorFragment {
     boolean hasContent();
 
     @NonNull
-    NoticeEvent onContentChanged();
+    NoticeEvent getOnContentChangedEvent();
 
     void onStartEditing();
 

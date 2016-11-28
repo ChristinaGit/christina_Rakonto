@@ -7,6 +7,8 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.data.MimeTypeUtils;
 import com.christina.common.data.UriUtils;
 
+import lombok.val;
+
 public final class StoryContract {
     public final static String TYPE;
 
@@ -85,7 +87,7 @@ public final class StoryContract {
 
     @NonNull
     private static String[] _createContentTypesMap(final int count) {
-        final String[] contentTypesMap = new String[count];
+        final val contentTypesMap = new String[count];
 
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY)] = TYPE_STORY;
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORIES)] = TYPE_STORIES;

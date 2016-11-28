@@ -21,4 +21,6 @@ android {
 dependencies {
     compile project(":StoryApi")
     compile project(":CommonLibrary")
+
+    provided 'org.projectlombok:lombok:1.16.10'
 }

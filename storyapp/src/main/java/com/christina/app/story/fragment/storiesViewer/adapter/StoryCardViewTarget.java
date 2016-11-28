@@ -12,9 +12,11 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.christina.common.contract.Contracts;
 
+import lombok.val;
+
 public final class StoryCardViewTarget extends BitmapImageViewTarget
     implements Palette.PaletteAsyncListener {
-    public StoryCardViewTarget(@NonNull final StoryItemViewHolder holder) {
+    public StoryCardViewTarget(@NonNull final StoryViewHolder holder) {
         super(holder.storyPreviewView);
         Contracts.requireNonNull(holder, "holder == null");
 
@@ -43,21 +45,20 @@ public final class StoryCardViewTarget extends BitmapImageViewTarget
     }
 
     @Override
-    public void onResourceReady(final Bitmap resource,
-        final GlideAnimation<? super Bitmap> glideAnimation) {
+    public void onResourceReady(
+        final Bitmap resource, final GlideAnimation<? super Bitmap> glideAnimation) {
         super.onResourceReady(resource, glideAnimation);
 
         Palette.from(resource).generate(/*Listener*/ this);
     }
 
     @NonNull
-    private final StoryItemViewHolder _holder;
+    private final StoryViewHolder _holder;
 
-    private void _animateCardBackgroundColor(@NonNull final CardView cardView,
-        @ColorInt final int colorTo, final long duration) {
+    private void _animateCardBackgroundColor(
+        @NonNull final CardView cardView, @ColorInt final int colorTo, final long duration) {
         final int colorFrom = cardView.getCardBackgroundColor().getDefaultColor();
-        final ValueAnimator animation =
-            ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        final val animation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
         animation.setDuration(duration);
         animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override

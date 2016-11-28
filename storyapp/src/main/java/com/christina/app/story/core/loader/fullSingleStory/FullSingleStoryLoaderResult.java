@@ -8,8 +8,8 @@ import com.christina.api.story.model.StoryFrame;
 import java.util.List;
 
 public final class FullSingleStoryLoaderResult {
-    public FullSingleStoryLoaderResult(@Nullable final Story story,
-        @Nullable final List<StoryFrame> storyFrames) {
+    public FullSingleStoryLoaderResult(
+        @Nullable final Story story, @Nullable final List<StoryFrame> storyFrames) {
         _story = story;
         _storyFrames = storyFrames;
     }

@@ -6,64 +6,78 @@ import android.support.annotation.Nullable;
 
 import com.christina.api.story.database.StoryTable;
 import com.christina.common.contract.Contracts;
+import com.christina.common.data.projection.Projection;
 
-final class StoryFrameFullProjection {
-    public static final String[] PROJECTION;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
-    public static final int INDEX_ID;
-
-    public static final int INDEX_STORY_ID;
-
-    public static final int INDEX_TEXT_POSITION;
-
-    public static final int INDEX_IMAGE;
-
-    public static final int COLUMN_COUNT;
-
-    static {
+@Accessors(prefix = "_")
+public final class StoryFrameFullProjection implements Projection {
+    public StoryFrameFullProjection() {
         int indexer = 0;
 
-        INDEX_ID = indexer++;
-        INDEX_STORY_ID = indexer++;
-        INDEX_TEXT_POSITION = indexer++;
-        INDEX_IMAGE = indexer++;
+        _indexId = indexer++;
+        _indexStoryId = indexer++;
+        _indexTextStartPosition = indexer++;
+        _indexTextEndPosition = indexer++;
+        _indexImage = indexer++;
 
-        COLUMN_COUNT = indexer;
+        _columns = new String[indexer];
 
-        PROJECTION = new String[COLUMN_COUNT];
-
-        PROJECTION[INDEX_ID] = StoryTable.COLUMN_ID;
-        PROJECTION[INDEX_STORY_ID] = StoryTable.StoryFrame.COLUMN_STORY_ID;
-        PROJECTION[INDEX_TEXT_POSITION] = StoryTable.StoryFrame.COLUMN_TEXT_POSITION;
-        PROJECTION[INDEX_IMAGE] = StoryTable.StoryFrame.COLUMN_IMAGE;
+        _columns[_indexId] = StoryTable.COLUMN_ID;
+        _columns[_indexStoryId] = StoryTable.StoryFrame.COLUMN_STORY_ID;
+        _columns[_indexTextStartPosition] = StoryTable.StoryFrame.COLUMN_TEXT_START_POSITION;
+        _columns[_indexTextEndPosition] = StoryTable.StoryFrame.COLUMN_TEXT_END_POSITION;
+        _columns[_indexImage] = StoryTable.StoryFrame.COLUMN_IMAGE;
     }
 
-    public static long getId(@NonNull final Cursor cursor) {
+    public final long getId(@NonNull final Cursor cursor) {
         Contracts.requireNonNull(cursor, "cursor == null");
 
-        return cursor.getLong(INDEX_ID);
-    }
-
-    public static long getStoryId(@NonNull final Cursor cursor) {
-        Contracts.requireNonNull(cursor, "cursor == null");
-
-        return cursor.getLong(INDEX_STORY_ID);
-    }
-
-    public static int getTextPosition(@NonNull final Cursor cursor) {
-        Contracts.requireNonNull(cursor, "cursor == null");
-
-        return cursor.getInt(INDEX_TEXT_POSITION);
+        return cursor.getLong(getIndexId());
     }
 
     @Nullable
-    public static String getImage(@NonNull final Cursor cursor) {
+    public final String getImage(@NonNull final Cursor cursor) {
         Contracts.requireNonNull(cursor, "cursor == null");
 
-        return cursor.getString(INDEX_IMAGE);
+        return cursor.getString(getIndexImage());
     }
 
-    private StoryFrameFullProjection() {
-        Contracts.unreachable();
+    public final long getStoryId(@NonNull final Cursor cursor) {
+        Contracts.requireNonNull(cursor, "cursor == null");
+
+        return cursor.getLong(getIndexStoryId());
     }
+
+    public final int getTextEndPosition(@NonNull final Cursor cursor) {
+        Contracts.requireNonNull(cursor, "cursor == null");
+
+        return cursor.getInt(getIndexTextEndPosition());
+    }
+
+    public final int getTextStartPosition(@NonNull final Cursor cursor) {
+        Contracts.requireNonNull(cursor, "cursor == null");
+
+        return cursor.getInt(getIndexTextStartPosition());
+    }
+
+    @Getter(onMethod = @__(@Override))
+    @NonNull
+    private final String[] _columns;
+
+    @Getter
+    private final int _indexId;
+
+    @Getter
+    private final int _indexImage;
+
+    @Getter
+    private final int _indexStoryId;
+
+    @Getter
+    private final int _indexTextEndPosition;
+
+    @Getter
+    private final int _indexTextStartPosition;
 }

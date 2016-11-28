@@ -4,26 +4,22 @@ import android.support.annotation.Nullable;
 
 import com.christina.common.event.EventArgs;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
+@Accessors(prefix = "_")
 public final class StoryTextChangedEventArgs extends EventArgs {
-    public StoryTextChangedEventArgs(@Nullable final String oldStoryText,
-        @Nullable final String newStoryText) {
+    public StoryTextChangedEventArgs(
+        @Nullable final String oldStoryText, @Nullable final String newStoryText) {
         _newStoryText = newStoryText;
         _oldStoryText = oldStoryText;
     }
 
-    @Nullable
-    public final String getNewStoryText() {
-        return _newStoryText;
-    }
-
-    @Nullable
-    public final String getOldStoryText() {
-        return _oldStoryText;
-    }
-
+    @Getter
     @Nullable
     private final String _newStoryText;
 
+    @Getter
     @Nullable
     private final String _oldStoryText;
 }

@@ -32,7 +32,9 @@ public final class StoryTable {
 
         public static final String COLUMN_STORY_ID = "storyId";
 
-        public static final String COLUMN_TEXT_POSITION = "textPosition";
+        public static final String COLUMN_TEXT_START_POSITION = "textStartPosition";
+
+        public static final String COLUMN_TEXT_END_POSITION = "textEndPosition";
 
         public static final String COLUMN_IMAGE = "image";
 

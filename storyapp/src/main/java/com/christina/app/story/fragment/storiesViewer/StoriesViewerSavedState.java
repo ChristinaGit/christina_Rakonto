@@ -7,6 +7,11 @@ import android.support.annotation.NonNull;
 
 import com.christina.common.contract.Contracts;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+@Accessors(prefix = "_")
 public final class StoriesViewerSavedState implements Parcelable {
     public static final Creator<StoriesViewerSavedState> CREATOR =
         new Creator<StoriesViewerSavedState>() {
@@ -24,22 +29,6 @@ public final class StoriesViewerSavedState implements Parcelable {
         };
 
     public StoriesViewerSavedState() {
-    }
-
-    public final int getScrollPosition() {
-        return _scrollPosition;
-    }
-
-    public final void setScrollPosition(final int scrollPosition) {
-        _scrollPosition = scrollPosition;
-    }
-
-    public final boolean isScrollPositionRestored() {
-        return _scrollPositionRestored;
-    }
-
-    public final void setScrollPositionRestored(final boolean scrollPositionRestored) {
-        _scrollPositionRestored = scrollPositionRestored;
     }
 
     @CallSuper
@@ -60,7 +49,11 @@ public final class StoriesViewerSavedState implements Parcelable {
         _scrollPosition = in.readInt();
     }
 
+    @Getter
+    @Setter
     private int _scrollPosition = 0;
 
+    @Getter
+    @Setter
     private boolean _scrollPositionRestored = false;
 }

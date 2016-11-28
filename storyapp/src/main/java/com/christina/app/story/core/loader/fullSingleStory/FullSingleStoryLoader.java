@@ -4,12 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.content.AsyncTaskLoader;
 
-import com.christina.api.story.dao.StoryDaoManager;
-import com.christina.api.story.model.Story;
-import com.christina.api.story.model.StoryFrame;
-
-import java.util.List;
-
 public final class FullSingleStoryLoader extends AsyncTaskLoader<FullSingleStoryLoaderResult> {
     public FullSingleStoryLoader(@NonNull final Context context, final long storyId) {
         super(context);
@@ -19,10 +13,10 @@ public final class FullSingleStoryLoader extends AsyncTaskLoader<FullSingleStory
 
     @Override
     public FullSingleStoryLoaderResult loadInBackground() {
-        final Story story = StoryDaoManager.getStoryDao().get(_storyId);
-        final List<StoryFrame> storyFrames =
-            StoryDaoManager.getStoryFrameDao().getByStoryId(_storyId).asList();
-        return new FullSingleStoryLoaderResult(story, storyFrames);
+        //        final Story story = StoryDaoManager.getStoryDao().get(_storyId);
+        //        final List<StoryFrame> storyFrames =
+        //            StoryDaoManager.getStoryFrameDao().getByStoryId(_storyId).asList();
+        return new FullSingleStoryLoaderResult(null, null);
     }
 
     @Override

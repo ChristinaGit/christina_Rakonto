@@ -7,6 +7,8 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.data.MimeTypeUtils;
 import com.christina.common.data.UriUtils;
 
+import lombok.val;
+
 public final class StoryFrameContract {
     public final static String TYPE;
 
@@ -108,7 +110,7 @@ public final class StoryFrameContract {
 
     @NonNull
     private static String[] _createContentTypesMap(final int count) {
-        final String[] contentTypesMap = new String[count];
+        final val contentTypesMap = new String[count];
 
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAME)] = TYPE_STORY_FRAME;
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAMES)] = TYPE_STORY_FRAMES;

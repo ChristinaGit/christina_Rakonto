@@ -24,7 +24,8 @@ public final class StoryContentContract {
 
         AUTHORITY = COMPANY_NAME + ".provider";
 
-        CONTENT_URI_STRING = UriSchemes.CONTENT + UriUtils.SCHEMA_SEPARATOR + AUTHORITY;
+        CONTENT_URI_STRING =
+            UriSchemes.CONTENT.getSchemeName() + UriUtils.SCHEMA_SEPARATOR + AUTHORITY;
 
         CONTENT_URI = Uri.parse(CONTENT_URI_STRING);
 

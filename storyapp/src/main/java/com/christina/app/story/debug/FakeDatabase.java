@@ -3,12 +3,13 @@ package com.christina.app.story.debug;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
-import com.christina.api.story.dao.StoryDaoManager;
 import com.christina.api.story.dao.story.StoryDao;
 import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
+import com.christina.common.ConstantBuilder;
 import com.christina.common.data.UriSchemes;
 import com.christina.common.data.UriUtils;
 import com.christina.content.story.StoryDatabase;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Random;
 
 public class FakeDatabase {
+    private static final String _LOG_TAG = ConstantBuilder.logTag(FakeDatabase.class);
+
     public static final int STORY_COUNT = 25;
 
     private static final String[] NET_IMAGES = {
@@ -38,7 +41,12 @@ public class FakeDatabase {
         "http://orig09.deviantart" +
         ".net/1900/f/2016/013/3/0/ameliamaria1screen2blurpix2sml_by_banished_shadow-d9ns24h.png"};
 
-    public FakeDatabase(final boolean networkAvailable) {
+    public FakeDatabase(
+        @NonNull final StoryDao storyDao,
+        @NonNull final StoryFrameDao storyFrameDao,
+        final boolean networkAvailable) {
+        _storyDao = storyDao;
+        _storyFrameDao = storyFrameDao;
         if (networkAvailable) {
             _images = Arrays.asList(NET_IMAGES);
         } else {
@@ -55,7 +63,8 @@ public class FakeDatabase {
             CollectionUtils.collect(Arrays.asList(pictures), new Transformer<File, String>() {
                 @Override
                 public String transform(final File input) {
-                    return UriSchemes.FILE + UriUtils.SCHEMA_SEPARATOR + input.getAbsolutePath();
+                    return UriSchemes.FILE.getSchemeName() + UriUtils.SCHEMA_SEPARATOR +
+                           input.getAbsolutePath();
                 }
             }, _images);
         }
@@ -69,6 +78,12 @@ public class FakeDatabase {
 
     private final List<String> _images;
 
+    @NonNull
+    private final StoryDao _storyDao;
+
+    @NonNull
+    private final StoryFrameDao _storyFrameDao;
+
     private final String[] _words =
         ("The easiest way to get started with Google Custom Search is to create a basic search" +
          " engine using the Control Panel. You can then download the engine's XML files " +
@@ -80,13 +95,13 @@ public class FakeDatabase {
             .split(" ");
 
     private void createStories(final Random random) {
-        final StoryDao storyDao = StoryDaoManager.getStoryDao();
+        final StoryDao storyDao = _storyDao;
 
         for (int i = 0; i < STORY_COUNT; i++) {
             final Story story = storyDao.create();
             if (story != null) {
-                story.setCreateDate();
-                story.setModifyDate();
+                story.setCreateDate(System.currentTimeMillis());
+                story.setModifyDate(System.currentTimeMillis());
                 story.setName(getSentence(random, 2, 5, false));
                 story.setText(getSentence(random, 5, 20, true));
                 story.setPreviewUri(getImage(random));
@@ -99,17 +114,16 @@ public class FakeDatabase {
     }
 
     private void createStoryFrames(final Random random, final Story story) {
-        final StoryFrameDao storyFrameDao = StoryDaoManager.getStoryFrameDao();
+        final StoryFrameDao storyFrameDao = _storyFrameDao;
 
         final String storyText = story.getText();
 
         if (storyText != null) {
             for (int i = 0; i < storyText.length(); i += random.nextInt(7)) {
-                final StoryFrame storyFrame = storyFrameDao.create();
+                final StoryFrame storyFrame = storyFrameDao.create(story.getId());
                 if (storyFrame != null) {
-                    storyFrame.setStoryId(story.getId());
                     storyFrame.setImageUri(getImage(random));
-                    storyFrame.setTextPosition(i);
+                    //                    storyFrame.setTextPosition(i);
 
                     storyFrameDao.update(storyFrame);
                 }
@@ -121,7 +135,10 @@ public class FakeDatabase {
         return Uri.parse(_images.get(random.nextInt(_images.size() - 1)));
     }
 
-    private String getSentence(final Random random, final int minWordCount, final int maxWordCount,
+    private String getSentence(
+        final Random random,
+        final int minWordCount,
+        final int maxWordCount,
         final boolean addPeriod) {
         final int wordCount = minWordCount + random.nextInt(maxWordCount - minWordCount);
 

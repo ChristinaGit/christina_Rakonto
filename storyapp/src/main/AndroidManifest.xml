@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
-        android:name="com.christina.app.story.ShortStoryMaker"
+        android:name="com.christina.app.story.StoryApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
@@ -30,7 +30,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.christina.app.story.operation.viewStories.ViewStoriesActivity"
+            android:name="com.christina.app.story.view.activity.ViewStoriesActivity"
             android:label="@string/application_name"
             android:theme="@style/AppTheme.NoActionBar">
 

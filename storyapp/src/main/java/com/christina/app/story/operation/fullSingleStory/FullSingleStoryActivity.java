@@ -14,7 +14,7 @@ import com.christina.api.story.observer.StoryObserverEventArgs;
 import com.christina.api.story.util.StoryPredicate;
 import com.christina.app.story.core.loader.fullSingleStory.FullSingleStoryLoader;
 import com.christina.app.story.core.loader.fullSingleStory.FullSingleStoryLoaderResult;
-import com.christina.app.story.operation.BaseStoryActivity;
+import com.christina.app.story.view.activity.BaseStoryActivity;
 import com.christina.common.ConstantBuilder;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.EventHandler;
@@ -97,9 +97,9 @@ public abstract class FullSingleStoryActivity extends BaseStoryActivity {
             }
         }
 
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
-        storyContentObserver.onStoryFrameChanged().addHandler(_storyFramesChangedHandler);
+//        final StoryContentObserver storyContentObserver = getStoryContentObserver();
+//        storyContentObserver.onStoryChanged().addHandler(_storyChangedHandler);
+//        storyContentObserver.onStoryFrameChanged().addHandler(_storyFramesChangedHandler);
     }
 
     @CallSuper
@@ -107,9 +107,9 @@ public abstract class FullSingleStoryActivity extends BaseStoryActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        final StoryContentObserver storyContentObserver = getStoryContentObserver();
-        storyContentObserver.onStoryChanged().removeHandler(_storyChangedHandler);
-        storyContentObserver.onStoryFrameChanged().removeHandler(_storyFramesChangedHandler);
+//        final StoryContentObserver storyContentObserver = getStoryContentObserver();
+//        storyContentObserver.onStoryChanged().removeHandler(_storyChangedHandler);
+//        storyContentObserver.onStoryFrameChanged().removeHandler(_storyFramesChangedHandler);
     }
 
     protected void onStoryContentChanged() {
@@ -144,7 +144,8 @@ public abstract class FullSingleStoryActivity extends BaseStoryActivity {
     private final LoaderManager.LoaderCallbacks<FullSingleStoryLoaderResult> _storyLoaderCallbacks =
         new LoaderManager.LoaderCallbacks<FullSingleStoryLoaderResult>() {
             @Override
-            public Loader<FullSingleStoryLoaderResult> onCreateLoader(final int id,
+            public Loader<FullSingleStoryLoaderResult> onCreateLoader(
+                final int id,
                 final Bundle args) {
                 if (id == LOADER_ID_STORY) {
                     return new FullSingleStoryLoader(getApplicationContext(), getStoryId());
@@ -154,7 +155,8 @@ public abstract class FullSingleStoryActivity extends BaseStoryActivity {
             }
 
             @Override
-            public void onLoadFinished(final Loader<FullSingleStoryLoaderResult> loader,
+            public void onLoadFinished(
+                final Loader<FullSingleStoryLoaderResult> loader,
                 final FullSingleStoryLoaderResult data) {
                 _story = data.getStory();
                 _storyFrames = data.getStoryFrames();
@@ -194,7 +196,7 @@ public abstract class FullSingleStoryActivity extends BaseStoryActivity {
 
                 final long storyId = eventArgs.getId();
                 if (IterableUtils.find(getStoryFrames(),
-                    StoryPredicate.StoryFrame.storyIdEquals(storyId)) != null) {
+                                       StoryPredicate.StoryFrame.storyIdEquals(storyId)) != null) {
                     onStoryFrameContentChanged();
                 }
             }

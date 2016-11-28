@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.christina.api.story.dao.StoryDaoManager;
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
 import com.christina.app.story.fragment.StoryEditorFragment;
@@ -46,8 +45,8 @@ public final class StoryTextEditorFragment extends FullSingleStoryFragment
 
     @NonNull
     @Override
-    public final NoticeEvent onContentChanged() {
-        return _contentChangedChanged;
+    public final NoticeEvent getOnContentChangedEvent() {
+        return _onContentChangedChangedEvent;
     }
 
     @Override
@@ -67,16 +66,11 @@ public final class StoryTextEditorFragment extends FullSingleStoryFragment
 
     @Nullable
     @Override
-    public View onCreateView(final LayoutInflater inflater, @Nullable final ViewGroup container,
+    public View onCreateFragmentView(
+        final LayoutInflater inflater,
+        @Nullable final ViewGroup container,
         @Nullable final Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_story_text_editor, container, false);
-    }
-
-    @Override
-    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        _storyTextView = (EditText) view.findViewById(R.id.story_text);
     }
 
     @Override
@@ -99,11 +93,18 @@ public final class StoryTextEditorFragment extends FullSingleStoryFragment
         saveStoryChanges();
     }
 
+    @Override
+    public void onViewCreated(final View view, @Nullable final Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        _storyTextView = (EditText) view.findViewById(R.id.story_text);
+    }
+
     protected final void saveStoryChanges() {
         final Story story = getStory();
         if (story != null) {
-            story.setModifyDate();
-            StoryDaoManager.getStoryDao().update(story);
+            story.setModifyDate(System.currentTimeMillis());
+//            StoryDaoManager.getStoryDao().update(story);
         }
     }
 
@@ -124,7 +125,7 @@ public final class StoryTextEditorFragment extends FullSingleStoryFragment
 
             _storyTextView.setText(storyText);
         } else {
-            _contentChangedChanged.rise();
+            _onContentChangedChangedEvent.rise();
         }
     }
 
@@ -137,7 +138,7 @@ public final class StoryTextEditorFragment extends FullSingleStoryFragment
     }
 
     @NonNull
-    private final BaseNoticeEvent _contentChangedChanged = new BaseNoticeEvent();
+    private final BaseNoticeEvent _onContentChangedChangedEvent = new BaseNoticeEvent();
 
     @NonNull
     private final BaseEvent<StoryTextChangedEventArgs> _storyTextChanged = new BaseEvent<>();
@@ -159,7 +160,7 @@ public final class StoryTextEditorFragment extends FullSingleStoryFragment
                 story.setText(storyText);
 
                 _storyTextChanged.rise(new StoryTextChangedEventArgs(oldStoryText, storyText));
-                _contentChangedChanged.rise();
+                _onContentChangedChangedEvent.rise();
             }
         }
     };

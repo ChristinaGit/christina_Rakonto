@@ -6,6 +6,11 @@ import android.support.annotation.NonNull;
 
 import com.christina.common.contract.Contracts;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+@Accessors(prefix = "_")
 public final class FullSingleStorySavedState implements Parcelable {
     public static final Creator<FullSingleStorySavedState> CREATOR =
         new Creator<FullSingleStorySavedState>() {
@@ -25,14 +30,6 @@ public final class FullSingleStorySavedState implements Parcelable {
     public FullSingleStorySavedState() {
     }
 
-    public final long getStoryId() {
-        return _storyId;
-    }
-
-    public final void setStoryId(final long storyId) {
-        _storyId = storyId;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -41,11 +38,17 @@ public final class FullSingleStorySavedState implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         Contracts.requireNonNull(dest, "dest == null");
+
+        dest.writeLong(_storyId);
     }
 
     protected FullSingleStorySavedState(@NonNull final Parcel in) {
         Contracts.requireNonNull(in, "in == null");
+
+        _storyId = in.readLong();
     }
 
+    @Getter
+    @Setter
     private long _storyId;
 }

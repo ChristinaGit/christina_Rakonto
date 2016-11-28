@@ -1,0 +1,215 @@
+package com.christina.app.story.view.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Process;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.Toolbar;
+
+import com.christina.api.story.observer.StoryContentObserver;
+import com.christina.app.story.R;
+import com.christina.app.story.presentation.StoriesViewerPresenter;
+import com.christina.app.story.view.StoriesViewerPresentableView;
+import com.christina.app.story.view.fragment.StoriesListFragment;
+import com.christina.common.contract.Contracts;
+import com.christina.common.event.BaseNoticeEvent;
+import com.christina.common.event.NoticeEvent;
+import com.christina.content.story.StoryDatabase;
+
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import lombok.val;
+
+@Accessors(prefix = "_")
+public class ViewStoriesActivity extends BaseStoryActivity implements StoriesViewerPresentableView {
+    protected static int resultCodeIndexer = 100;
+
+    public static final int RESULT_UNSUPPORTED_ACTION = resultCodeIndexer++;
+
+    @NonNull
+    @Override
+    public final NoticeEvent getOnInsertStoryEvent() {
+        return _onInsertStoryEvent;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        getMenuInflater().inflate(R.menu.stories_viewer_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final boolean handled;
+
+        switch (item.getItemId()) {
+            // TODO: 11/28/2016 remove.
+            case R.id.action_settings: {
+                deleteDatabase(StoryDatabase.NAME);
+                Process.killProcess(Process.myPid());
+
+                handled = true;
+                break;
+            }
+            case android.R.id.home: {
+                NavUtils.navigateUpFromSameTask(this);
+
+                handled = true;
+                break;
+            }
+            default: {
+                handled = super.onOptionsItemSelected(item);
+                break;
+            }
+        }
+
+        return handled;
+    }
+
+    @Override
+    protected void onBindPresenter() {
+        super.onBindPresenter();
+
+        final val presenter = getStoriesViewerPresenter();
+        if (presenter != null) {
+            presenter.setPresentableView(this);
+        }
+    }
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        _mode = onHandleIntent(getIntent());
+
+        if (getMode() != null) {
+            setContentView(R.layout.activity_view_stories);
+
+            bindViews();
+
+            setSnackbarParentView(_contentContainerView);
+
+            setActionBar(_toolbarView);
+
+            final val actionBar = getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayShowHomeEnabled(false);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayHomeAsUpEnabled(false);
+            }
+
+            final val fragmentManager = getSupportFragmentManager();
+            if (fragmentManager.findFragmentById(R.id.content_container) == null) {
+                fragmentManager
+                    .beginTransaction()
+                    .add(R.id.content_container, new StoriesListFragment())
+                    .commit();
+            }
+        } else {
+            finish();
+        }
+    }
+
+    @Override
+    protected void onUnbindPresenter() {
+        super.onUnbindPresenter();
+
+        final val presenter = getStoriesViewerPresenter();
+        if (presenter != null) {
+            presenter.setPresentableView(null);
+        }
+    }
+
+    @OnClick(R.id.fab)
+    protected void onFabClick() {
+        _onInsertStoryEvent.rise();
+    }
+
+    @Nullable
+    protected Mode onHandleIntent(@NonNull final Intent intent) {
+        Contracts.requireNonNull(intent, "intent == null");
+
+        final Mode mode;
+
+        final val action = getIntent().getAction();
+        switch (action) {
+            case Intent.ACTION_MAIN:
+            case Intent.ACTION_VIEW: {
+                mode = onHandleViewIntent(intent);
+                break;
+            }
+            default: {
+                setResult(RESULT_UNSUPPORTED_ACTION);
+                mode = null;
+                break;
+            }
+        }
+
+        return mode;
+    }
+
+    @Override
+    protected void onInject() {
+        super.onInject();
+
+        getStoryViewComponent().inject(this);
+    }
+
+    @Override
+    protected void onReleaseInject() {
+        super.onReleaseInject();
+
+        unbindViews();
+    }
+
+    @Nullable
+    @BindView(R.id.content_container)
+    /*package-private*/ ViewGroup _contentContainerView;
+
+    @Nullable
+    @BindView(R.id.fab)
+    /*package-private*/ FloatingActionButton _fabView;
+
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    @Nullable
+    /*package-private*/ StoriesViewerPresenter _storiesViewerPresenter;
+
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    @Nullable
+    /*package-private*/ StoryContentObserver _storyContentObserver;
+
+    @Nullable
+    @BindView(R.id.toolbar)
+    /*package-private*/ Toolbar _toolbarView;
+
+    @NonNull
+    private final BaseNoticeEvent _onInsertStoryEvent = new BaseNoticeEvent();
+
+    @Nullable
+    @Getter(AccessLevel.PROTECTED)
+    private Mode _mode;
+
+    @Nullable
+    private Mode onHandleViewIntent(@NonNull final Intent intent) {
+        Contracts.requireNonNull(intent, "intent == null");
+
+        return Mode.VIEW;
+    }
+
+    private enum Mode {
+        VIEW
+    }
+}

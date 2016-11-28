@@ -10,7 +10,7 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:orientation="vertical"
     app:cardCornerRadius="4dp"
-    tools:showIn="@layout/fragment_stories_viewer">
+    tools:showIn="@layout/fragment_stories_list">
 
     <LinearLayout
         android:layout_width="match_parent"
