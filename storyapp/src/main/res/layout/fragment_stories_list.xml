@@ -18,5 +18,5 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         tools:context=".story.storiesViewer.StoriesViewerFragment"
-        tools:listitem="@layout/fragment_stories_viewer_item"/>
+        tools:listitem="@layout/fragment_stories_list_item"/>
 </FrameLayout>

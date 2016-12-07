@@ -6,25 +6,49 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import com.christina.common.contract.Contracts;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import lombok.val;
+
+@Accessors(prefix = "_")
 public final class ActivityMessageManager implements MessageManager {
-    public ActivityMessageManager(@Nullable final View snackbarParentView) {
-        _snackBarParentView = snackbarParentView;
+    public ActivityMessageManager(
+        @NonNull final SnackbarParentViewProvider snackbarParentViewProvider) {
+        Contracts.requireNonNull(snackbarParentViewProvider, "snackbarParentViewProvider == null");
+
+        _snackbarParentViewProvider = snackbarParentViewProvider;
     }
 
     @Override
     public void showInfoMessage(@NonNull final String string) {
-        if (_snackBarParentView != null) {
-            Snackbar.make(_snackBarParentView, string, Snackbar.LENGTH_SHORT).show();
+        final val snackbarParentView = getSnackbarParentView();
+        if (snackbarParentView != null) {
+            Snackbar.make(snackbarParentView, string, Snackbar.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void showInfoMessage(@StringRes final int stringId) {
-        if (_snackBarParentView != null) {
-            Snackbar.make(_snackBarParentView, stringId, Snackbar.LENGTH_SHORT).show();
+        final val snackbarParentView = getSnackbarParentView();
+        if (snackbarParentView != null) {
+            Snackbar.make(snackbarParentView, stringId, Snackbar.LENGTH_SHORT).show();
         }
     }
 
     @Nullable
-    private final View _snackBarParentView;
+    protected final View getSnackbarParentView() {
+        return getSnackbarParentViewProvider().getSnackbarParentView();
+    }
+
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final SnackbarParentViewProvider _snackbarParentViewProvider;
+
+    public interface SnackbarParentViewProvider {
+        @Nullable
+        View getSnackbarParentView();
+    }
 }

@@ -6,7 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.christina.api.story.database.StoryFrameTable;
 import com.christina.api.story.database.StoryTable;
+import com.christina.common.contract.Contracts;
 import com.christina.common.data.database.SQLiteDatabaseWrapper;
 
 import lombok.AccessLevel;
@@ -21,11 +23,13 @@ public final class StoryDatabase extends SQLiteDatabaseWrapper {
 
     public StoryDatabase(@NonNull final Context context) {
         this(context, null);
+        Contracts.requireNonNull(context, "context == null");
     }
 
     public StoryDatabase(
         @NonNull final Context context, @Nullable final DatabaseErrorHandler errorHandler) {
         super(context, NAME, null, VERSION, errorHandler);
+        Contracts.requireNonNull(context, "context == null");
     }
 
     @Override
@@ -51,23 +55,23 @@ public final class StoryDatabase extends SQLiteDatabaseWrapper {
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
     private final String _createStoryFrameTableQuery =
-        "CREATE TABLE IF NOT EXISTS " + StoryTable.StoryFrame.NAME + "(" +
-        StoryTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-        StoryTable.StoryFrame.COLUMN_STORY_ID + " INTEGER NOT NULL, " +
-        StoryTable.StoryFrame.COLUMN_TEXT_START_POSITION + " INTEGER NOT NULL, " +
-        StoryTable.StoryFrame.COLUMN_TEXT_END_POSITION + " INTEGER NOT NULL, " +
-        StoryTable.StoryFrame.COLUMN_IMAGE + " TEXT, " +
-        "FOREIGN KEY (" + StoryTable.StoryFrame.COLUMN_STORY_ID + ") REFERENCES " +
-        StoryTable.Story.NAME + "(" + StoryTable.COLUMN_ID + "))";
+        "CREATE TABLE IF NOT EXISTS " + StoryFrameTable.NAME + "(" +
+        StoryFrameTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        StoryFrameTable.COLUMN_STORY_ID + " INTEGER NOT NULL, " +
+        StoryFrameTable.COLUMN_TEXT_START_POSITION + " INTEGER NOT NULL, " +
+        StoryFrameTable.COLUMN_TEXT_END_POSITION + " INTEGER NOT NULL, " +
+        StoryFrameTable.COLUMN_IMAGE + " TEXT, " +
+        "FOREIGN KEY (" + StoryFrameTable.COLUMN_STORY_ID + ") REFERENCES " +
+        StoryTable.NAME + "(" + StoryTable.COLUMN_ID + "))";
 
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
     private final String _createStoryTableQuery =
-        "CREATE TABLE IF NOT EXISTS " + StoryTable.Story.NAME + "(" +
+        "CREATE TABLE IF NOT EXISTS " + StoryTable.NAME + "(" +
         StoryTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-        StoryTable.Story.COLUMN_NAME + " TEXT, " +
-        StoryTable.Story.COLUMN_CREATE_DATE + " INTEGER NOT NULL, " +
-        StoryTable.Story.COLUMN_MODIFY_DATE + " INTEGER NOT NULL, " +
-        StoryTable.Story.COLUMN_TEXT + " TEXT, " +
-        StoryTable.Story.COLUMN_PREVIEW + " TEXT)";
+        StoryTable.COLUMN_NAME + " TEXT, " +
+        StoryTable.COLUMN_CREATE_DATE + " INTEGER NOT NULL, " +
+        StoryTable.COLUMN_MODIFY_DATE + " INTEGER NOT NULL, " +
+        StoryTable.COLUMN_TEXT + " TEXT, " +
+        StoryTable.COLUMN_PREVIEW + " TEXT)";
 }

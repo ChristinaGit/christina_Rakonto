@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import com.christina.api.story.contract.StoryContentCode;
 import com.christina.api.story.contract.StoryContract;
 import com.christina.api.story.contract.StoryFrameContract;
+import com.christina.api.story.database.StoryFrameTable;
 import com.christina.api.story.database.StoryTable;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.content.ContentProviderBase;
@@ -138,19 +139,21 @@ public final class StoryContentProvider extends ContentProviderBase {
     @NonNull
     @Override
     protected final Database onCreateDatabase(@NonNull final Context context) {
+        Contracts.requireNonNull(context, "context == null");
+
         return new StoryDatabase(context);
     }
 
     private int _deleteStories(
         @Nullable final String selection, @Nullable final String[] selectionArgs) {
-        _deleteStoryFrames(StoryTable.StoryFrame.COLUMN_STORY_ID + " IN (SELECT " + StoryTable
-            .COLUMN_ID +
-                           " FROM " + StoryTable.Story.NAME + " WHERE " + selection + " )",
+        _deleteStoryFrames(StoryFrameTable.COLUMN_STORY_ID +
+                           " IN (SELECT " + StoryTable.COLUMN_ID +
+                           " FROM " + StoryTable.NAME + " WHERE " + selection + " )",
                            selectionArgs);
 
         final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
 
-        final int result = getDatabase().delete(StoryTable.Story.NAME, selection, selectionArgs);
+        final int result = getDatabase().delete(StoryTable.NAME, selection, selectionArgs);
 
         _notifyStoryChanges(changesIds);
 
@@ -186,7 +189,7 @@ public final class StoryContentProvider extends ContentProviderBase {
     private int _deleteStoryFrame(@NonNull final String id) {
         Contracts.requireNonNull(id, "id == null");
 
-        return _deleteStoryFrames(StoryTable.COLUMN_ID + "=?", new String[]{id});
+        return _deleteStoryFrames(StoryFrameTable.COLUMN_ID + "=?", new String[]{id});
     }
 
     private int _deleteStoryFrameEntity(
@@ -213,8 +216,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         @Nullable final String selection, @Nullable final String[] selectionArgs) {
         final long[] changesIds = _getStoryFrameChangesIds(selection, selectionArgs);
 
-        final int result =
-            getDatabase().delete(StoryTable.StoryFrame.NAME, selection, selectionArgs);
+        final int result = getDatabase().delete(StoryFrameTable.NAME, selection, selectionArgs);
 
         _notifyStoryFrameChanges(changesIds);
 
@@ -225,7 +227,7 @@ public final class StoryContentProvider extends ContentProviderBase {
     private long[] _getStoryChangesIds(
         @Nullable final String selection, @Nullable final String[] selectionArgs) {
         long[] result = null;
-        try (final val cursor = getDatabase().query(StoryTable.Story.NAME,
+        try (final val cursor = getDatabase().query(StoryTable.NAME,
                                                     new String[]{StoryTable.COLUMN_ID},
                                                     selection,
                                                     selectionArgs)) {
@@ -244,8 +246,8 @@ public final class StoryContentProvider extends ContentProviderBase {
     private long[] _getStoryFrameChangesIds(
         @Nullable final String selection, @Nullable final String[] selectionArgs) {
         long[] result = null;
-        try (final val cursor = getDatabase().query(StoryTable.StoryFrame.NAME,
-                                                    new String[]{StoryTable.COLUMN_ID},
+        try (final val cursor = getDatabase().query(StoryFrameTable.NAME,
+                                                    new String[]{StoryFrameTable.COLUMN_ID},
                                                     selection,
                                                     selectionArgs)) {
             if (cursor != null) {
@@ -264,7 +266,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         Uri result = null;
 
         if (values != null) {
-            final long id = getDatabase().insert(StoryTable.Story.NAME, values);
+            final long id = getDatabase().insert(StoryTable.NAME, values);
 
             if (id >= 0) {
                 result = StoryContract.getStoryUri(String.valueOf(id));
@@ -281,7 +283,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         Uri result = null;
 
         if (values != null) {
-            final long id = getDatabase().insert(StoryTable.StoryFrame.NAME, values);
+            final long id = getDatabase().insert(StoryFrameTable.NAME, values);
 
             if (id >= 0) {
                 result = StoryFrameContract.getStoryFrameUri(String.valueOf(id));
@@ -297,7 +299,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         if (storyIds != null) {
             for (final long storyId : storyIds) {
                 final String id = String.valueOf(storyId);
-                final Uri notifyUri = StoryContract.getStoryUri(id);
+                final val notifyUri = StoryContract.getStoryUri(id);
 
                 notifyChange(notifyUri);
             }
@@ -308,7 +310,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         if (storyFrameIds != null) {
             for (final long storyFrameId : storyFrameIds) {
                 final String id = String.valueOf(storyFrameId);
-                final Uri notifyUri = StoryFrameContract.getStoryFrameUri(id);
+                final val notifyUri = StoryFrameContract.getStoryFrameUri(id);
 
                 notifyChange(notifyUri);
             }
@@ -321,7 +323,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         @Nullable final String selection,
         @Nullable final String[] selectionArgs,
         @Nullable final String sortOrder) {
-        return getDatabase().query(StoryTable.Story.NAME,
+        return getDatabase().query(StoryTable.NAME,
                                    projection,
                                    selection,
                                    selectionArgs,
@@ -409,7 +411,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         @Nullable final String selection,
         @Nullable final String[] selectionArgs,
         @Nullable final String sortOrder) {
-        return getDatabase().query(StoryTable.StoryFrame.NAME,
+        return getDatabase().query(StoryFrameTable.NAME,
                                    projection,
                                    selection,
                                    selectionArgs,
@@ -425,7 +427,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         @Nullable final String sortOrder) {
         Contracts.requireNonNull(storyId, "storyId == null");
 
-        selection += " AND " + StoryTable.StoryFrame.COLUMN_STORY_ID + "=?";
+        selection += " AND " + StoryFrameTable.COLUMN_STORY_ID + "=?";
         selectionArgs = ArrayUtils.add(selectionArgs, storyId);
         return _queryStoryFrames(projection, selection, selectionArgs, sortOrder);
     }
@@ -436,8 +438,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         @Nullable final String[] selectionArgs) {
         final long[] changesIds = _getStoryChangesIds(selection, selectionArgs);
 
-        final int result =
-            getDatabase().update(StoryTable.Story.NAME, values, selection, selectionArgs);
+        final int result = getDatabase().update(StoryTable.NAME, values, selection, selectionArgs);
 
         _notifyStoryChanges(changesIds);
 
@@ -474,7 +475,7 @@ public final class StoryContentProvider extends ContentProviderBase {
     private int _updateStoryFrame(@NonNull final String id, @Nullable final ContentValues values) {
         Contracts.requireNonNull(id, "id == null");
 
-        return _updateStoryFrames(values, StoryTable.COLUMN_ID + "=?", new String[]{id});
+        return _updateStoryFrames(values, StoryFrameTable.COLUMN_ID + "=?", new String[]{id});
     }
 
     private int _updateStoryFrameEntity(
@@ -505,7 +506,7 @@ public final class StoryContentProvider extends ContentProviderBase {
         final long[] changesIds = _getStoryFrameChangesIds(selection, selectionArgs);
 
         final int result =
-            getDatabase().update(StoryTable.StoryFrame.NAME, values, selection, selectionArgs);
+            getDatabase().update(StoryFrameTable.NAME, values, selection, selectionArgs);
 
         _notifyStoryFrameChanges(changesIds);
 

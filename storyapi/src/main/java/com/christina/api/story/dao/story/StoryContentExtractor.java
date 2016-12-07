@@ -18,16 +18,16 @@ public final class StoryContentExtractor implements ModelContentExtractor<Story>
 
         final val values = new ContentValues();
 
-        values.put(StoryTable.Story.COLUMN_NAME, model.getName());
-        values.put(StoryTable.Story.COLUMN_CREATE_DATE, model.getCreateDate());
-        values.put(StoryTable.Story.COLUMN_MODIFY_DATE, model.getModifyDate());
-        values.put(StoryTable.Story.COLUMN_TEXT, model.getText());
+        values.put(StoryTable.COLUMN_NAME, model.getName());
+        values.put(StoryTable.COLUMN_CREATE_DATE, model.getCreateDate());
+        values.put(StoryTable.COLUMN_MODIFY_DATE, model.getModifyDate());
+        values.put(StoryTable.COLUMN_TEXT, model.getText());
 
         final val previewUri = model.getPreviewUri();
         if (previewUri == null) {
-            values.putNull(StoryTable.Story.COLUMN_PREVIEW);
+            values.putNull(StoryTable.COLUMN_PREVIEW);
         } else {
-            values.put(StoryTable.Story.COLUMN_PREVIEW, previewUri.toString());
+            values.put(StoryTable.COLUMN_PREVIEW, previewUri.toString());
         }
 
         return values;

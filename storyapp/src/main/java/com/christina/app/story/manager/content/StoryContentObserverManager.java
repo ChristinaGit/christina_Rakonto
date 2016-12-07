@@ -24,20 +24,30 @@ public final class StoryContentObserverManager {
     }
 
     public void registerStoryContentObserver() {
-        getContentResolver().registerContentObserver(StoryContentContract.CONTENT_URI,
-                                                     true,
-                                                     getStoryContentObserver());
+        if (_registerRequestsCount == 0) {
+            getContentResolver().registerContentObserver(StoryContentContract.CONTENT_URI,
+                                                         true,
+                                                         getStoryContentObserver());
+        }
+
+        _registerRequestsCount++;
     }
 
     public void unregisterStoryContentObserver() {
-        getContentResolver().unregisterContentObserver(getStoryContentObserver());
+        _registerRequestsCount--;
+
+        if (_registerRequestsCount == 0) {
+            getContentResolver().unregisterContentObserver(getStoryContentObserver());
+        }
     }
 
     @Getter(AccessLevel.PROTECTED)
     @NonNull
     private final ContentResolver _contentResolver;
 
-    @Getter(AccessLevel.PROTECTED)
+    @Getter
     @NonNull
     private final StoryContentObserver _storyContentObserver;
+
+    private int _registerRequestsCount;
 }

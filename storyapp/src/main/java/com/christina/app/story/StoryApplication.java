@@ -8,8 +8,8 @@ import com.christina.app.story.di.StoryApplicationComponentProvider;
 import com.christina.app.story.di.storyApplication.DaggerStoryApplicationComponent;
 import com.christina.app.story.di.storyApplication.StoryApplicationComponent;
 import com.christina.app.story.di.storyApplication.module.ApplicationContextModule;
+import com.christina.app.story.di.storyApplication.module.ApplicationServiceModule;
 import com.christina.app.story.di.storyApplication.module.StoryContentExtractorModule;
-import com.christina.app.story.di.storyApplication.module.StoryContentResolverModule;
 import com.christina.app.story.di.storyApplication.module.StoryDaoModule;
 import com.christina.app.story.di.storyApplication.module.StoryFactoryModule;
 import com.christina.app.story.di.storyApplication.module.StoryProjectionModule;
@@ -48,11 +48,11 @@ public final class StoryApplication extends Application
     private final StoryApplicationComponent _storyApplicationComponent =
         DaggerStoryApplicationComponent
             .builder()
-            .storyContentExtractorModule(new StoryContentExtractorModule())
             .applicationContextModule(new ApplicationContextModule(getApplicationContext()))
-            .storyContentResolverModule(new StoryContentResolverModule())
+            .applicationServiceModule(new ApplicationServiceModule())
+            .storyContentExtractorModule(new StoryContentExtractorModule())
             .storyDaoModule(new StoryDaoModule())
-            .storyProjectionModule(new StoryProjectionModule())
             .storyFactoryModule(new StoryFactoryModule())
+            .storyProjectionModule(new StoryProjectionModule())
             .build();
 }

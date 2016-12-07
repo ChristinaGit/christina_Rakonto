@@ -10,14 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.christina.app.story.R;
-import com.christina.app.story.fragment.fullSingleStory.FullSingleStoryFragment;
 import com.christina.app.story.fragment.storyFramesEditor.adapter.StoryFramesAdapter;
+import com.christina.app.story.view.fragment.BaseStoryFragment;
 import com.christina.common.contract.Contracts;
 
-public class StoryFramesEditorFragment extends FullSingleStoryFragment {
+public class StoryFramesEditorFragment extends BaseStoryFragment {
     @Nullable
     @Override
-    public View onCreateFragmentView(
+    public View onCreateView(
         final LayoutInflater inflater,
         @Nullable final ViewGroup container,
         @Nullable final Bundle savedInstanceState) {
@@ -47,7 +47,6 @@ public class StoryFramesEditorFragment extends FullSingleStoryFragment {
         return _storyFramesLayoutManager;
     }
 
-    @Override
     protected void onStoryLoaded() {
         //        final List<String> storyTextParts = getStoryTextParts();
         //        if (storyTextParts != null) {
@@ -57,7 +56,6 @@ public class StoryFramesEditorFragment extends FullSingleStoryFragment {
         //        }
     }
 
-    @Override
     protected void onStoryReset() {
         final StoryFramesAdapter storyFramesAdapter = getStoryFramesAdapter();
         storyFramesAdapter.removeItems(false);

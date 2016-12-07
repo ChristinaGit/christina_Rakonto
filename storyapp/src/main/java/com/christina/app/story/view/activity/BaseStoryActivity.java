@@ -5,14 +5,14 @@ import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.christina.app.story.di.StoryApplicationComponentProvider;
-import com.christina.app.story.di.StoryScreenComponentProvider;
+import com.christina.app.story.di.StoryViewComponentProvider;
 import com.christina.app.story.di.storyApplication.StoryApplicationComponent;
 import com.christina.app.story.di.storyView.StoryViewComponent;
 import com.christina.app.story.di.storyView.module.StoryContentObserverModule;
-import com.christina.app.story.di.storyView.module.StoryPresenterModule;
 import com.christina.app.story.di.storyView.module.StoryViewManagerModule;
-import com.christina.app.story.manager.navigation.ActivityStoryNavigator;
+import com.christina.app.story.di.storyView.module.StoryViewPresenterModule;
 import com.christina.app.story.manager.message.ActivityMessageManager;
+import com.christina.app.story.manager.navigation.ActivityStoryNavigator;
 import com.christina.common.view.activity.PresentableActivity;
 
 import lombok.AccessLevel;
@@ -23,7 +23,7 @@ import lombok.val;
 
 @Accessors(prefix = "_")
 public abstract class BaseStoryActivity extends PresentableActivity
-    implements StoryScreenComponentProvider {
+    implements ActivityMessageManager.SnackbarParentViewProvider, StoryViewComponentProvider {
 
     @NonNull
     public final StoryApplicationComponent getStoryApplicationComponent() {
@@ -52,8 +52,7 @@ public abstract class BaseStoryActivity extends PresentableActivity
 
     @NonNull
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
-    private final ActivityMessageManager _activityMessageManager =
-        new ActivityMessageManager(getSnackbarParentView());
+    private final ActivityMessageManager _activityMessageManager = new ActivityMessageManager(this);
 
     @NonNull
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
@@ -62,12 +61,15 @@ public abstract class BaseStoryActivity extends PresentableActivity
     @NonNull
     @Getter(onMethod = @__(@Override), lazy = true)
     private final StoryViewComponent _storyViewComponent =
-        getStoryApplicationComponent().addStoryScreenComponent(
+        getStoryApplicationComponent().addStoryViewComponent(
             new StoryContentObserverModule(),
-            new StoryPresenterModule(),
-            new StoryViewManagerModule(getActivityStoryNavigator(), getActivityMessageManager()));
+            new StoryViewPresenterModule(),
+            new StoryViewManagerModule(
+                getSupportLoaderManager(),
+                getActivityStoryNavigator(),
+                getActivityMessageManager()));
 
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(onMethod = @__(@Override))
     @Setter(AccessLevel.PROTECTED)
     @Nullable
     private View _snackbarParentView;

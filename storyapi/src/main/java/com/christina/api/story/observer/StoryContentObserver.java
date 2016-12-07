@@ -11,9 +11,7 @@ import com.christina.api.story.contract.StoryContract;
 import com.christina.api.story.contract.StoryFrameContract;
 import com.christina.common.data.model.Model;
 import com.christina.common.event.BaseEvent;
-
-import lombok.Getter;
-import lombok.experimental.Accessors;
+import com.christina.common.event.Event;
 
 public final class StoryContentObserver extends ContentObserver {
     public StoryContentObserver() {
@@ -22,6 +20,16 @@ public final class StoryContentObserver extends ContentObserver {
 
     public StoryContentObserver(final Handler handler) {
         super(handler);
+    }
+
+    @NonNull
+    public final Event<StoryObserverEventArgs> getOnStoryChangedEvent() {
+        return _onStoryChangedEvent;
+    }
+
+    @NonNull
+    public final Event<StoryObserverEventArgs> getOnStoryFrameChangedEvent() {
+        return _onStoryFrameChangedEvent;
     }
 
     @Override
@@ -44,9 +52,9 @@ public final class StoryContentObserver extends ContentObserver {
                         id = Model.NO_ID;
                     }
 
-                    _onStoryChanged.rise(new StoryObserverEventArgs(id));
+                    _onStoryChangedEvent.rise(new StoryObserverEventArgs(id));
                 } else if (StoryContract.DIR_TYPE.equals(type)) {
-                    _onStoryChanged.rise(StoryObserverEventArgs.EMPTY);
+                    _onStoryChangedEvent.rise(StoryObserverEventArgs.EMPTY);
                 }
             } else if (StoryFrameContract.ENTITY_TYPE_CODE == entityTypeCode) {
                 final String type = StoryFrameContract.getType(code);
@@ -60,21 +68,17 @@ public final class StoryContentObserver extends ContentObserver {
                         id = Model.NO_ID;
                     }
 
-                    _onStoryFrameChanged.rise(new StoryObserverEventArgs(id));
+                    _onStoryFrameChangedEvent.rise(new StoryObserverEventArgs(id));
                 } else if (StoryFrameContract.DIR_TYPE.equals(type)) {
-                    _onStoryFrameChanged.rise(StoryObserverEventArgs.EMPTY);
+                    _onStoryFrameChangedEvent.rise(StoryObserverEventArgs.EMPTY);
                 }
             }
         }
     }
 
-    @Accessors(prefix = "_", fluent = true)
-    @Getter
     @NonNull
-    private final BaseEvent<StoryObserverEventArgs> _onStoryChanged = new BaseEvent<>();
+    private final BaseEvent<StoryObserverEventArgs> _onStoryChangedEvent = new BaseEvent<>();
 
-    @Accessors(prefix = "_", fluent = true)
-    @Getter
     @NonNull
-    private final BaseEvent<StoryObserverEventArgs> _onStoryFrameChanged = new BaseEvent<>();
+    private final BaseEvent<StoryObserverEventArgs> _onStoryFrameChangedEvent = new BaseEvent<>();
 }

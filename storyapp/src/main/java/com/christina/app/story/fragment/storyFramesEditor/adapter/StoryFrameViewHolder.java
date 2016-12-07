@@ -4,25 +4,23 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
-import com.christina.app.story.R;
 import com.christina.common.contract.Contracts;
-import com.christina.common.view.recyclerView.viewHolder.AbstractRecyclerViewHolder;
+import com.christina.common.view.recyclerView.viewHolder.ExtendedRecyclerViewHolder;
 
 @SuppressWarnings("PublicField")
-public final class StoryFrameViewHolder extends AbstractRecyclerViewHolder {
+public final class StoryFrameViewHolder extends ExtendedRecyclerViewHolder {
     @NonNull
-    public final TextView storyFrameImageView;
+    public TextView storyFrameImageView;
 
     @NonNull
-    public final TextView storyFrameTextView;
+    public TextView storyFrameTextView;
 
     public StoryFrameViewHolder(@NonNull final View itemView) {
         super(itemView);
 
         Contracts.requireNonNull(itemView, "itemView == null");
 
-        storyFrameImageView = (TextView) itemView.findViewById(R.id.story_frame_image);
-        storyFrameTextView = (TextView) itemView.findViewById(R.id.story_frame_text);
+        bindViews();
 
         Contracts.requireNonNull(storyFrameImageView, "storyFrameImageView == null");
         Contracts.requireNonNull(storyFrameTextView, "storyFrameTextView == null");

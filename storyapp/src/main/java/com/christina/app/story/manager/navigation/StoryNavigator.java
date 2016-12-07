@@ -5,5 +5,7 @@ import android.support.annotation.Nullable;
 import com.christina.app.story.manager.navigation.editStory.InsertStoryNavigationCallback;
 
 public interface StoryNavigator {
+    void navigateToEditStory(long storyId);
+
     void navigateToInsertStory(@Nullable final InsertStoryNavigationCallback navigationCallback);
 }

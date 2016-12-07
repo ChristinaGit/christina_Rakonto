@@ -26,11 +26,11 @@ public final class StoryFullProjection implements Projection {
         _columns = new String[indexer];
 
         _columns[_indexId] = StoryTable.COLUMN_ID;
-        _columns[_indexName] = StoryTable.Story.COLUMN_NAME;
-        _columns[_indexCreateDate] = StoryTable.Story.COLUMN_CREATE_DATE;
-        _columns[_indexModifyDate] = StoryTable.Story.COLUMN_MODIFY_DATE;
-        _columns[_indexText] = StoryTable.Story.COLUMN_TEXT;
-        _columns[_indexPreview] = StoryTable.Story.COLUMN_PREVIEW;
+        _columns[_indexName] = StoryTable.COLUMN_NAME;
+        _columns[_indexCreateDate] = StoryTable.COLUMN_CREATE_DATE;
+        _columns[_indexModifyDate] = StoryTable.COLUMN_MODIFY_DATE;
+        _columns[_indexText] = StoryTable.COLUMN_TEXT;
+        _columns[_indexPreview] = StoryTable.COLUMN_PREVIEW;
     }
 
     public final long getCreateDate(@NonNull final Cursor cursor) {

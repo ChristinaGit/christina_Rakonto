@@ -1,7 +1,7 @@
 package com.christina.api.story.observer;
 
 import com.christina.common.data.model.Model;
-import com.christina.common.event.EventArgs;
+import com.christina.common.event.eventArgs.EventArgs;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;

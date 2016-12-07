@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.christina.api.story.database.StoryTable;
+import com.christina.api.story.database.StoryFrameTable;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.projection.Projection;
 
@@ -24,11 +24,11 @@ public final class StoryFrameFullProjection implements Projection {
 
         _columns = new String[indexer];
 
-        _columns[_indexId] = StoryTable.COLUMN_ID;
-        _columns[_indexStoryId] = StoryTable.StoryFrame.COLUMN_STORY_ID;
-        _columns[_indexTextStartPosition] = StoryTable.StoryFrame.COLUMN_TEXT_START_POSITION;
-        _columns[_indexTextEndPosition] = StoryTable.StoryFrame.COLUMN_TEXT_END_POSITION;
-        _columns[_indexImage] = StoryTable.StoryFrame.COLUMN_IMAGE;
+        _columns[_indexId] = StoryFrameTable.COLUMN_ID;
+        _columns[_indexStoryId] = StoryFrameTable.COLUMN_STORY_ID;
+        _columns[_indexTextStartPosition] = StoryFrameTable.COLUMN_TEXT_START_POSITION;
+        _columns[_indexTextEndPosition] = StoryFrameTable.COLUMN_TEXT_END_POSITION;
+        _columns[_indexImage] = StoryFrameTable.COLUMN_IMAGE;
     }
 
     public final long getId(@NonNull final Cursor cursor) {

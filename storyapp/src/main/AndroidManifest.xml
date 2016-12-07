@@ -30,7 +30,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.christina.app.story.view.activity.ViewStoriesActivity"
+            android:name="com.christina.app.story.view.activity.storiesViewer.StoriesViewerActivity"
             android:label="@string/application_name"
             android:theme="@style/AppTheme.NoActionBar">
 
@@ -53,7 +53,7 @@
         </activity>
 
         <activity
-            android:name="com.christina.app.story.operation.editStory.EditStoryActivity"
+            android:name="com.christina.app.story.view.activity.storyEditor.StoryEditorActivity"
             android:windowSoftInputMode="adjustResize">
 
             <intent-filter>

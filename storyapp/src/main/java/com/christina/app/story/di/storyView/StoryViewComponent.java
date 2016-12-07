@@ -1,21 +1,23 @@
 package com.christina.app.story.di.storyView;
 
 import com.christina.app.story.di.storyView.module.StoryContentObserverModule;
-import com.christina.app.story.di.storyView.module.StoryPresenterModule;
 import com.christina.app.story.di.storyView.module.StoryViewManagerModule;
+import com.christina.app.story.di.storyView.module.StoryViewPresenterModule;
 import com.christina.app.story.di.storyViewFragment.StoryViewFragmentComponent;
-import com.christina.app.story.operation.editStory.EditStoryActivity;
-import com.christina.app.story.view.activity.ViewStoriesActivity;
+import com.christina.app.story.di.storyViewFragment.module.StoryViewFragmentPresenterModule;
+import com.christina.app.story.view.activity.storyEditor.StoryEditorActivity;
+import com.christina.app.story.view.activity.storiesViewer.StoriesViewerActivity;
 
 import dagger.Subcomponent;
 
 @Subcomponent(modules = {
-    StoryContentObserverModule.class, StoryPresenterModule.class, StoryViewManagerModule.class})
+    StoryContentObserverModule.class, StoryViewPresenterModule.class, StoryViewManagerModule.class})
 @StoryViewScope
 public interface StoryViewComponent {
-    StoryViewFragmentComponent addStoryScreenFragmentComponent();
+    StoryViewFragmentComponent addStoryViewFragmentComponent(
+        StoryViewFragmentPresenterModule storyViewFragmentPresenterModule);
 
-    void inject(ViewStoriesActivity activity);
+    void inject(StoriesViewerActivity activity);
 
-    void inject(EditStoryActivity activity);
+    void inject(StoryEditorActivity activity);
 }

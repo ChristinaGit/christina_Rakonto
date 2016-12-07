@@ -12,6 +12,7 @@ import com.christina.api.story.model.StoryFrame;
 import com.christina.app.story.di.qualifier.ForStory;
 import com.christina.app.story.di.qualifier.ForStoryFrame;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
+import com.christina.app.story.manager.content.StoryDaoManager;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.dao.factory.ModelCollectionFactory;
 import com.christina.common.data.dao.factory.ModelContentExtractor;
@@ -44,6 +45,17 @@ public final class StoryDaoModule {
             modelFactory,
             modelCollectionFactory,
             modelContentExtractor);
+    }
+
+    @Provides
+    @StoryApplicationScope
+    @NonNull
+    public final StoryDaoManager provideStoryDaoManager(
+        @NonNull final StoryDao storyDao, @NonNull final StoryFrameDao storyFrameDao) {
+        Contracts.requireNonNull(storyDao, "storyDao == null");
+        Contracts.requireNonNull(storyFrameDao, "storyFrameDao == null");
+
+        return new StoryDaoManager(storyDao, storyFrameDao);
     }
 
     @Provides
