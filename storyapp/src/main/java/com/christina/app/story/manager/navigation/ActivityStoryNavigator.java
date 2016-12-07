@@ -53,9 +53,9 @@ public final class ActivityStoryNavigator implements StoryNavigator, ActivityRes
                 final val result = getNavigationResult(requestCode, resultCode);
                 navigationCallback.onInsertStoryNavigationResult(result);
             }
-        }
 
-        callbacks.remove(REQUEST_CODE_INSERT_STORY);
+            callbacks.remove(REQUEST_CODE_INSERT_STORY);
+        }
     }
 
     @Getter(value = AccessLevel.PRIVATE)
