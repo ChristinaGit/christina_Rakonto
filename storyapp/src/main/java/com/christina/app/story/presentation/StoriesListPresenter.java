@@ -23,8 +23,7 @@ import lombok.val;
 public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPresentableView> {
     public StoriesListPresenter(
         @NonNull final ServiceManager serviceManager) {
-        super(serviceManager);
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
+        super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
     protected void loadStories() {
@@ -34,8 +33,8 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
     @Override
     protected void onBindPresentableView(
         @NonNull final StoriesListPresentableView presentableView) {
-        super.onBindPresentableView(presentableView);
-        Contracts.requireNonNull(presentableView, "presentableView == null");
+        super.onBindPresentableView(Contracts.requireNonNull(presentableView,
+                                                             "presentableView == null"));
 
         presentableView.getOnDeleteStoryEvent().addHandler(getDeleteStoryHandler());
         presentableView.getOnEditStoryEvent().addHandler(getEditStoryHandler());
@@ -44,8 +43,8 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
     @Override
     protected void onUnbindPresentableView(
         @NonNull final StoriesListPresentableView presentableView) {
-        super.onUnbindPresentableView(presentableView);
-        Contracts.requireNonNull(presentableView, "presentableView == null");
+        super.onUnbindPresentableView(Contracts.requireNonNull(presentableView,
+                                                               "presentableView == null"));
 
         presentableView.getOnDeleteStoryEvent().removeHandler(getDeleteStoryHandler());
         presentableView.getOnEditStoryEvent().removeHandler(getEditStoryHandler());
@@ -53,12 +52,13 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
 
     @Override
     protected void onViewAppear(@NonNull final StoriesListPresentableView presentableView) {
-        super.onViewAppear(presentableView);
-        Contracts.requireNonNull(presentableView, "presentableView == null");
+        super.onViewAppear(Contracts.requireNonNull(presentableView, "presentableView == null"));
 
         getStoryContentObserverManager().registerStoryContentObserver();
 
-        getStoryContentObserver().getOnStoryChangedEvent().addHandler(getStoryChangedHandler());
+        getStoryContentObserver()
+            .getOnStoryChangedEvent()
+            .addHandler(getStoryExternalChangedHandler());
 
         presentableView.setStoriesVisible(false);
         presentableView.setLoadingVisible(true);
@@ -68,15 +68,16 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
 
     @Override
     protected void onViewDisappear(@NonNull final StoriesListPresentableView presentableView) {
-        super.onViewDisappear(presentableView);
-        Contracts.requireNonNull(presentableView, "presentableView == null");
+        super.onViewDisappear(Contracts.requireNonNull(presentableView, "presentableView == null"));
 
         getStoryContentObserverManager().unregisterStoryContentObserver();
 
-        getStoryContentObserver().getOnStoryChangedEvent().removeHandler(getStoryChangedHandler());
+        getStoryContentObserver()
+            .getOnStoryChangedEvent()
+            .removeHandler(getStoryExternalChangedHandler());
     }
 
-    protected void onStoriesChanged() {
+    protected void onStoriesExternalChanged() {
         loadStories();
     }
 
@@ -94,7 +95,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
     }
 
     protected void onStoryDelete(final long id) {
-        final int deleted = getStoryDaoManager().getStoryDao().delete(id);
+        final int deleted = getStoryDao().delete(id);
         if (deleted > 0) {
             getMessageManager().showInfoMessage(R.string.message_story_deleted);
         }
@@ -146,13 +147,13 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
 
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
-    private final EventHandler<StoryObserverEventArgs> _storyChangedHandler =
+    private final EventHandler<StoryObserverEventArgs> _storyExternalChangedHandler =
         new EventHandler<StoryObserverEventArgs>() {
             @Override
             public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
-                onStoriesChanged();
+                onStoriesExternalChanged();
             }
         };
 }

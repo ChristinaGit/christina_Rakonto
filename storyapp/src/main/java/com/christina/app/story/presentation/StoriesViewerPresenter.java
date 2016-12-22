@@ -18,15 +18,14 @@ import lombok.experimental.Accessors;
 public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesViewerPresentableView> {
     public StoriesViewerPresenter(
         @NonNull final ServiceManager serviceManager) {
-        super(serviceManager);
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
+        super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
     @Override
     protected void onBindPresentableView(
         @NonNull final StoriesViewerPresentableView presentableView) {
-        super.onBindPresentableView(presentableView);
-        Contracts.requireNonNull(presentableView, "presentableView == null");
+        super.onBindPresentableView(Contracts.requireNonNull(presentableView,
+                                                             "presentableView == null"));
 
         presentableView.getOnInsertStoryEvent().addHandler(getViewInsertStoryHandler());
     }
@@ -34,8 +33,8 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
     @Override
     protected void onUnbindPresentableView(
         @NonNull final StoriesViewerPresentableView presentableView) {
-        super.onUnbindPresentableView(presentableView);
-        Contracts.requireNonNull(presentableView, "presentableView == null");
+        super.onUnbindPresentableView(Contracts.requireNonNull(presentableView,
+                                                               "presentableView == null"));
 
         presentableView.getOnInsertStoryEvent().removeHandler(getViewInsertStoryHandler());
     }

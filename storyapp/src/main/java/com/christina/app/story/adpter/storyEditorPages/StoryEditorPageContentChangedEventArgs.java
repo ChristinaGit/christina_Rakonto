@@ -1,4 +1,4 @@
-package com.christina.app.story.adpter.editStoryScreens;
+package com.christina.app.story.adpter.storyEditorPages;
 
 import com.christina.common.event.eventArgs.EventArgs;
 

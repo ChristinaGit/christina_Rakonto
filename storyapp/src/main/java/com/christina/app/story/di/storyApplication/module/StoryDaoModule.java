@@ -9,14 +9,18 @@ import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.dao.storyFrame.StoryFrameFullProjection;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
-import com.christina.app.story.di.qualifier.ForStory;
-import com.christina.app.story.di.qualifier.ForStoryFrame;
+import com.christina.app.story.di.qualifier.StoryContentExtractorNames;
+import com.christina.app.story.di.qualifier.StoryDaoNames;
+import com.christina.app.story.di.qualifier.StoryFactoryNames;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
 import com.christina.app.story.manager.content.StoryDaoManager;
 import com.christina.common.contract.Contracts;
+import com.christina.common.data.dao.SqlDao;
 import com.christina.common.data.dao.factory.ModelCollectionFactory;
 import com.christina.common.data.dao.factory.ModelContentExtractor;
 import com.christina.common.data.dao.factory.ModelFactory;
+
+import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
@@ -24,15 +28,18 @@ import dagger.Provides;
 @Module
 @StoryApplicationScope
 public final class StoryDaoModule {
+    @Named(StoryDaoNames.STORY)
     @Provides
     @StoryApplicationScope
     @NonNull
-    public final StoryDao provideStoryDao(
+    public final SqlDao<Story> provideStoryDao(
         @NonNull final ContentResolver contentResolver,
         @NonNull final StoryFullProjection fullProjection,
-        @ForStory @NonNull final ModelFactory<Story> modelFactory,
-        @ForStory @NonNull final ModelCollectionFactory<Story> modelCollectionFactory,
-        @ForStory @NonNull final ModelContentExtractor<Story> modelContentExtractor) {
+        @Named(StoryFactoryNames.STORY) @NonNull final ModelFactory<Story> modelFactory,
+        @Named(StoryFactoryNames.STORY) @NonNull
+        final ModelCollectionFactory<Story> modelCollectionFactory,
+        @Named(StoryContentExtractorNames.STORY) @NonNull
+        final ModelContentExtractor<Story> modelContentExtractor) {
         Contracts.requireNonNull(contentResolver, "contentResolver == null");
         Contracts.requireNonNull(fullProjection, "fullProjection == null");
         Contracts.requireNonNull(modelFactory, "modelFactory == null");
@@ -51,22 +58,26 @@ public final class StoryDaoModule {
     @StoryApplicationScope
     @NonNull
     public final StoryDaoManager provideStoryDaoManager(
-        @NonNull final StoryDao storyDao, @NonNull final StoryFrameDao storyFrameDao) {
+        @Named(StoryDaoNames.STORY) @NonNull final SqlDao<Story> storyDao,
+        @Named(StoryDaoNames.STORY_FRAME) @NonNull final SqlDao<StoryFrame> storyFrameDao) {
         Contracts.requireNonNull(storyDao, "storyDao == null");
         Contracts.requireNonNull(storyFrameDao, "storyFrameDao == null");
 
         return new StoryDaoManager(storyDao, storyFrameDao);
     }
 
+    @Named(StoryDaoNames.STORY_FRAME)
     @Provides
     @StoryApplicationScope
     @NonNull
-    public final StoryFrameDao provideStoryFrameDao(
+    public final SqlDao<StoryFrame> provideStoryFrameDao(
         @NonNull final ContentResolver contentResolver,
         @NonNull final StoryFrameFullProjection fullProjection,
-        @ForStoryFrame @NonNull final ModelFactory<StoryFrame> modelFactory,
-        @ForStoryFrame @NonNull final ModelCollectionFactory<StoryFrame> modelCollectionFactory,
-        @ForStoryFrame @NonNull final ModelContentExtractor<StoryFrame> modelContentExtractor) {
+        @Named(StoryFactoryNames.STORY_FRAME) @NonNull final ModelFactory<StoryFrame> modelFactory,
+        @Named(StoryFactoryNames.STORY_FRAME) @NonNull
+        final ModelCollectionFactory<StoryFrame> modelCollectionFactory,
+        @Named(StoryContentExtractorNames.STORY_FRAME) @NonNull
+        final ModelContentExtractor<StoryFrame> modelContentExtractor) {
         Contracts.requireNonNull(contentResolver, "contentResolver == null");
         Contracts.requireNonNull(fullProjection, "fullProjection == null");
         Contracts.requireNonNull(modelFactory, "modelFactory == null");

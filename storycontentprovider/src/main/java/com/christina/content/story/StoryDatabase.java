@@ -22,14 +22,17 @@ public final class StoryDatabase extends SQLiteDatabaseWrapper {
     public static final int VERSION = 1;
 
     public StoryDatabase(@NonNull final Context context) {
-        this(context, null);
-        Contracts.requireNonNull(context, "context == null");
+        this(Contracts.requireNonNull(context, "context == null"), null);
     }
 
     public StoryDatabase(
         @NonNull final Context context, @Nullable final DatabaseErrorHandler errorHandler) {
-        super(context, NAME, null, VERSION, errorHandler);
-        Contracts.requireNonNull(context, "context == null");
+        super(
+            Contracts.requireNonNull(context, "context == null"),
+            NAME,
+            null,
+            VERSION,
+            errorHandler);
     }
 
     @Override

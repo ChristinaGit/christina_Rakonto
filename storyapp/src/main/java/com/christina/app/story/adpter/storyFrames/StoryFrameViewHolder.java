@@ -1,4 +1,4 @@
-package com.christina.app.story.fragment.storyFramesEditor.adapter;
+package com.christina.app.story.adpter.storyFrames;
 
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -16,9 +16,7 @@ public final class StoryFrameViewHolder extends ExtendedRecyclerViewHolder {
     public TextView storyFrameTextView;
 
     public StoryFrameViewHolder(@NonNull final View itemView) {
-        super(itemView);
-
-        Contracts.requireNonNull(itemView, "itemView == null");
+        super(Contracts.requireNonNull(itemView, "itemView == null"));
 
         bindViews();
 

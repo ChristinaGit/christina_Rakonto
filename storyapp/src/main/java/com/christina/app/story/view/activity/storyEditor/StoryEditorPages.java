@@ -3,8 +3,8 @@ package com.christina.app.story.view.activity.storyEditor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
-import com.christina.app.story.adpter.editStoryScreens.StoryEditorPageFactory;
-import com.christina.app.story.fragment.storyFramesEditor.StoryFramesEditorFragment;
+import com.christina.app.story.adpter.storyEditorPages.StoryEditorPageFactory;
+import com.christina.app.story.view.fragment.storyFramesEditor.StoryFramesEditorFragment;
 import com.christina.app.story.view.fragment.storyTextEditor.StoryTextEditorFragment;
 import com.christina.common.contract.Contracts;
 
@@ -34,7 +34,7 @@ public final class StoryEditorPages implements StoryEditorPageFactory {
     }
 
     @Override
-    public final int pageCount() {
+    public final int getPageCount() {
         return _positionIndexer;
     }
 }

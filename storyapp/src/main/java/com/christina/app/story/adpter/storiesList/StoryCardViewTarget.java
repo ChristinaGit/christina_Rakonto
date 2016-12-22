@@ -21,8 +21,7 @@ import lombok.val;
 /*package-private*/ final class StoryCardViewTarget extends BitmapImageViewTarget
     implements Palette.PaletteAsyncListener {
     public StoryCardViewTarget(@NonNull final StoryViewHolder holder) {
-        super(holder.storyPreviewView);
-        Contracts.requireNonNull(holder, "holder == null");
+        super(Contracts.requireNonNull(holder, "holder == null").storyPreviewView);
 
         _holder = holder;
     }

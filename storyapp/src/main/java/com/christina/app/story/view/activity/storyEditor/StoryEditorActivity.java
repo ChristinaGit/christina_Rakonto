@@ -14,10 +14,10 @@ import com.christina.api.story.contract.StoryContentCode;
 import com.christina.api.story.contract.StoryContract;
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
-import com.christina.app.story.adpter.editStoryScreens.StoryEditorPageContentChangedEventArgs;
-import com.christina.app.story.adpter.editStoryScreens.StoryEditorPagesAdapter;
+import com.christina.app.story.adpter.storyEditorPages.StoryEditorPageContentChangedEventArgs;
+import com.christina.app.story.adpter.storyEditorPages.StoryEditorPagesAdapter;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.presentation.StoryEditorPresenter;
+import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryEditorPresentableView;
 import com.christina.app.story.view.activity.BaseStoryActivity;
 import com.christina.common.ConstantBuilder;
@@ -28,8 +28,10 @@ import com.christina.common.event.Event;
 import com.christina.common.event.EventHandler;
 import com.christina.common.event.NoticeEvent;
 import com.christina.common.view.AnimationViewUtils;
+import com.christina.common.view.presentation.Presenter;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -211,7 +213,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
     protected void onBindPresenter() {
         super.onBindPresenter();
 
-        final val presenter = getStoryEditorPresenter();
+        final val presenter = getPresenter();
         if (presenter != null) {
             presenter.setPresentableView(this);
         }
@@ -248,11 +250,16 @@ public final class StoryEditorActivity extends BaseStoryActivity
             if (_stepPagerView != null) {
                 final val screensAdapter = getStoryEditorPagesAdapter();
                 screensAdapter.setPageFactory(getStoryEditorPages());
+                screensAdapter.setDisplayedStoryId(getDisplayedStoryId());
                 _stepPagerView.setAdapter(screensAdapter);
 
+                final int activePage;
                 if (_savedState != null) {
-                    _stepPagerView.setCurrentItem(_savedState.getActivePage(), false);
+                    activePage = _savedState.getActivePage();
+                } else {
+                    activePage = 0;
                 }
+                _stepPagerView.setCurrentItem(activePage, false);
             }
 
             final val mode = getMode();
@@ -302,7 +309,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
     protected void onUnbindPresenter() {
         super.onUnbindPresenter();
 
-        final val presenter = getStoryEditorPresenter();
+        final val presenter = getPresenter();
         if (presenter != null) {
             presenter.setPresentableView(null);
         }
@@ -314,36 +321,6 @@ public final class StoryEditorActivity extends BaseStoryActivity
     }
 
     protected void onEnterStep(final int position) {
-        //        if (position == EditStoryScreensAdapter.POSITION_FRAMES_EDITOR &&
-        //            getMode() == Mode.INSERT) {
-        //            final Story story = getStoryDao().get(getStoryId());
-        //            if (story != null) {
-        //                final String storyText = story.getText();
-        //                if (storyText != null) {
-        //                    final String cleanStoryText = StoryTextUtils.cleanup(storyText);
-        //
-        //                    final List<String> defaultSplit = StoryTextUtils.defaultSplit
-        // (cleanStoryText);
-        //
-        //                    final StoryFrameDao storyFrameDao = getStoryFrameDao();
-        //                    int textPosition = 0;
-        //                    for (final String part : defaultSplit) {
-        //                        textPosition += part.length();
-        //
-        //                        final StoryFrame storyFrame = storyFrameDao.create(getStoryId());
-        //                        if (storyFrame != null) {
-        //                            //                            storyFrame.setTextPosition
-        // (textPosition);
-        //
-        //                            storyFrameDao.update(storyFrame);
-        //                        }
-        //                    }
-        //                }
-        //            } else {
-        //                // TODO: 11/4/2016
-        //            }
-        //        }
-
         final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
         if (editorFragment != null) {
             editorFragment.onStartEditing();
@@ -469,6 +446,12 @@ public final class StoryEditorActivity extends BaseStoryActivity
     @Nullable
     /*package-private*/ View _nextStepView;
 
+    @Named(PresenterNames.STORY_EDITOR)
+    @Inject
+    @Getter(AccessLevel.PROTECTED)
+    @Nullable
+    /*package-private*/ Presenter<StoryEditorPresentableView> _presenter;
+
     @BindView(R.id.previous_step)
     @Nullable
     /*package-private*/ View _previousStepView;
@@ -476,11 +459,6 @@ public final class StoryEditorActivity extends BaseStoryActivity
     @BindView(R.id.creation_step_pager)
     @Nullable
     /*package-private*/ ViewPager _stepPagerView;
-
-    @Inject
-    @Getter(AccessLevel.PROTECTED)
-    @Nullable
-    /*package-private*/ StoryEditorPresenter _storyEditorPresenter;
 
     @OnClick(R.id.next_step)
     /*package-private*/ void onNextStepClick() {

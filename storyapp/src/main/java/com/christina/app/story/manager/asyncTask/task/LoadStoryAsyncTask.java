@@ -19,8 +19,7 @@ public final class LoadStoryAsyncTask extends BaseStoryAsyncTask<Story, Exceptio
         @NonNull final StoryDaoManager storyDaoManager,
         final long storyId,
         @Nullable final AsyncCallback<Story, Exception> callback) {
-        super(storyDaoManager, callback);
-        Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
+        super(Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null"), callback);
 
         _storyId = storyId;
     }

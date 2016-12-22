@@ -37,8 +37,7 @@ public abstract class BaseStoryAsyncTask<TResult, TError, TProgress>
 
     @Override
     protected final void onPostExecute(final AsyncResult<TResult, TError> result) {
-        super.onPostExecute(result);
-        Contracts.requireNonNull(result, "result == null");
+        super.onPostExecute(Contracts.requireNonNull(result, "result == null"));
 
         if (result.isSuccess()) {
             onSuccess(result.getResult());

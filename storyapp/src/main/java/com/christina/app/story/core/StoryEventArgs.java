@@ -15,7 +15,6 @@ public class StoryEventArgs extends EventArgs {
     }
 
     public StoryEventArgs(final long storyId) {
-
         _storyId = storyId;
     }
 

@@ -17,8 +17,7 @@ public abstract class BaseStoryLoader<TResult, TError>
     extends AsyncTaskLoader<AsyncResult<TResult, TError>> {
     public BaseStoryLoader(
         @NonNull final Context context, @NonNull final StoryDaoManager storyDaoManager) {
-        super(context);
-        Contracts.requireNonNull(context, "context == null");
+        super(Contracts.requireNonNull(context, "context == null"));
         Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
 
         _storyDaoManager = storyDaoManager;

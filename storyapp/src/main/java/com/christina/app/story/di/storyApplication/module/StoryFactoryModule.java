@@ -8,13 +8,14 @@ import com.christina.api.story.dao.storyFrame.StoryFrameFullProjection;
 import com.christina.api.story.dao.storyFrame.StoryFrameModelFactory;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
-import com.christina.app.story.di.qualifier.ForStory;
-import com.christina.app.story.di.qualifier.ForStoryFrame;
+import com.christina.app.story.di.qualifier.StoryFactoryNames;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.dao.factory.ClassModelCollectionFactory;
 import com.christina.common.data.dao.factory.ModelCollectionFactory;
 import com.christina.common.data.dao.factory.ModelFactory;
+
+import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
@@ -23,18 +24,18 @@ import dagger.Provides;
 @StoryApplicationScope
 public final class StoryFactoryModule {
     @Provides
-    @ForStory
+    @Named(StoryFactoryNames.STORY)
     @StoryApplicationScope
     @NonNull
     public final ModelCollectionFactory<Story> provideStoryCollectionFactory(
-        @ForStory @NonNull final ModelFactory<Story> storyFactory) {
+        @Named(StoryFactoryNames.STORY) @NonNull final ModelFactory<Story> storyFactory) {
         Contracts.requireNonNull(storyFactory, "storyFactory == null");
 
         return new ClassModelCollectionFactory<>(Story.class, storyFactory);
     }
 
     @Provides
-    @ForStory
+    @Named(StoryFactoryNames.STORY)
     @StoryApplicationScope
     @NonNull
     public final ModelFactory<Story> provideStoryFactory(
@@ -45,18 +46,19 @@ public final class StoryFactoryModule {
     }
 
     @Provides
-    @ForStoryFrame
+    @Named(StoryFactoryNames.STORY_FRAME)
     @StoryApplicationScope
     @NonNull
     public final ModelCollectionFactory<StoryFrame> provideStoryFrameCollectionFactory(
-        @ForStoryFrame @NonNull final ModelFactory<StoryFrame> storyFrameFactory) {
+        @Named(StoryFactoryNames.STORY_FRAME) @NonNull
+        final ModelFactory<StoryFrame> storyFrameFactory) {
         Contracts.requireNonNull(storyFrameFactory, "storyFrameFactory == null");
 
         return new ClassModelCollectionFactory<>(StoryFrame.class, storyFrameFactory);
     }
 
     @Provides
-    @ForStoryFrame
+    @Named(StoryFactoryNames.STORY_FRAME)
     @StoryApplicationScope
     @NonNull
     public final ModelFactory<StoryFrame> provideStoryFrameFactory(

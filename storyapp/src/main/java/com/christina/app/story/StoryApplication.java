@@ -26,6 +26,7 @@ import lombok.experimental.Accessors;
  * <li>Implement stories list position restoring;</li>
  * <li>Hide FAB on scroll;</li>
  * <li>Fix fragment state;</li>
+ * <li>Add sorting;</li>
  * <li>Add custom provider permissions;</li>
  * <li>Convert layouts to ConstraintLayout;</li>
  * <li>Implement Leave-behinds;</li>
@@ -38,6 +39,16 @@ public final class StoryApplication extends Application
     public void onCreate() {
         super.onCreate();
 
+//        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+//                                       .detectAll()
+//                                       .penaltyLog()
+//                                       .build());
+//        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+//                                   .detectLeakedSqlLiteObjects()
+//                                   .detectLeakedClosableObjects()
+//                                   .penaltyLog()
+//                                   .penaltyDeath()
+//                                   .build());
         final StoryApplicationComponent component = getStoryApplicationComponent();
         new FakeDatabase(component.getStoryDao(), component.getStoryFrameDao(), false).create(
             getApplicationContext());

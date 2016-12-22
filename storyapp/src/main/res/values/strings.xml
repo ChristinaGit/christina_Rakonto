@@ -13,10 +13,10 @@
     <string name="action_edit_story">Edit</string>
 
     <string name="message_story_inserted">Story created</string>
+    <string name="message_story_deleted">Story deleted</string>
     <string name="message_story_insert_fail">Failed to create a story</string>
     <string name="message_story_load_fail">Failed to load story</string>
     <string name="message_stories_load_fail">Failed to load stories</string>
-    <string name="message_story_deleted">Story deleted</string>
 
     <string name="story_creator_next_step">Next</string>
     <string name="story_creator_previous_step">Previous</string>

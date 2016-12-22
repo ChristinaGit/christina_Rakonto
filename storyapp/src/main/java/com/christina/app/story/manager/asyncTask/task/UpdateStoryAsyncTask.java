@@ -19,8 +19,7 @@ public final class UpdateStoryAsyncTask extends BaseStoryAsyncTask<Integer, Exce
         @NonNull final StoryDaoManager storyDaoManager,
         @NonNull final Story story,
         @Nullable final AsyncCallback<Integer, Exception> callback) {
-        super(storyDaoManager, callback);
-        Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
+        super(Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null"), callback);
         Contracts.requireNonNull(story, "story == null");
 
         _story = story;

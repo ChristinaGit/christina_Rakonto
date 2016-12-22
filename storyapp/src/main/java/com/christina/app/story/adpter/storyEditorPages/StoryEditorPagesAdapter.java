@@ -1,4 +1,4 @@
-package com.christina.app.story.adpter.editStoryScreens;
+package com.christina.app.story.adpter.storyEditorPages;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,8 +25,7 @@ import lombok.val;
 @Accessors(prefix = "_")
 public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
     public StoryEditorPagesAdapter(@NonNull final FragmentManager fragmentManager) {
-        super(fragmentManager);
-        Contracts.requireNonNull(fragmentManager, "fragmentManager == null");
+        super(Contracts.requireNonNull(fragmentManager, "fragmentManager == null"));
     }
 
     @NonNull
@@ -48,7 +47,7 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
 
         final val pageFactory = getPageFactory();
         if (pageFactory != null) {
-            count = pageFactory.pageCount();
+            count = pageFactory.getPageCount();
         } else {
             count = 0;
         }

@@ -3,7 +3,6 @@ package com.christina.app.story.view.fragment.storiesList;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -18,7 +17,8 @@ import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
 import com.christina.app.story.adpter.storiesList.StoriesListAdapter;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.presentation.StoriesListPresenter;
+import com.christina.app.story.delegate.LoadingViewDelegate;
+import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoriesListPresentableView;
 import com.christina.app.story.view.fragment.BaseStoryFragment;
 import com.christina.common.ConstantBuilder;
@@ -26,8 +26,10 @@ import com.christina.common.data.cursor.dataCursor.DataCursor;
 import com.christina.common.event.BaseEvent;
 import com.christina.common.event.Event;
 import com.christina.common.view.ItemSpacingDecorator;
+import com.christina.common.view.presentation.Presenter;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import butterknife.BindView;
 import lombok.AccessLevel;
@@ -54,21 +56,23 @@ public final class StoriesListFragment extends BaseStoryFragment
     }
 
     @Override
-    public void setLoadingVisible(final boolean visible) {
-        if (_loadingVisible != visible) {
-            _loadingVisible = visible;
-
-            onLoadingVisibilityChanged();
-        }
+    public final boolean isLoadingVisible() {
+        return getLoadingViewDelegate().isLoadingVisible();
     }
 
     @Override
-    public void setStoriesVisible(final boolean visible) {
-        if (_storiesVisible != visible) {
-            _storiesVisible = visible;
+    public final void setLoadingVisible(final boolean visible) {
+        getLoadingViewDelegate().setLoadingVisible(visible);
+    }
 
-            onStoriesVisibilityChanged();
-        }
+    @Override
+    public final boolean isStoriesVisible() {
+        return getLoadingViewDelegate().isContentVisible();
+    }
+
+    @Override
+    public final void setStoriesVisible(final boolean visible) {
+        getLoadingViewDelegate().setContentVisible(visible);
     }
 
     @Override
@@ -110,8 +114,10 @@ public final class StoriesListFragment extends BaseStoryFragment
 
         onInitializeStoriesView();
 
-        _invalidateLoadingProgressView();
-        _invalidateStoriesView();
+        final val loadingViewDelegate = getLoadingViewDelegate();
+        loadingViewDelegate.setContentView(_storiesView);
+        loadingViewDelegate.setLoadingView(_storiesLoadingView);
+        loadingViewDelegate.invalidateViews();
 
         return view;
     }
@@ -120,6 +126,8 @@ public final class StoriesListFragment extends BaseStoryFragment
     public void onDestroy() {
         super.onDestroy();
 
+        getStoriesListAdapter().setDataCursor(null);
+
         unbindViews();
     }
 
@@ -127,7 +135,7 @@ public final class StoriesListFragment extends BaseStoryFragment
     protected void onBindPresenter() {
         super.onBindPresenter();
 
-        final val presenter = getStoriesListPresenter();
+        final val presenter = getPresenter();
         if (presenter != null) {
             presenter.setPresentableView(this);
         }
@@ -137,7 +145,7 @@ public final class StoriesListFragment extends BaseStoryFragment
     protected void onUnbindPresenter() {
         super.onUnbindPresenter();
 
-        final val presenter = getStoriesListPresenter();
+        final val presenter = getPresenter();
         if (presenter != null) {
             presenter.setPresentableView(null);
         }
@@ -164,7 +172,6 @@ public final class StoriesListFragment extends BaseStoryFragment
         getStoryViewFragmentComponent().inject(this);
     }
 
-    @CallSuper
     protected void onInitializeStoriesView() {
         if (_storiesView != null) {
             final Context context = _storiesView.getContext();
@@ -188,30 +195,27 @@ public final class StoriesListFragment extends BaseStoryFragment
         }
     }
 
-    protected void onLoadingVisibilityChanged() {
-        _invalidateLoadingProgressView();
-    }
-
-    protected void onStoriesVisibilityChanged() {
-        _invalidateStoriesView();
-    }
-
     protected void onSwipeStory(final long storyId) {
         _onDeleteStoryEvent.rise(new StoryEventArgs(storyId));
     }
 
+    @Named(PresenterNames.STORIES_LIST)
     @Inject
     @Getter(AccessLevel.PROTECTED)
     @Nullable
-    /*package-private*/ StoriesListPresenter _storiesListPresenter;
+    /*package-private*/ Presenter<StoriesListPresentableView> _presenter;
 
-    @BindView(R.id.stories_loading_progress)
+    @BindView(R.id.stories_loading)
     @Nullable
-    /*package-private*/ ContentLoadingProgressBar _storiesLoadingProgressView;
+    /*package-private*/ ContentLoadingProgressBar _storiesLoadingView;
 
     @BindView(R.id.stories_list)
     @Nullable
     /*package-private*/ RecyclerView _storiesView;
+
+    @Getter(value = AccessLevel.PROTECTED, lazy = true)
+    @NonNull
+    private final LoadingViewDelegate _loadingViewDelegate = new LoadingViewDelegate();
 
     private final BaseEvent<StoryEventArgs> _onDeleteStoryEvent = new BaseEvent<>();
 
@@ -240,38 +244,12 @@ public final class StoriesListFragment extends BaseStoryFragment
     @NonNull
     private final StoriesListAdapter _storiesListAdapter = new StoriesListAdapter();
 
-    @Getter(onMethod = @__(@Override))
-    private boolean _loadingVisible;
-
     @Nullable
     private StoriesListSavedState _savedState;
-
-    @Getter(onMethod = @__(@Override))
-    private boolean _storiesVisible;
 
     @NonNull
     private GridLayoutManager _createStoriesLayoutManager() {
         final int columnCount = getResources().getInteger(R.integer.stories_viewer_column_count);
         return new GridLayoutManager(getContext(), columnCount);
-    }
-
-    private void _invalidateLoadingProgressView() {
-        if (_storiesLoadingProgressView != null) {
-            if (isLoadingVisible()) {
-                _storiesLoadingProgressView.show();
-            } else {
-                _storiesLoadingProgressView.hide();
-            }
-        }
-    }
-
-    private void _invalidateStoriesView() {
-        if (_storiesView != null) {
-            if (isStoriesVisible()) {
-                _storiesView.setVisibility(View.VISIBLE);
-            } else {
-                _storiesView.setVisibility(View.INVISIBLE);
-            }
-        }
     }
 }

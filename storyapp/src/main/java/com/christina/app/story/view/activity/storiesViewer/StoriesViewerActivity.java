@@ -14,16 +14,18 @@ import android.widget.Toolbar;
 
 import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.app.story.R;
-import com.christina.app.story.presentation.StoriesViewerPresenter;
+import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoriesViewerPresentableView;
 import com.christina.app.story.view.activity.BaseStoryActivity;
 import com.christina.app.story.view.fragment.storiesList.StoriesListFragment;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.BaseNoticeEvent;
 import com.christina.common.event.NoticeEvent;
+import com.christina.common.view.presentation.Presenter;
 import com.christina.content.story.StoryDatabase;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -83,7 +85,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
     protected void onBindPresenter() {
         super.onBindPresenter();
 
-        final val presenter = getStoriesViewerPresenter();
+        final val presenter = getPresenter();
         if (presenter != null) {
             presenter.setPresentableView(this);
         }
@@ -127,7 +129,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
     protected void onUnbindPresenter() {
         super.onUnbindPresenter();
 
-        final val presenter = getStoriesViewerPresenter();
+        final val presenter = getPresenter();
         if (presenter != null) {
             presenter.setPresentableView(null);
         }
@@ -183,10 +185,11 @@ public final class StoriesViewerActivity extends BaseStoryActivity
     @BindView(R.id.fab)
     /*package-private*/ FloatingActionButton _fabView;
 
+    @Named(PresenterNames.STORIES_VIEWER)
     @Inject
     @Getter(AccessLevel.PROTECTED)
     @Nullable
-    /*package-private*/ StoriesViewerPresenter _storiesViewerPresenter;
+    /*package-private*/ Presenter<StoriesViewerPresentableView> _presenter;
 
     @Inject
     @Getter(AccessLevel.PROTECTED)

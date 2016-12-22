@@ -1,10 +1,9 @@
-package com.christina.app.story.fragment.storyFramesEditor.adapter;
+package com.christina.app.story.adpter.storyFrames;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.christina.api.story.model.StoryFrame;
@@ -13,6 +12,8 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.view.recyclerView.adapter.BaseRecyclerViewAdapter;
 
 import java.util.Objects;
+
+import lombok.val;
 
 public final class StoryFramesAdapter
     extends BaseRecyclerViewAdapter<StoryFrame, StoryFrameListItem, StoryFrameViewHolder> {
@@ -31,8 +32,8 @@ public final class StoryFramesAdapter
 
     @Override
     public StoryFrameViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
-        final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        final View view =
+        final val inflater = LayoutInflater.from(parent.getContext());
+        final val view =
             inflater.inflate(R.layout.fragment_story_frames_editor_item, parent, false);
         return new StoryFrameViewHolder(view);
     }

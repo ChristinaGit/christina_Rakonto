@@ -15,8 +15,7 @@ public final class InsertNewStoryAsyncTask extends BaseStoryAsyncTask<Story, Exc
     public InsertNewStoryAsyncTask(
         @NonNull final StoryDaoManager storyDaoManager,
         @Nullable final AsyncCallback<Story, Exception> callback) {
-        super(storyDaoManager, callback);
-        Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
+        super(Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null"), callback);
     }
 
     @NonNull
@@ -27,18 +26,14 @@ public final class InsertNewStoryAsyncTask extends BaseStoryAsyncTask<Story, Exc
         try {
             final val storyDao = getStoryDaoManager().getStoryDao();
 
-            final val story = storyDao.create();
-            if (story != null) {
-                final long currentTime = System.currentTimeMillis();
+            final val story = new Story();
+            final long currentTime = System.currentTimeMillis();
 
-                story.setCreateDate(currentTime);
-                story.setModifyDate(currentTime);
+            story.setCreateDate(currentTime);
+            story.setModifyDate(currentTime);
 
-                if (storyDao.update(story) > 0) {
-                    result = AsyncResult.success(story);
-                } else {
-                    result = AsyncResult.error();
-                }
+            if (storyDao.insert(story) != Story.NO_ID) {
+                result = AsyncResult.success(story);
             } else {
                 result = AsyncResult.error();
             }

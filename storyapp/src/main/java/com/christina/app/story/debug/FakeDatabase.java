@@ -5,13 +5,12 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 
-import com.christina.api.story.dao.story.StoryDao;
-import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
-import com.christina.common.ConstantBuilder;
+import com.christina.app.story.core.StoryTextUtils;
 import com.christina.common.data.UriSchemes;
 import com.christina.common.data.UriUtils;
+import com.christina.common.data.dao.SqlDao;
 import com.christina.content.story.StoryDatabase;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -25,9 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class FakeDatabase {
-    private static final String _LOG_TAG = ConstantBuilder.logTag(FakeDatabase.class);
+import lombok.val;
 
+public class FakeDatabase {
     public static final int STORY_COUNT = 25;
 
     private static final String[] NET_IMAGES = {
@@ -42,8 +41,8 @@ public class FakeDatabase {
         ".net/1900/f/2016/013/3/0/ameliamaria1screen2blurpix2sml_by_banished_shadow-d9ns24h.png"};
 
     public FakeDatabase(
-        @NonNull final StoryDao storyDao,
-        @NonNull final StoryFrameDao storyFrameDao,
+        @NonNull final SqlDao<Story> storyDao,
+        @NonNull final SqlDao<StoryFrame> storyFrameDao,
         final boolean networkAvailable) {
         _storyDao = storyDao;
         _storyFrameDao = storyFrameDao;
@@ -79,10 +78,10 @@ public class FakeDatabase {
     private final List<String> _images;
 
     @NonNull
-    private final StoryDao _storyDao;
+    private final SqlDao<Story> _storyDao;
 
     @NonNull
-    private final StoryFrameDao _storyFrameDao;
+    private final SqlDao<StoryFrame> _storyFrameDao;
 
     private final String[] _words =
         ("The easiest way to get started with Google Custom Search is to create a basic search" +
@@ -91,42 +90,48 @@ public class FakeDatabase {
          "figuring out some basic concepts, spend only a couple of minutes making your " +
          "first search engine. Keep it simple so that you can follow what's happening " +
          "when you start testing it. You can always change it later.")
-            .replaceAll("[^a-zA-Z]", " ")
+            .replaceAll("[^a-zA-Z]*", " ")
             .split(" ");
 
     private void createStories(final Random random) {
-        final StoryDao storyDao = _storyDao;
+        final val storyDao = _storyDao;
 
         for (int i = 0; i < STORY_COUNT; i++) {
-            final Story story = storyDao.create();
-            if (story != null) {
-                story.setCreateDate(System.currentTimeMillis());
-                story.setModifyDate(System.currentTimeMillis());
-                story.setName(getSentence(random, 2, 5, false));
-                story.setText(getSentence(random, 5, 20, true));
-                story.setPreviewUri(getImage(random));
+            final val story = new Story();
+            story.setCreateDate(System.currentTimeMillis());
+            story.setModifyDate(System.currentTimeMillis());
+            story.setName(getSentence(random, 2, 5, false));
+            story.setText(getSentence(random, 5, 20, true));
+            story.setPreviewUri(getImage(random));
 
-                storyDao.update(story);
+            storyDao.insert(story);
 
-                createStoryFrames(random, story);
-            }
+            createStoryFrames(random, story);
         }
     }
 
     private void createStoryFrames(final Random random, final Story story) {
-        final StoryFrameDao storyFrameDao = _storyFrameDao;
+        final val storyFrameDao = _storyFrameDao;
 
         final String storyText = story.getText();
 
         if (storyText != null) {
-            for (int i = 0; i < storyText.length(); i += random.nextInt(7)) {
-                final StoryFrame storyFrame = storyFrameDao.create(story.getId());
-                if (storyFrame != null) {
-                    storyFrame.setImageUri(getImage(random));
-                    //                    storyFrame.setTextPosition(i);
+            final val defaultSplit = StoryTextUtils.defaultSplit(storyText);
 
-                    storyFrameDao.update(storyFrame);
-                }
+            int startPosition = 0;
+            int endPosition = 0;
+            for (final val textFrame : defaultSplit) {
+                startPosition += endPosition;
+                endPosition += textFrame.length();
+
+                final val storyFrame = new StoryFrame();
+                storyFrame.setStoryId(story.getId());
+                storyFrame.setImageUri(getImage(random));
+
+                storyFrame.setTextStartPosition(startPosition);
+                storyFrame.setTextEndPosition(endPosition);
+
+                storyFrameDao.insert(storyFrame);
             }
         }
     }

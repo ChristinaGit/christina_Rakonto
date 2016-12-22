@@ -3,7 +3,6 @@ package com.christina.api.story.dao.story;
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.christina.api.story.contract.StoryContract;
 import com.christina.api.story.model.Story;
@@ -25,22 +24,11 @@ public final class StoryDao extends ContentProviderDao<Story> {
         @NonNull final ModelCollectionFactory<Story> modelCollectionFactory,
         @NonNull final ModelContentExtractor<Story> modelContentExtractor) {
         super(
-            contentResolver,
-            fullProjection,
-            modelFactory,
-            modelCollectionFactory,
-            modelContentExtractor);
-    }
-
-    @Nullable
-    public Story create() {
-        Story story = getModelFactory().create();
-
-        if (insert(story) == Story.NO_ID) {
-            story = null;
-        }
-
-        return story;
+            Contracts.requireNonNull(contentResolver, "contentResolver == null"),
+            Contracts.requireNonNull(fullProjection, "fullProjection == null"),
+            Contracts.requireNonNull(modelFactory, "modelFactory == null"),
+            Contracts.requireNonNull(modelCollectionFactory, "modelCollectionFactory == null"),
+            Contracts.requireNonNull(modelContentExtractor, "modelContentExtractor == null"));
     }
 
     @Override

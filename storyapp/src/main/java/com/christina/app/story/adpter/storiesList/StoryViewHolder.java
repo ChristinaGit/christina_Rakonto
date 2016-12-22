@@ -40,7 +40,7 @@ import butterknife.BindView;
     public TextView storyTextView;
 
     public StoryViewHolder(@NonNull final View itemView) {
-        super(itemView);
+        super(Contracts.requireNonNull(itemView, "itemView == null"));
 
         bindViews();
 
