@@ -43,6 +43,18 @@ public final class StoriesListFragment extends BaseStoryFragment
     private static final String _KEY_SAVED_STATE =
         ConstantBuilder.savedStateKey(StoriesListFragment.class, "saved_state");
 
+    @Override
+    public void displayStories(
+        @Nullable final DataCursor<Story> stories) {
+        getStoriesListAdapter().setDataCursor(stories);
+
+        if (_savedState != null && !_savedState.isScrollPositionRestored()) {
+            final int scrollPosition = _savedState.getScrollPosition();
+            getStoriesLayoutManager().scrollToPositionWithOffset(scrollPosition, 0);
+            _savedState.setScrollPositionRestored(true);
+        }
+    }
+
     @NonNull
     @Override
     public Event<StoryEventArgs> getOnDeleteStoryEvent() {
@@ -73,18 +85,6 @@ public final class StoriesListFragment extends BaseStoryFragment
     @Override
     public final void setStoriesVisible(final boolean visible) {
         getLoadingViewDelegate().setContentVisible(visible);
-    }
-
-    @Override
-    public void displayStories(
-        @Nullable final DataCursor<Story> stories) {
-        getStoriesListAdapter().setDataCursor(stories);
-
-        if (_savedState != null && !_savedState.isScrollPositionRestored()) {
-            final int scrollPosition = _savedState.getScrollPosition();
-            getStoriesLayoutManager().scrollToPositionWithOffset(scrollPosition, 0);
-            _savedState.setScrollPositionRestored(true);
-        }
     }
 
     @Override

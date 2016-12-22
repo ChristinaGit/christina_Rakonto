@@ -9,10 +9,10 @@ import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.app.story.di.qualifier.ForApplication;
 import com.christina.app.story.di.storyView.StoryViewScope;
 import com.christina.app.story.manager.ServiceManager;
-import com.christina.app.story.manager.content.StoryContentObserverManager;
-import com.christina.app.story.manager.content.StoryDaoManager;
 import com.christina.app.story.manager.asyncTask.ActivityStoryTaskManager;
 import com.christina.app.story.manager.asyncTask.StoryTaskManager;
+import com.christina.app.story.manager.content.StoryContentObserverManager;
+import com.christina.app.story.manager.content.StoryDaoManager;
 import com.christina.app.story.manager.message.MessageManager;
 import com.christina.app.story.manager.navigation.StoryNavigator;
 import com.christina.common.contract.Contracts;
@@ -65,11 +65,11 @@ public final class StoryViewManagerModule {
         Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
         Contracts.requireNonNull(storyContentObserverManager,
                                  "storyContentObserverManager == null");
-        return new ServiceManager(
-            storyNavigator, storyTaskManager,
-            messageManager,
-            storyDaoManager,
-            storyContentObserverManager);
+        return new ServiceManager(storyNavigator,
+                                  storyTaskManager,
+                                  messageManager,
+                                  storyDaoManager,
+                                  storyContentObserverManager);
     }
 
     @Provides
@@ -87,6 +87,13 @@ public final class StoryViewManagerModule {
     @Provides
     @StoryViewScope
     @NonNull
+    public final StoryNavigator provideStoryNavigator() {
+        return _storyNavigator;
+    }
+
+    @Provides
+    @StoryViewScope
+    @NonNull
     public final StoryTaskManager provideStoryTaskManager(
         @NonNull @ForApplication final Context context,
         @NonNull final LoaderManager loaderManager,
@@ -96,13 +103,6 @@ public final class StoryViewManagerModule {
         Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
 
         return new ActivityStoryTaskManager(context, loaderManager, storyDaoManager);
-    }
-
-    @Provides
-    @StoryViewScope
-    @NonNull
-    public final StoryNavigator provideStoryNavigator() {
-        return _storyNavigator;
     }
 
     @NonNull

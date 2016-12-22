@@ -14,17 +14,18 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix = "_")
 /*package-private*/ final class StoryEditorSavedState implements Parcelable {
-    public static final Creator<StoryEditorSavedState> CREATOR = new Creator<StoryEditorSavedState>() {
-        @Override
-        public StoryEditorSavedState createFromParcel(final Parcel source) {
-            return new StoryEditorSavedState(source);
-        }
+    public static final Creator<StoryEditorSavedState> CREATOR =
+        new Creator<StoryEditorSavedState>() {
+            @Override
+            public StoryEditorSavedState createFromParcel(final Parcel source) {
+                return new StoryEditorSavedState(source);
+            }
 
-        @Override
-        public StoryEditorSavedState[] newArray(final int size) {
-            return new StoryEditorSavedState[size];
-        }
-    };
+            @Override
+            public StoryEditorSavedState[] newArray(final int size) {
+                return new StoryEditorSavedState[size];
+            }
+        };
 
     public StoryEditorSavedState() {
     }

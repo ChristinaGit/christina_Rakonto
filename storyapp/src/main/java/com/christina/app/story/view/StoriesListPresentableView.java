@@ -10,6 +10,8 @@ import com.christina.common.event.Event;
 import com.christina.common.view.presentation.PresentableView;
 
 public interface StoriesListPresentableView extends PresentableView {
+    void displayStories(@Nullable DataCursor<Story> stories);
+
     @NonNull
     Event<StoryEventArgs> getOnDeleteStoryEvent();
 
@@ -23,6 +25,4 @@ public interface StoriesListPresentableView extends PresentableView {
     boolean isStoriesVisible();
 
     void setStoriesVisible(boolean visible);
-
-    void displayStories(@Nullable DataCursor<Story> stories);
 }

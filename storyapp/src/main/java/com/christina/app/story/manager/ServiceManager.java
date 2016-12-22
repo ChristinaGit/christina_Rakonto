@@ -2,9 +2,9 @@ package com.christina.app.story.manager;
 
 import android.support.annotation.NonNull;
 
+import com.christina.app.story.manager.asyncTask.StoryTaskManager;
 import com.christina.app.story.manager.content.StoryContentObserverManager;
 import com.christina.app.story.manager.content.StoryDaoManager;
-import com.christina.app.story.manager.asyncTask.StoryTaskManager;
 import com.christina.app.story.manager.message.MessageManager;
 import com.christina.app.story.manager.navigation.StoryNavigator;
 import com.christina.common.contract.Contracts;
@@ -48,9 +48,9 @@ public final class ServiceManager {
 
     @Getter
     @NonNull
-    private final StoryTaskManager _storyTaskManager;
+    private final StoryNavigator _storyNavigator;
 
     @Getter
     @NonNull
-    private final StoryNavigator _storyNavigator;
+    private final StoryTaskManager _storyTaskManager;
 }

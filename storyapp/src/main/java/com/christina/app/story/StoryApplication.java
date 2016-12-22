@@ -39,16 +39,16 @@ public final class StoryApplication extends Application
     public void onCreate() {
         super.onCreate();
 
-//        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-//                                       .detectAll()
-//                                       .penaltyLog()
-//                                       .build());
-//        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-//                                   .detectLeakedSqlLiteObjects()
-//                                   .detectLeakedClosableObjects()
-//                                   .penaltyLog()
-//                                   .penaltyDeath()
-//                                   .build());
+        //        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+        //                                       .detectAll()
+        //                                       .penaltyLog()
+        //                                       .build());
+        //        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+        //                                   .detectLeakedSqlLiteObjects()
+        //                                   .detectLeakedClosableObjects()
+        //                                   .penaltyLog()
+        //                                   .penaltyDeath()
+        //                                   .build());
         final StoryApplicationComponent component = getStoryApplicationComponent();
         new FakeDatabase(component.getStoryDao(), component.getStoryFrameDao(), false).create(
             getApplicationContext());

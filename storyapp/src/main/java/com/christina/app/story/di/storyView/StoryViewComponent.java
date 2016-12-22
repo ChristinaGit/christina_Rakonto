@@ -5,8 +5,8 @@ import com.christina.app.story.di.storyView.module.StoryViewManagerModule;
 import com.christina.app.story.di.storyView.module.StoryViewPresenterModule;
 import com.christina.app.story.di.storyViewFragment.StoryViewFragmentComponent;
 import com.christina.app.story.di.storyViewFragment.module.StoryViewFragmentPresenterModule;
-import com.christina.app.story.view.activity.storyEditor.StoryEditorActivity;
 import com.christina.app.story.view.activity.storiesViewer.StoriesViewerActivity;
+import com.christina.app.story.view.activity.storyEditor.StoryEditorActivity;
 
 import dagger.Subcomponent;
 

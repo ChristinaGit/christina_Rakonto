@@ -23,7 +23,8 @@ import lombok.experimental.Accessors;
 import lombok.val;
 
 @Accessors(prefix = "_")
-public final class StoriesListAdapter extends DataCursorRecyclerViewAdapter<Story, StoryViewHolder> {
+public final class StoriesListAdapter
+    extends DataCursorRecyclerViewAdapter<Story, StoryViewHolder> {
     public static long getStoryId(@NonNull final RecyclerView.ViewHolder holder) {
         Contracts.requireNonNull(holder, "holder == null");
 
