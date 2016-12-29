@@ -11,8 +11,6 @@ import com.christina.api.story.database.StoryTable;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.database.SQLiteDatabaseWrapper;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "_")
@@ -55,26 +53,26 @@ public final class StoryDatabase extends SQLiteDatabaseWrapper {
         final SQLiteDatabase db, final int oldVersion, final int newVersion) {
     }
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
-    private final String _createStoryFrameTableQuery =
-        "CREATE TABLE IF NOT EXISTS " + StoryFrameTable.NAME + "(" +
-        StoryFrameTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-        StoryFrameTable.COLUMN_STORY_ID + " INTEGER NOT NULL, " +
-        StoryFrameTable.COLUMN_TEXT_START_POSITION + " INTEGER NOT NULL, " +
-        StoryFrameTable.COLUMN_TEXT_END_POSITION + " INTEGER NOT NULL, " +
-        StoryFrameTable.COLUMN_IMAGE + " TEXT, " +
-        "FOREIGN KEY (" + StoryFrameTable.COLUMN_STORY_ID + ") REFERENCES " +
-        StoryTable.NAME + "(" + StoryTable.COLUMN_ID + "))";
+    private String getCreateStoryFrameTableQuery() {
+        return "CREATE TABLE IF NOT EXISTS " + StoryFrameTable.NAME + "(" +
+               StoryFrameTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+               StoryFrameTable.COLUMN_STORY_ID + " INTEGER NOT NULL, " +
+               StoryFrameTable.COLUMN_TEXT_START_POSITION + " INTEGER NOT NULL, " +
+               StoryFrameTable.COLUMN_TEXT_END_POSITION + " INTEGER NOT NULL, " +
+               StoryFrameTable.COLUMN_IMAGE + " TEXT, " +
+               "FOREIGN KEY (" + StoryFrameTable.COLUMN_STORY_ID + ") REFERENCES " +
+               StoryTable.NAME + "(" + StoryTable.COLUMN_ID + "))";
+    }
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
-    private final String _createStoryTableQuery =
-        "CREATE TABLE IF NOT EXISTS " + StoryTable.NAME + "(" +
-        StoryTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-        StoryTable.COLUMN_NAME + " TEXT, " +
-        StoryTable.COLUMN_CREATE_DATE + " INTEGER NOT NULL, " +
-        StoryTable.COLUMN_MODIFY_DATE + " INTEGER NOT NULL, " +
-        StoryTable.COLUMN_TEXT + " TEXT, " +
-        StoryTable.COLUMN_PREVIEW + " TEXT)";
+    private String getCreateStoryTableQuery() {
+        return "CREATE TABLE IF NOT EXISTS " + StoryTable.NAME + "(" +
+               StoryTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+               StoryTable.COLUMN_NAME + " TEXT, " +
+               StoryTable.COLUMN_CREATE_DATE + " INTEGER NOT NULL, " +
+               StoryTable.COLUMN_MODIFY_DATE + " INTEGER NOT NULL, " +
+               StoryTable.COLUMN_TEXT + " TEXT, " +
+               StoryTable.COLUMN_PREVIEW + " TEXT)";
+    }
 }

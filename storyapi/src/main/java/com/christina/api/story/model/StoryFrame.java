@@ -9,8 +9,10 @@ import com.christina.common.data.model.Model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
+@ToString(doNotUseGetters = true)
 @Accessors(prefix = "_")
 public final class StoryFrame extends Model {
     public StoryFrame() {

@@ -21,4 +21,6 @@
     <string name="story_creator_next_step">Next</string>
     <string name="story_creator_previous_step">Previous</string>
     <string name="story_creator_input_hint">Your beautiful story…</string>
+
+    <string name="content_description_story_image_preview">A story image preview</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.christina.app.story.manager.message;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -15,40 +16,41 @@ import lombok.val;
 
 @Accessors(prefix = "_")
 public final class ActivityMessageManager implements MessageManager {
-    public ActivityMessageManager(
-        @NonNull final SnackbarParentViewProvider snackbarParentViewProvider) {
-        Contracts.requireNonNull(snackbarParentViewProvider, "snackbarParentViewProvider == null");
+    public ActivityMessageManager(@NonNull final Activity activity) {
+        Contracts.requireNonNull(activity, "activity == null");
 
-        _snackbarParentViewProvider = snackbarParentViewProvider;
+        _activity = activity;
     }
 
     @Override
     public void showInfoMessage(@NonNull final String string) {
-        final val snackbarParentView = getSnackbarParentView();
-        if (snackbarParentView != null) {
-            Snackbar.make(snackbarParentView, string, Snackbar.LENGTH_SHORT).show();
+        final val contentView = getContentView();
+        if (contentView != null) {
+            Snackbar.make(contentView, string, Snackbar.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void showInfoMessage(@StringRes final int stringId) {
-        final val snackbarParentView = getSnackbarParentView();
-        if (snackbarParentView != null) {
-            Snackbar.make(snackbarParentView, stringId, Snackbar.LENGTH_SHORT).show();
+        final val contentView = getContentView();
+        if (contentView != null) {
+            Snackbar.make(contentView, stringId, Snackbar.LENGTH_SHORT).show();
         }
     }
 
     @Nullable
-    protected final View getSnackbarParentView() {
-        return getSnackbarParentViewProvider().getSnackbarParentView();
+    protected final View getContentView() {
+        if (_contentView == null) {
+            _contentView = getActivity().findViewById(android.R.id.content);
+        }
+
+        return _contentView;
     }
 
     @Getter(AccessLevel.PROTECTED)
     @NonNull
-    private final SnackbarParentViewProvider _snackbarParentViewProvider;
+    private final Activity _activity;
 
-    public interface SnackbarParentViewProvider {
-        @Nullable
-        View getSnackbarParentView();
-    }
+    @Nullable
+    private View _contentView;
 }

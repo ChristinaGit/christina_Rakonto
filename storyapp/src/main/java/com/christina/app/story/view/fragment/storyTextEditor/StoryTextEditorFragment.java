@@ -15,6 +15,7 @@ import android.widget.EditText;
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
 import com.christina.app.story.adpter.storyEditorPages.StoryEditorPage;
+import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.delegate.LoadingViewDelegate;
 import com.christina.app.story.di.qualifier.PresenterNames;
@@ -53,7 +54,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     @NonNull
     @Override
     public final NoticeEvent getOnContentChangedEvent() {
-        return _onContentChangedChangedEvent;
+        return _onContentChangedEvent;
     }
 
     @Override
@@ -79,6 +80,11 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
                 _onStartEditStoryEvent.rise(new StoryEventArgs(editedStoryId));
             }
         }
+
+        if (_storyTextView != null && !_storyTextView.hasFocus()) {
+            _storyTextView.requestFocus();
+            ImeUtils.showIme(_storyTextView);
+        }
     }
 
     @CallSuper
@@ -96,12 +102,6 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         setEditedStory(story);
     }
 
-    @Nullable
-    @Override
-    public final Story getDisplayedStory() {
-        return getEditedStory();
-    }
-
     @NonNull
     public final Event<StoryEventArgs> getOnStartEditStoryEvent() {
         return _onStartEditStoryEvent;
@@ -109,7 +109,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
 
     @NonNull
     @Override
-    public final NoticeEvent getOnStoryChangedEvent() {
+    public final Event<StoryContentEventArgs> getOnStoryChangedEvent() {
         return _onStoryChangedEvent;
     }
 
@@ -150,6 +150,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     }
 
     @Nullable
+    @CallSuper
     @Override
     public View onCreateView(
         final LayoutInflater inflater,
@@ -220,7 +221,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
             }
         }
 
-        _onContentChangedChangedEvent.rise();
+        _onContentChangedEvent.rise();
     }
 
     protected void onEditedStoryIdChanged() {
@@ -243,7 +244,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     protected void onSaveStoryChanges() {
         final val editedStory = getEditedStory();
         if (editedStory != null) {
-            _onStoryChangedEvent.rise();
+            _onStoryChangedEvent.rise(new StoryContentEventArgs(editedStory));
         }
     }
 
@@ -255,7 +256,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         if (editedStory != null) {
             editedStory.setText(storyText);
 
-            _onContentChangedChangedEvent.rise();
+            _onContentChangedEvent.rise();
         }
     }
 
@@ -282,13 +283,13 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     private final LoadingViewDelegate _loadingViewDelegate = new LoadingViewDelegate();
 
     @NonNull
-    private final BaseNoticeEvent _onContentChangedChangedEvent = new BaseNoticeEvent();
+    private final BaseNoticeEvent _onContentChangedEvent = new BaseNoticeEvent();
 
     @NonNull
     private final BaseEvent<StoryEventArgs> _onStartEditStoryEvent = new BaseEvent<>();
 
     @NonNull
-    private final BaseNoticeEvent _onStoryChangedEvent = new BaseNoticeEvent();
+    private final BaseEvent<StoryContentEventArgs> _onStoryChangedEvent = new BaseEvent<>();
 
     @Getter(AccessLevel.PROTECTED)
     @Nullable

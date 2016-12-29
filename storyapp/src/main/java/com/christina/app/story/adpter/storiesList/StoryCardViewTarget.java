@@ -68,8 +68,8 @@ import lombok.val;
         animation.setDuration(duration);
         animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
-            public void onAnimationUpdate(final ValueAnimator animation) {
-                cardView.setCardBackgroundColor((int) animation.getAnimatedValue());
+            public void onAnimationUpdate(final ValueAnimator a) {
+                cardView.setCardBackgroundColor((int) a.getAnimatedValue());
             }
         });
         animation.start();

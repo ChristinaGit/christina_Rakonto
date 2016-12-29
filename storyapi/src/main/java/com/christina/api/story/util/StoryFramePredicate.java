@@ -27,8 +27,7 @@ public final class StoryFramePredicate {
     }
 
     @NonNull
-    public static Predicate<StoryFrame> storyIdEquals(
-        final long storyId) {
+    public static Predicate<StoryFrame> storyIdEquals(final long storyId) {
         return new Predicate<StoryFrame>() {
             @Override
             public boolean evaluate(final StoryFrame object) {

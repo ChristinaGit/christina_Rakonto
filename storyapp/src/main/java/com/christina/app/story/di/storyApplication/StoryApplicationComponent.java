@@ -1,8 +1,7 @@
 package com.christina.app.story.di.storyApplication;
 
-import com.christina.api.story.model.Story;
-import com.christina.api.story.model.StoryFrame;
-import com.christina.app.story.di.qualifier.StoryDaoNames;
+import com.christina.api.story.dao.story.StoryDao;
+import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.app.story.di.storyApplication.module.ApplicationContextModule;
 import com.christina.app.story.di.storyApplication.module.ApplicationServiceModule;
 import com.christina.app.story.di.storyApplication.module.StoryContentExtractorModule;
@@ -13,9 +12,6 @@ import com.christina.app.story.di.storyView.StoryViewComponent;
 import com.christina.app.story.di.storyView.module.StoryContentObserverModule;
 import com.christina.app.story.di.storyView.module.StoryViewManagerModule;
 import com.christina.app.story.di.storyView.module.StoryViewPresenterModule;
-import com.christina.common.data.dao.SqlDao;
-
-import javax.inject.Named;
 
 import dagger.Component;
 
@@ -34,10 +30,8 @@ public interface StoryApplicationComponent {
         StoryViewManagerModule storyViewManagerModule);
 
     // TODO: 11/26/2016 Remove
-    @Named(StoryDaoNames.STORY)
-    SqlDao<Story> getStoryDao();
+    StoryDao getStoryDao();
 
     // TODO: 11/26/2016 Remove
-    @Named(StoryDaoNames.STORY_FRAME)
-    SqlDao<StoryFrame> getStoryFrameDao();
+    StoryFrameDao getStoryFrameDao();
 }

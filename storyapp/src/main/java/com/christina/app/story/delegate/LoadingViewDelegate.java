@@ -7,8 +7,10 @@ import android.view.View;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.val;
 
+@Accessors(prefix = "_")
 public class LoadingViewDelegate {
     public final void invalidateContentView() {
         final val contentView = getContentView();

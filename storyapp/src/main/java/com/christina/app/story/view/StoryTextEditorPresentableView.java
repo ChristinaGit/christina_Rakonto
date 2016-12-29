@@ -4,22 +4,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.christina.api.story.model.Story;
+import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.common.event.Event;
-import com.christina.common.event.NoticeEvent;
 import com.christina.common.view.presentation.PresentableView;
 
 public interface StoryTextEditorPresentableView extends PresentableView {
     void displayStory(@Nullable Story story);
 
-    @Nullable
-    Story getDisplayedStory();
+    long getEditedStoryId();
 
     @NonNull
     Event<StoryEventArgs> getOnStartEditStoryEvent();
 
     @NonNull
-    NoticeEvent getOnStoryChangedEvent();
+    Event<StoryContentEventArgs> getOnStoryChangedEvent();
 
     boolean isLoadingVisible();
 

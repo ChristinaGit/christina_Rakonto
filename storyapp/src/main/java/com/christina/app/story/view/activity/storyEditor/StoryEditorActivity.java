@@ -220,6 +220,26 @@ public final class StoryEditorActivity extends BaseStoryActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        getStoryEditorPagesAdapter()
+            .getOnContentChangedEvent()
+            .removeHandler(getEditFragmentContentChangedHandler());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getStoryEditorPagesAdapter()
+            .getOnContentChangedEvent()
+            .addHandler(getEditFragmentContentChangedHandler());
+
+        _invalidateNavigationButtons();
+    }
+
+    @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -244,8 +264,6 @@ public final class StoryEditorActivity extends BaseStoryActivity
             setContentView(R.layout.activity_story_editor);
 
             bindViews();
-
-            setSnackbarParentView(_contentContainerView);
 
             if (_stepPagerView != null) {
                 final val screensAdapter = getStoryEditorPagesAdapter();
@@ -283,26 +301,6 @@ public final class StoryEditorActivity extends BaseStoryActivity
         } else {
             finish();
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        getStoryEditorPagesAdapter()
-            .getOnContentChangedEvent()
-            .removeHandler(getEditFragmentContentChangedHandler());
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        getStoryEditorPagesAdapter()
-            .getOnContentChangedEvent()
-            .addHandler(getEditFragmentContentChangedHandler());
-
-        _invalidateNavigationButtons();
     }
 
     @Override
@@ -465,7 +463,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         nextStep();
     }
 
-    @OnClick(R.id.next_step)
+    @OnClick(R.id.previous_step)
     /*package-private*/ void onPreviousStepClick() {
         previousStep();
     }

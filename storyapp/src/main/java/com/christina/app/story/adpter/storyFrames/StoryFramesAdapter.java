@@ -6,20 +6,25 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+import com.christina.api.story.dao.storyFrame.StoryFrameFullProjection;
 import com.christina.api.story.model.StoryFrame;
 import com.christina.app.story.R;
 import com.christina.common.contract.Contracts;
-import com.christina.common.view.recyclerView.adapter.BaseRecyclerViewAdapter;
+import com.christina.common.view.recyclerView.adapter.DataCursorRecyclerViewAdapter;
 
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import lombok.val;
 
+@Accessors(prefix = "_")
 public final class StoryFramesAdapter
-    extends BaseRecyclerViewAdapter<StoryFrame, StoryFrameListItem, StoryFrameViewHolder> {
-    @Nullable
-    public final String getStoryText() {
-        return _storyText;
+    extends DataCursorRecyclerViewAdapter<StoryFrame, StoryFrameViewHolder> {
+    public StoryFramesAdapter() {
+        setHasStableIds(true);
     }
 
     public final void setStoryText(@Nullable final String storyText) {
@@ -39,23 +44,35 @@ public final class StoryFramesAdapter
     }
 
     @Override
+    public final long getItemId(final int position) {
+        final long itemId;
+
+        final val dataCursor = getDataCursor();
+        if (dataCursor != null && dataCursor.moveToPosition(position)) {
+            itemId = getStoryFrameFullProjection().getId(dataCursor);
+        } else {
+            itemId = StoryFrame.NO_ID;
+        }
+
+        return itemId;
+    }
+
+    @Override
     protected void onBindViewHolder(
         @NonNull final StoryFrameViewHolder holder,
-        @NonNull final StoryFrameListItem listItem,
+        @NonNull final StoryFrame item,
         final int position) {
         Contracts.requireNonNull(holder, "holder == null");
-        Contracts.requireNonNull(listItem, "listItem == null");
+        Contracts.requireNonNull(item, "item == null");
 
         final String storyFrameText;
 
-        final String storyText = getStoryText();
+        final val storyText = getStoryText();
         if (!TextUtils.isEmpty(storyText)) {
             final int storyTextLength = storyText.length();
 
-            final StoryFrame storyFrame = listItem.getStoryFrame();
-
-            final int textStart = storyFrame.getTextStartPosition();
-            final int textEnd = storyFrame.getTextEndPosition();
+            final int textStart = item.getTextStartPosition();
+            final int textEnd = item.getTextEndPosition();
             if (storyTextLength >= textEnd && textEnd > textStart) {
                 storyFrameText = storyText.substring(textStart, textEnd);
             } else {
@@ -66,16 +83,21 @@ public final class StoryFramesAdapter
         }
 
         holder.storyFrameTextView.setText(storyFrameText);
+
+        Glide
+            .with(holder.getContext())
+            .load(item.getImageUri())
+            .animate(android.R.anim.fade_in)
+            .centerCrop()
+            .into(holder.storyFrameImageView);
     }
 
+    @Getter(value = AccessLevel.PROTECTED, lazy = true)
     @NonNull
-    @Override
-    protected StoryFrameListItem onWrapItem(@NonNull final StoryFrame item) {
-        Contracts.requireNonNull(item, "item == null");
+    private final StoryFrameFullProjection _storyFrameFullProjection =
+        new StoryFrameFullProjection();
 
-        return new StoryFrameListItem(item);
-    }
-
+    @Getter
     @Nullable
     private String _storyText;
 }

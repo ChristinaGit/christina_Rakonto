@@ -1,8 +1,7 @@
 package com.christina.app.story.view.fragment.storiesList;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -44,8 +43,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         ConstantBuilder.savedStateKey(StoriesListFragment.class, "saved_state");
 
     @Override
-    public void displayStories(
-        @Nullable final DataCursor<Story> stories) {
+    public void displayStories(@Nullable final DataCursor<Story> stories) {
         getStoriesListAdapter().setDataCursor(stories);
 
         if (_savedState != null && !_savedState.isScrollPositionRestored()) {
@@ -57,13 +55,13 @@ public final class StoriesListFragment extends BaseStoryFragment
 
     @NonNull
     @Override
-    public Event<StoryEventArgs> getOnDeleteStoryEvent() {
+    public final Event<StoryEventArgs> getOnDeleteStoryEvent() {
         return _onDeleteStoryEvent;
     }
 
     @NonNull
     @Override
-    public Event<StoryEventArgs> getOnEditStoryEvent() {
+    public final Event<StoryEventArgs> getOnEditStoryEvent() {
         return getStoriesListAdapter().getOnEditStoryEvent();
     }
 
@@ -101,6 +99,7 @@ public final class StoriesListFragment extends BaseStoryFragment
     }
 
     @Nullable
+    @CallSuper
     @Override
     public View onCreateView(
         final LayoutInflater inflater,
@@ -174,10 +173,10 @@ public final class StoriesListFragment extends BaseStoryFragment
 
     protected void onInitializeStoriesView() {
         if (_storiesView != null) {
-            final Context context = _storiesView.getContext();
-            final Resources resources = context.getResources();
+            final val context = _storiesView.getContext();
+            final val resources = context.getResources();
 
-            final int spacing = resources.getDimensionPixelOffset(R.dimen.card_item_grid_spacing);
+            final int spacing = resources.getDimensionPixelOffset(R.dimen.card_large_grid_spacing);
 
             final val spacingDecorator = ItemSpacingDecorator
                 .builder()

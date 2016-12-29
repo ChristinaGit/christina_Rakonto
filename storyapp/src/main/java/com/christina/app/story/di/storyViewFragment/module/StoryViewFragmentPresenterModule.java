@@ -3,6 +3,7 @@ package com.christina.app.story.di.storyViewFragment.module;
 import android.support.annotation.NonNull;
 
 import com.christina.app.story.di.qualifier.PresenterNames;
+import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyViewFragment.StoryViewFragmentScope;
 import com.christina.app.story.manager.ServiceManager;
 import com.christina.app.story.presentation.StoriesListPresenter;
@@ -27,7 +28,7 @@ public final class StoryViewFragmentPresenterModule {
     @StoryViewFragmentScope
     @NonNull
     public final Presenter<StoriesListPresentableView> provideStoriesViewerPresenter(
-        @NonNull final ServiceManager serviceManager) {
+        @Named(ScopeNames.FRAGMENT) @NonNull final ServiceManager serviceManager) {
         Contracts.requireNonNull(serviceManager, "serviceManager == null");
 
         return new StoriesListPresenter(serviceManager);
@@ -38,7 +39,7 @@ public final class StoryViewFragmentPresenterModule {
     @StoryViewFragmentScope
     @NonNull
     public final Presenter<StoryFramesEditorPresentableView> provideStoryFramesEditorPresenter(
-        @NonNull final ServiceManager serviceManager) {
+        @Named(ScopeNames.FRAGMENT) @NonNull final ServiceManager serviceManager) {
         Contracts.requireNonNull(serviceManager, "serviceManager == null");
 
         return new StoryFramesEditorPresenter(serviceManager);
@@ -49,7 +50,7 @@ public final class StoryViewFragmentPresenterModule {
     @StoryViewFragmentScope
     @NonNull
     public final Presenter<StoryTextEditorPresentableView> provideStoryTextEditorPresenter(
-        @NonNull final ServiceManager serviceManager) {
+        @Named(ScopeNames.FRAGMENT) @NonNull final ServiceManager serviceManager) {
         Contracts.requireNonNull(serviceManager, "serviceManager == null");
 
         return new StoryTextEditorPresenter(serviceManager);

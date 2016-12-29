@@ -39,28 +39,24 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
         presentableView.getOnInsertStoryEvent().removeHandler(getViewInsertStoryHandler());
     }
 
-    protected void onInsertStory() {
-        getStoryNavigator().navigateToInsertStory(new InsertStoryNavigationCallback() {
-            @Override
-            public void onInsertStoryNavigationResult(
-                @NonNull final NavigationResult result) {
-                Contracts.requireNonNull(result, "result == null");
-
-                if (result == NavigationResult.SUCCESS) {
-                    getMessageManager().showInfoMessage(R.string.message_story_inserted);
-                } else {
-                    getMessageManager().showInfoMessage(R.string.message_story_insert_fail);
-                }
-            }
-        });
-    }
-
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
     private final NoticeEventHandler _viewInsertStoryHandler = new NoticeEventHandler() {
         @Override
         public void onEvent() {
-            onInsertStory();
+            getStoryNavigator().navigateToInsertStory(new InsertStoryNavigationCallback() {
+                @Override
+                public void onInsertStoryNavigationResult(
+                    @NonNull final NavigationResult result) {
+                    Contracts.requireNonNull(result, "result == null");
+
+                    if (result == NavigationResult.SUCCESS) {
+                        getMessageManager().showInfoMessage(R.string.message_story_inserted);
+                    } else {
+                        getMessageManager().showInfoMessage(R.string.message_story_insert_fail);
+                    }
+                }
+            });
         }
     };
 }

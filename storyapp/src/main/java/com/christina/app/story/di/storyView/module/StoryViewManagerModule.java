@@ -1,21 +1,23 @@
 package com.christina.app.story.di.storyView.module;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v4.app.LoaderManager;
 
 import com.christina.api.story.observer.StoryContentObserver;
-import com.christina.app.story.di.qualifier.ForApplication;
+import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyView.StoryViewScope;
 import com.christina.app.story.manager.ServiceManager;
-import com.christina.app.story.manager.asyncTask.ActivityStoryTaskManager;
-import com.christina.app.story.manager.asyncTask.StoryTaskManager;
 import com.christina.app.story.manager.content.StoryContentObserverManager;
 import com.christina.app.story.manager.content.StoryDaoManager;
 import com.christina.app.story.manager.message.MessageManager;
 import com.christina.app.story.manager.navigation.StoryNavigator;
+import com.christina.app.story.manager.rx.AndroidRxManager;
+import com.christina.app.story.manager.rx.RxManager;
 import com.christina.common.contract.Contracts;
+import com.trello.rxlifecycle.LifecycleProvider;
+import com.trello.rxlifecycle.android.ActivityEvent;
+
+import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
@@ -24,23 +26,24 @@ import dagger.Provides;
 @StoryViewScope
 public final class StoryViewManagerModule {
     public StoryViewManagerModule(
-        @NonNull final LoaderManager loaderManager,
+        @NonNull final LifecycleProvider<ActivityEvent> lifecycleProvider,
         @NonNull final StoryNavigator storyNavigator,
         @NonNull final MessageManager messageManager) {
-        Contracts.requireNonNull(loaderManager, "loaderManager == null");
+        Contracts.requireNonNull(lifecycleProvider, "lifecycleProvider == null");
         Contracts.requireNonNull(storyNavigator, "storyNavigator == null");
         Contracts.requireNonNull(messageManager, "messageManager == null");
 
-        _loaderManager = loaderManager;
+        _lifecycleProvider = lifecycleProvider;
         _storyNavigator = storyNavigator;
         _messageManager = messageManager;
     }
 
+    @Named(ScopeNames.ACTIVITY)
     @Provides
     @StoryViewScope
     @NonNull
-    public final LoaderManager provideLoaderManager() {
-        return _loaderManager;
+    public final LifecycleProvider<ActivityEvent> provideLifecycleProvider() {
+        return _lifecycleProvider;
     }
 
     @Provides
@@ -50,23 +53,36 @@ public final class StoryViewManagerModule {
         return _messageManager;
     }
 
+    @Named(ScopeNames.ACTIVITY)
+    @Provides
+    @StoryViewScope
+    @NonNull
+    public final RxManager provideRxManager(
+        @Named(ScopeNames.ACTIVITY) @NonNull
+        final LifecycleProvider<ActivityEvent> lifecycleProvider) {
+        Contracts.requireNonNull(lifecycleProvider, "lifecycleProvider == null");
+
+        return new AndroidRxManager<>(lifecycleProvider);
+    }
+
+    @Named(ScopeNames.ACTIVITY)
     @Provides
     @StoryViewScope
     @NonNull
     public final ServiceManager provideServiceManager(
         @NonNull final StoryNavigator storyNavigator,
-        @NonNull final StoryTaskManager storyTaskManager,
+        @Named(ScopeNames.ACTIVITY) @NonNull final RxManager rxManager,
         @NonNull final MessageManager messageManager,
         @NonNull final StoryDaoManager storyDaoManager,
         @NonNull final StoryContentObserverManager storyContentObserverManager) {
         Contracts.requireNonNull(storyNavigator, "storyNavigator == null");
-        Contracts.requireNonNull(storyTaskManager, "storyLoaderManager == null");
+        Contracts.requireNonNull(rxManager, "rxManager == null");
         Contracts.requireNonNull(messageManager, "messageManager == null");
         Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
         Contracts.requireNonNull(storyContentObserverManager,
                                  "storyContentObserverManager == null");
         return new ServiceManager(storyNavigator,
-                                  storyTaskManager,
+                                  rxManager,
                                   messageManager,
                                   storyDaoManager,
                                   storyContentObserverManager);
@@ -91,22 +107,8 @@ public final class StoryViewManagerModule {
         return _storyNavigator;
     }
 
-    @Provides
-    @StoryViewScope
     @NonNull
-    public final StoryTaskManager provideStoryTaskManager(
-        @NonNull @ForApplication final Context context,
-        @NonNull final LoaderManager loaderManager,
-        @NonNull final StoryDaoManager storyDaoManager) {
-        Contracts.requireNonNull(context, "context == null");
-        Contracts.requireNonNull(loaderManager, "loaderManager == null");
-        Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
-
-        return new ActivityStoryTaskManager(context, loaderManager, storyDaoManager);
-    }
-
-    @NonNull
-    private final LoaderManager _loaderManager;
+    private final LifecycleProvider<ActivityEvent> _lifecycleProvider;
 
     @NonNull
     private final MessageManager _messageManager;

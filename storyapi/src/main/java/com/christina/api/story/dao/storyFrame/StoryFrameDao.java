@@ -3,14 +3,17 @@ package com.christina.api.story.dao.storyFrame;
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.christina.api.story.contract.StoryFrameContract;
+import com.christina.api.story.database.StoryFrameTable;
 import com.christina.api.story.model.StoryFrame;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.dao.ContentProviderDao;
 import com.christina.common.data.dao.factory.ModelCollectionFactory;
 import com.christina.common.data.dao.factory.ModelContentExtractor;
 import com.christina.common.data.dao.factory.ModelFactory;
+import com.christina.common.data.dao.result.CollectionResult;
 import com.christina.common.data.projection.Projection;
 
 import lombok.experimental.Accessors;
@@ -29,6 +32,14 @@ public final class StoryFrameDao extends ContentProviderDao<StoryFrame> {
             Contracts.requireNonNull(modelFactory, "modelFactory == null"),
             Contracts.requireNonNull(modelCollectionFactory, "modelCollectionFactory == null"),
             Contracts.requireNonNull(modelContentExtractor, "modelContentExtractor == null"));
+    }
+
+    @Nullable
+    public final CollectionResult<StoryFrame> getAllByStoryId(final long storyId) {
+        return select(
+            getModelUri(),
+            StoryFrameTable.COLUMN_STORY_ID + "=?",
+            new String[]{String.valueOf(storyId)});
     }
 
     @Override

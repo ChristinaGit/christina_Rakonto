@@ -1,18 +1,31 @@
 package com.christina.app.story.view.fragment.storyFramesEditor;
 
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.christina.api.story.model.Story;
+import com.christina.api.story.model.StoryFrame;
 import com.christina.app.story.R;
+import com.christina.app.story.adpter.storyEditorPages.StoryEditorPage;
 import com.christina.app.story.adpter.storyFrames.StoryFramesAdapter;
+import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.delegate.LoadingViewDelegate;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryFramesEditorPresentableView;
 import com.christina.app.story.view.fragment.BaseStoryFragment;
+import com.christina.common.data.cursor.dataCursor.DataCursor;
+import com.christina.common.event.BaseEvent;
+import com.christina.common.event.BaseNoticeEvent;
+import com.christina.common.event.Event;
+import com.christina.common.event.NoticeEvent;
 import com.christina.common.view.presentation.Presenter;
 
 import javax.inject.Inject;
@@ -25,8 +38,56 @@ import lombok.experimental.Accessors;
 import lombok.val;
 
 @Accessors(prefix = "_")
-public final class StoryFramesEditorFragment extends BaseStoryFragment {
+public final class StoryFramesEditorFragment extends BaseStoryFragment
+    implements StoryFramesEditorPresentableView, StoryEditorPage {
+    @Override
+    public void displayStory(@Nullable final Story story) {
+        setEditedStory(story);
+    }
+
+    @Override
+    public void displayStoryFrames(
+        @Nullable final DataCursor<StoryFrame> storyFrames) {
+        getStoryFramesAdapter().setDataCursor(storyFrames);
+
+        _onContentChangedEvent.rise();
+    }
+
+    @NonNull
+    @Override
+    public final Event<StoryEventArgs> getOnStartEditStoryEvent() {
+        return _onStartEditStoryEvent;
+    }
+
+    @Override
+    public final boolean isLoadingVisible() {
+        return getLoadingViewDelegate().isLoadingVisible();
+    }
+
+    @Override
+    public final void setLoadingVisible(final boolean visible) {
+        getLoadingViewDelegate().setLoadingVisible(visible);
+    }
+
+    @Override
+    public final boolean isStoryFramesVisible() {
+        return getLoadingViewDelegate().isContentVisible();
+    }
+
+    @Override
+    public final void setStoryFramesVisible(final boolean visible) {
+        getLoadingViewDelegate().setContentVisible(visible);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        onSaveStoryChanges();
+    }
+
     @Nullable
+    @CallSuper
     @Override
     public View onCreateView(
         final LayoutInflater inflater,
@@ -38,6 +99,11 @@ public final class StoryFramesEditorFragment extends BaseStoryFragment {
 
         bindViews(view);
 
+        final val loadingViewDelegate = getLoadingViewDelegate();
+        loadingViewDelegate.setLoadingView(_storyFramesLoadingView);
+        loadingViewDelegate.setContentView(_storyFramesView);
+        loadingViewDelegate.invalidateViews();
+
         onInitializeStoryFramesView();
 
         return view;
@@ -46,6 +112,8 @@ public final class StoryFramesEditorFragment extends BaseStoryFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        getStoryFramesAdapter().setDataCursor(null);
 
         unbindViews();
     }
@@ -57,6 +125,74 @@ public final class StoryFramesEditorFragment extends BaseStoryFragment {
         final val presenter = getPresenter();
         if (presenter != null) {
             presenter.setPresentableView(null);
+        }
+    }
+
+    @Override
+    public void setEditedStoryId(final long editedStoryId) {
+        if (_editedStoryId != editedStoryId) {
+            _editedStoryId = editedStoryId;
+
+            onEditedStoryIdChanged();
+        }
+    }
+
+    @NonNull
+    @Override
+    public final NoticeEvent getOnContentChangedEvent() {
+        return _onContentChangedEvent;
+    }
+
+    @Override
+    public boolean hasContent() {
+        final val dataCursor = getStoryFramesAdapter().getDataCursor();
+        return dataCursor != null && dataCursor.getCount() > 0;
+    }
+
+    @Override
+    public void onStartEditing() {
+        if (getEditedStory() == null) {
+            final long editedStoryId = getEditedStoryId();
+            if (editedStoryId != Story.NO_ID) {
+                _onStartEditStoryEvent.rise(new StoryEventArgs(editedStoryId));
+            }
+        }
+    }
+
+    @Override
+    public void onStopEditing() {
+        onSaveStoryChanges();
+    }
+
+    protected final void setEditedStory(@Nullable final Story editedStory) {
+        if (_editedStory != editedStory) {
+            _editedStory = editedStory;
+
+            onEditedStoryChanged();
+        }
+    }
+
+    @CallSuper
+    protected void onEditedStoryChanged() {
+        final val editedStory = getEditedStory();
+
+        getStoryFramesAdapter().setDataCursor(null);
+
+        final String storyText;
+        if (editedStory != null) {
+            storyText = editedStory.getText();
+        } else {
+            storyText = null;
+        }
+        getStoryFramesAdapter().setStoryText(storyText);
+    }
+
+    protected void onEditedStoryIdChanged() {
+        setEditedStory(null);
+
+        final long editedStoryId = getEditedStoryId();
+        if (editedStoryId != Story.NO_ID) {
+            _onStartEditStoryEvent.rise(new StoryEventArgs(editedStoryId));
         }
     }
 
@@ -74,22 +210,52 @@ public final class StoryFramesEditorFragment extends BaseStoryFragment {
         getStoryViewFragmentComponent().inject(this);
     }
 
+    @CallSuper
+    protected void onSaveStoryChanges() {
+        final val editedStory = getEditedStory();
+        if (editedStory != null) {
+            // FIXME: 12/24/2016
+            //            _onStoryChangedEvent.rise(new StoryContentEventArgs(editedStory));
+        }
+    }
+
     @Named(PresenterNames.STORY_FRAMES_EDITOR)
     @Inject
     @Getter(AccessLevel.PROTECTED)
     @Nullable
     /*package-private*/ Presenter<StoryFramesEditorPresentableView> _presenter;
 
+    @BindView(R.id.story_frames_loading)
+    @Nullable
+    /*package-private*/ ContentLoadingProgressBar _storyFramesLoadingView;
+
     @BindView(R.id.story_frames)
     @Nullable
     /*package-private*/ RecyclerView _storyFramesView;
 
     @Getter(value = AccessLevel.PROTECTED, lazy = true)
-    @Nullable
+    @NonNull
+    private final LoadingViewDelegate _loadingViewDelegate = new LoadingViewDelegate();
+
+    @NonNull
+    private final BaseNoticeEvent _onContentChangedEvent = new BaseNoticeEvent();
+
+    @NonNull
+    private final BaseEvent<StoryEventArgs> _onStartEditStoryEvent = new BaseEvent<>();
+
+    @Getter(value = AccessLevel.PROTECTED, lazy = true)
+    @NonNull
     private final StoryFramesAdapter _storyFramesAdapter = new StoryFramesAdapter();
 
     @Getter(value = AccessLevel.PROTECTED, lazy = true)
     @Nullable
     private final LinearLayoutManager _storyFramesLayoutManager =
         new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
+    @Getter(AccessLevel.PROTECTED)
+    @Nullable
+    private Story _editedStory;
+
+    @Getter(onMethod = @__(@Override))
+    private long _editedStoryId;
 }

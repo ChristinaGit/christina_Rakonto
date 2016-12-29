@@ -6,6 +6,7 @@ import com.christina.app.story.di.StoryViewComponentProvider;
 import com.christina.app.story.di.StoryViewFragmentComponentProvider;
 import com.christina.app.story.di.storyView.StoryViewComponent;
 import com.christina.app.story.di.storyViewFragment.StoryViewFragmentComponent;
+import com.christina.app.story.di.storyViewFragment.module.StoryFragmentViewManagerModule;
 import com.christina.app.story.di.storyViewFragment.module.StoryViewFragmentPresenterModule;
 import com.christina.common.view.fragment.PresentableFragment;
 
@@ -28,8 +29,12 @@ public abstract class BaseStoryFragment extends PresentableFragment
         }
     }
 
+    //@formatter:off
     @NonNull
     @Getter(onMethod = @__(@Override), lazy = true)
     private final StoryViewFragmentComponent _storyViewFragmentComponent =
-        getStoryViewComponent().addStoryViewFragmentComponent(new StoryViewFragmentPresenterModule());
+        getStoryViewComponent().addStoryViewFragmentComponent(
+            new StoryFragmentViewManagerModule(this),
+            new StoryViewFragmentPresenterModule());
+    //@formatter:on
 }

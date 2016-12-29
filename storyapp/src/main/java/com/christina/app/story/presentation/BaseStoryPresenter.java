@@ -2,17 +2,16 @@ package com.christina.app.story.presentation;
 
 import android.support.annotation.NonNull;
 
-import com.christina.api.story.model.Story;
-import com.christina.api.story.model.StoryFrame;
+import com.christina.api.story.dao.story.StoryDao;
+import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.app.story.manager.ServiceManager;
-import com.christina.app.story.manager.asyncTask.StoryTaskManager;
 import com.christina.app.story.manager.content.StoryContentObserverManager;
 import com.christina.app.story.manager.content.StoryDaoManager;
 import com.christina.app.story.manager.message.MessageManager;
 import com.christina.app.story.manager.navigation.StoryNavigator;
+import com.christina.app.story.manager.rx.RxManager;
 import com.christina.common.contract.Contracts;
-import com.christina.common.data.dao.SqlDao;
 import com.christina.common.view.presentation.AbstractPresenter;
 import com.christina.common.view.presentation.PresentableView;
 
@@ -31,6 +30,11 @@ public abstract class BaseStoryPresenter<TPresentableView extends PresentableVie
     }
 
     @NonNull
+    public final RxManager getRxManager() {
+        return getServiceManager().getRxManager();
+    }
+
+    @NonNull
     protected final MessageManager getMessageManager() {
         return getServiceManager().getMessageManager();
     }
@@ -46,7 +50,7 @@ public abstract class BaseStoryPresenter<TPresentableView extends PresentableVie
     }
 
     @NonNull
-    protected final SqlDao<Story> getStoryDao() {
+    protected final StoryDao getStoryDao() {
         return getStoryDaoManager().getStoryDao();
     }
 
@@ -56,18 +60,13 @@ public abstract class BaseStoryPresenter<TPresentableView extends PresentableVie
     }
 
     @NonNull
-    protected final SqlDao<StoryFrame> getStoryFrameDao() {
+    protected final StoryFrameDao getStoryFrameDao() {
         return getStoryDaoManager().getStoryFrameDao();
     }
 
     @NonNull
     protected final StoryNavigator getStoryNavigator() {
         return getServiceManager().getStoryNavigator();
-    }
-
-    @NonNull
-    protected final StoryTaskManager getStoryTaskManager() {
-        return getServiceManager().getStoryTaskManager();
     }
 
     @Getter(AccessLevel.PROTECTED)

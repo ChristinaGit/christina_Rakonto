@@ -1,23 +1,27 @@
 package com.christina.app.story.presentation;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.christina.api.story.model.Story;
+import com.christina.api.story.model.StoryFrame;
 import com.christina.api.story.observer.StoryObserverEventArgs;
 import com.christina.app.story.R;
+import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.StoryTextUtils;
 import com.christina.app.story.manager.ServiceManager;
 import com.christina.app.story.view.StoryTextEditorPresentableView;
-import com.christina.common.AsyncCallback;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.EventHandler;
-import com.christina.common.event.NoticeEventHandler;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
+import rx.Observable;
+import rx.functions.Action0;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 @Accessors(prefix = "_")
 public final class StoryTextEditorPresenter
@@ -27,31 +31,76 @@ public final class StoryTextEditorPresenter
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
-    @Nullable
-    protected final Story getDisplayedStory() {
-        final Story story;
+    protected final long getEditedStoryId() {
+        final long editedStoryId;
 
         final val presentableView = getPresentableView();
         if (presentableView != null) {
-            story = presentableView.getDisplayedStory();
+            editedStoryId = presentableView.getEditedStoryId();
         } else {
-            story = null;
+            editedStoryId = Story.NO_ID;
         }
-        return story;
+
+        return editedStoryId;
     }
 
     protected final void loadStory(final long storyId) {
-        getStoryTaskManager().loadStory(storyId, new AsyncCallback<Story, Exception>() {
-            @Override
-            public void onError(@Nullable final Exception error) {
-                onStoryLoadError(error);
-            }
+        final val presentableView = getPresentableView();
+        if (presentableView != null) {
+            presentableView.setLoadingVisible(true);
+            presentableView.setStoryVisible(false);
+        }
 
-            @Override
-            public void onSuccess(@Nullable final Story result) {
-                onStoryLoaded(result);
-            }
-        });
+        final val rxManager = getRxManager();
+        rxManager
+            .autoManage(Observable.just(storyId))
+            .observeOn(rxManager.getIOScheduler())
+            .map(new Func1<Long, Story>() {
+                @Override
+                public Story call(final Long storyId) {
+                    Contracts.requireWorkerThread();
+
+                    return getStoryDao().get(storyId);
+                }
+            })
+            .observeOn(rxManager.getUIScheduler())
+            .doOnError(new Action1<Throwable>() {
+                @Override
+                public void call(final Throwable throwable) {
+                    Contracts.requireMainThread();
+
+                    final val presentableView = getPresentableView();
+                    if (presentableView != null) {
+                        presentableView.displayStory(null);
+                    }
+
+                    getMessageManager().showInfoMessage(R.string.message_story_load_fail);
+                }
+            })
+            .doOnNext(new Action1<Story>() {
+                @Override
+                public void call(final Story story) {
+                    Contracts.requireMainThread();
+
+                    final val presentableView = getPresentableView();
+                    if (presentableView != null) {
+                        presentableView.displayStory(story);
+                    }
+                }
+            })
+            .doOnCompleted(new Action0() {
+                @Override
+                public void call() {
+                    Contracts.requireMainThread();
+
+                    final val presentableView = getPresentableView();
+                    if (presentableView != null) {
+                        presentableView.setLoadingVisible(false);
+                        presentableView.setStoryVisible(true);
+                    }
+                }
+            })
+            .subscribe();
     }
 
     @Override
@@ -79,9 +128,6 @@ public final class StoryTextEditorPresenter
         @NonNull final StoryTextEditorPresentableView presentableView) {
         super.onViewAppear(Contracts.requireNonNull(presentableView, "presentableView == null"));
 
-        presentableView.setStoryVisible(false);
-        presentableView.setLoadingVisible(true);
-
         getStoryContentObserver()
             .getOnStoryChangedEvent()
             .addHandler(getStoryExternalChangedHandler());
@@ -105,42 +151,56 @@ public final class StoryTextEditorPresenter
         Contracts.requireNonNull(story, "story == null");
 
         story.setModifyDate(System.currentTimeMillis());
-        getStoryTaskManager().updateStory(story, new AsyncCallback<Integer, Exception>() {
-            @Override
-            public void onError(@Nullable final Exception error) {
-            }
 
-            @Override
-            public void onSuccess(@Nullable final Integer result) {
-                //                getStoryDao().delete(StoryFrameSelections.byStoryId(story.getId
-                // ()));
-                //                String storyText = story.getText();
-                //
-                //                if (storyText != null) {
-                //                    storyText = StoryTextUtils.cleanup(storyText);
-                //                    final val storyDefaultSplit = StoryTextUtils.defaultSplit
-                // (storyText);
-                //
-                //                }
-            }
-        });
+        final val rxManager = getRxManager();
+        rxManager
+            .autoManage(Observable.just(story))
+            .observeOn(rxManager.getIOScheduler())
+            .map(new Func1<Story, Story>() {
+                @Override
+                public Story call(final Story story) {
+                    Contracts.requireWorkerThread();
+
+                    getStoryDao().delete(story.getId());
+
+                    return story;
+                }
+            })
+            .map(new Func1<Story, Story>() {
+                @Override
+                public Story call(final Story story) {
+                    Contracts.requireWorkerThread();
+
+                    final val storyText = story.getText();
+
+                    if (storyText != null) {
+                        final val storyDefaultSplit = StoryTextUtils.defaultSplit(storyText);
+
+                        final val storyFrameDao = getStoryFrameDao();
+                        int startPosition = 0;
+                        int endPosition = 0;
+                        for (final val textFrame : storyDefaultSplit) {
+                            startPosition += endPosition;
+                            endPosition += textFrame.length();
+
+                            final val storyFrame = new StoryFrame();
+                            storyFrame.setStoryId(story.getId());
+
+                            storyFrame.setTextStartPosition(startPosition);
+                            storyFrame.setTextEndPosition(endPosition);
+
+                            storyFrameDao.insert(storyFrame);
+                        }
+                    }
+
+                    return story;
+                }
+            })
+            .subscribe();
     }
 
     protected void onStoryExternalChanged(final long storyId) {
         loadStory(storyId);
-    }
-
-    protected void onStoryLoadError(@Nullable final Exception error) {
-        getMessageManager().showInfoMessage(R.string.message_story_load_fail);
-    }
-
-    protected void onStoryLoaded(@Nullable final Story story) {
-        final val presentableView = getPresentableView();
-        if (presentableView != null) {
-            presentableView.setLoadingVisible(false);
-            presentableView.setStoryVisible(true);
-            presentableView.displayStory(story);
-        }
     }
 
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
@@ -157,16 +217,19 @@ public final class StoryTextEditorPresenter
 
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
-    private final NoticeEventHandler _storyChangedHandler = new NoticeEventHandler() {
-        @Override
-        public void onEvent() {
-            final val story = getDisplayedStory();
+    private final EventHandler<StoryContentEventArgs> _storyChangedHandler =
+        new EventHandler<StoryContentEventArgs>() {
+            @Override
+            public void onEvent(@NonNull final StoryContentEventArgs eventArgs) {
+                Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
-            if (story != null) {
-                onStoryChanged(new Story(story));
+                final val story = eventArgs.getStory();
+
+                if (story != null) {
+                    onStoryChanged(new Story(story));
+                }
             }
-        }
-    };
+        };
 
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
@@ -174,10 +237,12 @@ public final class StoryTextEditorPresenter
         new EventHandler<StoryObserverEventArgs>() {
             @Override
             public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
-                final val displayedStory = getDisplayedStory();
+                Contracts.requireNonNull(eventArgs, "eventArgs == null");
+
+                final long editedStory = getEditedStoryId();
                 final long changedStoryId = eventArgs.getId();
 
-                if (displayedStory != null && displayedStory.getId() == changedStoryId) {
+                if (editedStory == changedStoryId) {
                     onStoryExternalChanged(changedStoryId);
                 }
             }

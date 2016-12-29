@@ -5,12 +5,13 @@ import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 
+import com.christina.api.story.dao.story.StoryDao;
+import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
 import com.christina.app.story.core.StoryTextUtils;
-import com.christina.common.data.UriSchemes;
-import com.christina.common.data.UriUtils;
-import com.christina.common.data.dao.SqlDao;
+import com.christina.common.UriSchemes;
+import com.christina.common.UriUtils;
 import com.christina.content.story.StoryDatabase;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -40,9 +41,19 @@ public class FakeDatabase {
         "http://orig09.deviantart" +
         ".net/1900/f/2016/013/3/0/ameliamaria1screen2blurpix2sml_by_banished_shadow-d9ns24h.png"};
 
+    private static final String[] WORDS =
+        ("The easiest way to get started with Google Custom Search is to create a basic search" +
+         " engine using the Control Panel. You can then download the engine's XML files " +
+         "and modify them to add futher customizations. Since you're experimenting and " +
+         "figuring out some basic concepts, spend only a couple of minutes making your " +
+         "first search engine. Keep it simple so that you can follow what's happening " +
+         "when you start testing it. You can always change it later.")
+            .replaceAll("[^a-zA-Z]*", " ")
+            .split(" ");
+
     public FakeDatabase(
-        @NonNull final SqlDao<Story> storyDao,
-        @NonNull final SqlDao<StoryFrame> storyFrameDao,
+        @NonNull final StoryDao storyDao,
+        @NonNull final StoryFrameDao storyFrameDao,
         final boolean networkAvailable) {
         _storyDao = storyDao;
         _storyFrameDao = storyFrameDao;
@@ -53,8 +64,8 @@ public class FakeDatabase {
                 new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES);
             final File[] pictures = picturesDirectory.listFiles(new FileFilter() {
                 @Override
-                public boolean accept(final File file) {
-                    return file.isFile();
+                public boolean accept(final File pathname) {
+                    return pathname.isFile();
                 }
             });
 
@@ -62,7 +73,8 @@ public class FakeDatabase {
             CollectionUtils.collect(Arrays.asList(pictures), new Transformer<File, String>() {
                 @Override
                 public String transform(final File input) {
-                    return UriSchemes.FILE.getSchemeName() + UriUtils.SCHEMA_SEPARATOR +
+                    return UriSchemes.FILE.getSchemeName() +
+                           UriUtils.SCHEMA_SEPARATOR +
                            input.getAbsolutePath();
                 }
             }, _images);
@@ -78,20 +90,10 @@ public class FakeDatabase {
     private final List<String> _images;
 
     @NonNull
-    private final SqlDao<Story> _storyDao;
+    private final StoryDao _storyDao;
 
     @NonNull
-    private final SqlDao<StoryFrame> _storyFrameDao;
-
-    private final String[] _words =
-        ("The easiest way to get started with Google Custom Search is to create a basic search" +
-         " engine using the Control Panel. You can then download the engine's XML files " +
-         "and modify them to add futher customizations. Since you're experimenting and " +
-         "figuring out some basic concepts, spend only a couple of minutes making your " +
-         "first search engine. Keep it simple so that you can follow what's happening " +
-         "when you start testing it. You can always change it later.")
-            .replaceAll("[^a-zA-Z]*", " ")
-            .split(" ");
+    private final StoryFrameDao _storyFrameDao;
 
     private void createStories(final Random random) {
         final val storyDao = _storyDao;
@@ -160,6 +162,6 @@ public class FakeDatabase {
     }
 
     private String getWord(final Random random) {
-        return _words[random.nextInt(_words.length - 1)].trim();
+        return WORDS[random.nextInt(WORDS.length - 1)].trim();
     }
 }

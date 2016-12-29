@@ -197,8 +197,8 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
             internalHandler = new NoticeEventHandler() {
                 @Override
                 public void onEvent() {
-                    _onContentChangedEvent.rise(new StoryEditorPageContentChangedEventArgs
-                                                    (position));
+                    final val eventArgs = new StoryEditorPageContentChangedEventArgs(position);
+                    _onContentChangedEvent.rise(eventArgs);
                 }
             };
             getInternalContentChangedHandlers().append(position, internalHandler);

@@ -3,7 +3,6 @@ package com.christina.app.story.di.storyApplication.module;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.christina.app.story.di.qualifier.ForApplication;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
 import com.christina.common.contract.Contracts;
 
@@ -21,7 +20,6 @@ public final class ApplicationContextModule {
 
     @Provides
     @StoryApplicationScope
-    @ForApplication
     @NonNull
     public final Context provideApplicationContext() {
         return _applicationContext;

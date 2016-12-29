@@ -3,8 +3,8 @@ package com.christina.api.story.contract;
 import android.net.Uri;
 
 import com.christina.common.contract.Contracts;
-import com.christina.common.data.UriSchemes;
-import com.christina.common.data.UriUtils;
+import com.christina.common.UriSchemes;
+import com.christina.common.UriUtils;
 
 public final class StoryContentContract {
     public static final String COMPANY_NAME;

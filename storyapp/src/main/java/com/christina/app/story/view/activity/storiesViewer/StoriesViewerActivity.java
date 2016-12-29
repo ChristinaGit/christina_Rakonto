@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
@@ -21,6 +22,7 @@ import com.christina.app.story.view.fragment.storiesList.StoriesListFragment;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.BaseNoticeEvent;
 import com.christina.common.event.NoticeEvent;
+import com.christina.common.view.FabScrollAutoHideBehavior;
 import com.christina.common.view.presentation.Presenter;
 import com.christina.content.story.StoryDatabase;
 
@@ -102,7 +104,12 @@ public final class StoriesViewerActivity extends BaseStoryActivity
 
             bindViews();
 
-            setSnackbarParentView(_contentContainerView);
+            if (_fabView != null) {
+                final val fabLayoutParams =
+                    (CoordinatorLayout.LayoutParams) _fabView.getLayoutParams();
+                fabLayoutParams.setBehavior(new FabScrollAutoHideBehavior());
+                _fabView.setLayoutParams(fabLayoutParams);
+            }
 
             setActionBar(_toolbarView);
 

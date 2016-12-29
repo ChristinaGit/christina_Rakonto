@@ -39,11 +39,13 @@ import lombok.experimental.Accessors;
     public void writeToParcel(final Parcel dest, final int flags) {
         Contracts.requireNonNull(dest, "dest == null");
 
+        final String modeName;
         if (_mode != null) {
-            dest.writeString(_mode.name());
+            modeName = _mode.name();
         } else {
-            dest.writeString(null);
+            modeName = null;
         }
+        dest.writeString(modeName);
         dest.writeLong(_displayedStoryId);
         dest.writeInt(_activePage);
     }

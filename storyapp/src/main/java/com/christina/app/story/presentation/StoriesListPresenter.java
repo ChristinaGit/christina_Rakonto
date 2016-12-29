@@ -1,7 +1,6 @@
 package com.christina.app.story.presentation;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.christina.api.story.model.Story;
 import com.christina.api.story.observer.StoryObserverEventArgs;
@@ -9,15 +8,19 @@ import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.manager.ServiceManager;
 import com.christina.app.story.view.StoriesListPresentableView;
-import com.christina.common.AsyncCallback;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.cursor.dataCursor.DataCursor;
 import com.christina.common.event.EventHandler;
+
+import java.util.concurrent.Callable;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
+import rx.Observable;
+import rx.functions.Action0;
+import rx.functions.Action1;
 
 @Accessors(prefix = "_")
 public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPresentableView> {
@@ -27,7 +30,62 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
     }
 
     protected void loadStories() {
-        getStoryTaskManager().loadStories(getLoadStoriesCallback());
+        final val presentableView = getPresentableView();
+        if (presentableView != null) {
+            presentableView.setStoriesVisible(false);
+            presentableView.setLoadingVisible(true);
+        }
+
+        final val rxManager = getRxManager();
+        rxManager
+            .autoManage(Observable.fromCallable(new Callable<DataCursor<Story>>() {
+                @Override
+                public DataCursor<Story> call()
+                    throws Exception {
+                    Contracts.requireWorkerThread();
+
+                    return getStoryDao().getAll().asDataCursor();
+                }
+            }))
+            .subscribeOn(rxManager.getIOScheduler())
+            .observeOn(rxManager.getUIScheduler())
+            .doOnError(new Action1<Throwable>() {
+                @Override
+                public void call(final Throwable error) {
+                    Contracts.requireMainThread();
+
+                    final val presentableView = getPresentableView();
+                    if (presentableView != null) {
+                        presentableView.displayStories(null);
+                    }
+
+                    getMessageManager().showInfoMessage(R.string.message_stories_load_fail);
+                }
+            })
+            .doOnNext(new Action1<DataCursor<Story>>() {
+                @Override
+                public void call(final DataCursor<Story> stories) {
+                    Contracts.requireMainThread();
+
+                    final val presentableView = getPresentableView();
+                    if (presentableView != null) {
+                        presentableView.displayStories(stories);
+                    }
+                }
+            })
+            .doOnCompleted(new Action0() {
+                @Override
+                public void call() {
+                    Contracts.requireMainThread();
+
+                    final val presentableView = getPresentableView();
+                    if (presentableView != null) {
+                        presentableView.setStoriesVisible(true);
+                        presentableView.setLoadingVisible(false);
+                    }
+                }
+            })
+            .subscribe();
     }
 
     @Override
@@ -60,9 +118,6 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
             .getOnStoryChangedEvent()
             .addHandler(getStoryExternalChangedHandler());
 
-        presentableView.setStoriesVisible(false);
-        presentableView.setLoadingVisible(true);
-
         loadStories();
     }
 
@@ -79,19 +134,6 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
 
     protected void onStoriesExternalChanged() {
         loadStories();
-    }
-
-    protected void onStoriesLoadError(@Nullable final Exception error) {
-        getMessageManager().showInfoMessage(R.string.message_stories_load_fail);
-    }
-
-    protected void onStoriesLoaded(@Nullable final DataCursor<Story> stories) {
-        final val presentableView = getPresentableView();
-        if (presentableView != null) {
-            presentableView.setStoriesVisible(true);
-            presentableView.setLoadingVisible(false);
-            presentableView.displayStories(stories);
-        }
     }
 
     protected void onStoryDelete(final long id) {
@@ -126,22 +168,6 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
                 onStoryEdit(eventArgs.getStoryId());
-            }
-        };
-
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
-    @NonNull
-    private final AsyncCallback<DataCursor<Story>, Exception> _loadStoriesCallback =
-        new AsyncCallback<DataCursor<Story>, Exception>() {
-            @Override
-            public void onError(@Nullable final Exception error) {
-                onStoriesLoadError(error);
-            }
-
-            @Override
-            public void onSuccess(
-                @Nullable final DataCursor<Story> result) {
-                onStoriesLoaded(result);
             }
         };
 

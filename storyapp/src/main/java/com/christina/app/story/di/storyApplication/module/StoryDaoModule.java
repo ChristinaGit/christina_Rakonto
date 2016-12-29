@@ -10,12 +10,10 @@ import com.christina.api.story.dao.storyFrame.StoryFrameFullProjection;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
 import com.christina.app.story.di.qualifier.StoryContentExtractorNames;
-import com.christina.app.story.di.qualifier.StoryDaoNames;
 import com.christina.app.story.di.qualifier.StoryFactoryNames;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
 import com.christina.app.story.manager.content.StoryDaoManager;
 import com.christina.common.contract.Contracts;
-import com.christina.common.data.dao.SqlDao;
 import com.christina.common.data.dao.factory.ModelCollectionFactory;
 import com.christina.common.data.dao.factory.ModelContentExtractor;
 import com.christina.common.data.dao.factory.ModelFactory;
@@ -28,11 +26,10 @@ import dagger.Provides;
 @Module
 @StoryApplicationScope
 public final class StoryDaoModule {
-    @Named(StoryDaoNames.STORY)
     @Provides
     @StoryApplicationScope
     @NonNull
-    public final SqlDao<Story> provideStoryDao(
+    public final StoryDao provideStoryDao(
         @NonNull final ContentResolver contentResolver,
         @NonNull final StoryFullProjection fullProjection,
         @Named(StoryFactoryNames.STORY) @NonNull final ModelFactory<Story> modelFactory,
@@ -58,19 +55,17 @@ public final class StoryDaoModule {
     @StoryApplicationScope
     @NonNull
     public final StoryDaoManager provideStoryDaoManager(
-        @Named(StoryDaoNames.STORY) @NonNull final SqlDao<Story> storyDao,
-        @Named(StoryDaoNames.STORY_FRAME) @NonNull final SqlDao<StoryFrame> storyFrameDao) {
+        @NonNull final StoryDao storyDao, @NonNull final StoryFrameDao storyFrameDao) {
         Contracts.requireNonNull(storyDao, "storyDao == null");
         Contracts.requireNonNull(storyFrameDao, "storyFrameDao == null");
 
         return new StoryDaoManager(storyDao, storyFrameDao);
     }
 
-    @Named(StoryDaoNames.STORY_FRAME)
     @Provides
     @StoryApplicationScope
     @NonNull
-    public final SqlDao<StoryFrame> provideStoryFrameDao(
+    public final StoryFrameDao provideStoryFrameDao(
         @NonNull final ContentResolver contentResolver,
         @NonNull final StoryFrameFullProjection fullProjection,
         @Named(StoryFactoryNames.STORY_FRAME) @NonNull final ModelFactory<StoryFrame> modelFactory,
