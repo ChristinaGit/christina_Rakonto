@@ -3,9 +3,9 @@ package com.christina.app.story.presentation;
 import android.support.annotation.NonNull;
 
 import com.christina.app.story.R;
-import com.christina.app.story.manager.ServiceManager;
-import com.christina.app.story.manager.navigation.NavigationResult;
-import com.christina.app.story.manager.navigation.editStory.InsertStoryNavigationCallback;
+import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.navigation.NavigationResult;
+import com.christina.app.story.core.manager.navigation.editStory.InsertStoryNavigationCallback;
 import com.christina.app.story.view.StoriesViewerPresentableView;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.NoticeEventHandler;

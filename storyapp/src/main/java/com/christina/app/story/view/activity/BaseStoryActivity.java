@@ -9,8 +9,8 @@ import com.christina.app.story.di.storyView.StoryViewComponent;
 import com.christina.app.story.di.storyView.module.StoryContentObserverModule;
 import com.christina.app.story.di.storyView.module.StoryViewManagerModule;
 import com.christina.app.story.di.storyView.module.StoryViewPresenterModule;
-import com.christina.app.story.manager.message.ActivityMessageManager;
-import com.christina.app.story.manager.navigation.ActivityStoryNavigator;
+import com.christina.app.story.core.manager.message.ActivityMessageManager;
+import com.christina.app.story.core.manager.navigation.ActivityStoryNavigator;
 import com.christina.common.view.activity.PresentableActivity;
 
 import lombok.AccessLevel;

@@ -4,8 +4,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.christina.common.contract.Contracts;
-import com.christina.common.MimeTypeUtils;
-import com.christina.common.UriUtils;
+import com.christina.common.utility.MimeTypeUtils;
+import com.christina.common.utility.UriUtils;
 
 import lombok.val;
 

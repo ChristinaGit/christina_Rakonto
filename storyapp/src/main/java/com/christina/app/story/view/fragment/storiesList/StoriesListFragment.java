@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
-import com.christina.app.story.adpter.storiesList.StoriesListAdapter;
+import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.delegate.LoadingViewDelegate;
+import com.christina.app.story.core.delegate.LoadingViewDelegate;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoriesListPresentableView;
 import com.christina.app.story.view.fragment.BaseStoryFragment;

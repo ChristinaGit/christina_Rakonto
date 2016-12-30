@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.manager.ServiceManager;
+import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.view.StoryEditorPresentableView;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.EventHandler;

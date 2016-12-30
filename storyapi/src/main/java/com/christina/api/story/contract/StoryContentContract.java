@@ -3,8 +3,8 @@ package com.christina.api.story.contract;
 import android.net.Uri;
 
 import com.christina.common.contract.Contracts;
-import com.christina.common.UriSchemes;
-import com.christina.common.UriUtils;
+import com.christina.common.UriScheme;
+import com.christina.common.utility.UriUtils;
 
 public final class StoryContentContract {
     public static final String COMPANY_NAME;
@@ -25,7 +25,7 @@ public final class StoryContentContract {
         AUTHORITY = COMPANY_NAME + ".provider";
 
         CONTENT_URI_STRING =
-            UriSchemes.CONTENT.getSchemeName() + UriUtils.SCHEMA_SEPARATOR + AUTHORITY;
+            UriScheme.CONTENT.getSchemeName() + UriUtils.SCHEMA_SEPARATOR + AUTHORITY;
 
         CONTENT_URI = Uri.parse(CONTENT_URI_STRING);
 

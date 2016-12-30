@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyViewFragment.StoryViewFragmentScope;
-import com.christina.app.story.manager.ServiceManager;
+import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.presentation.StoriesListPresenter;
 import com.christina.app.story.presentation.StoryFramesEditorPresenter;
 import com.christina.app.story.presentation.StoryTextEditorPresenter;

@@ -14,14 +14,14 @@ import android.widget.EditText;
 
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
-import com.christina.app.story.adpter.storyEditorPages.StoryEditorPage;
+import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPage;
 import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.delegate.LoadingViewDelegate;
+import com.christina.app.story.core.delegate.LoadingViewDelegate;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryTextEditorPresentableView;
 import com.christina.app.story.view.fragment.BaseStoryFragment;
-import com.christina.common.ImeUtils;
+import com.christina.common.utility.ImeUtils;
 import com.christina.common.event.BaseEvent;
 import com.christina.common.event.BaseNoticeEvent;
 import com.christina.common.event.Event;

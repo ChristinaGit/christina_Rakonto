@@ -9,7 +9,7 @@ import com.christina.app.story.R;
 import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.StoryTextUtils;
-import com.christina.app.story.manager.ServiceManager;
+import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.view.StoryTextEditorPresentableView;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.EventHandler;

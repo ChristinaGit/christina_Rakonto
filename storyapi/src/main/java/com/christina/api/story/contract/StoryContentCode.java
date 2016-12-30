@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 
 import com.christina.common.contract.Contracts;
-import com.christina.common.UriUtils;
+import com.christina.common.utility.UriUtils;
 
 public final class StoryContentCode {
     private static final int _ENTITY_CODE_SHIFT;

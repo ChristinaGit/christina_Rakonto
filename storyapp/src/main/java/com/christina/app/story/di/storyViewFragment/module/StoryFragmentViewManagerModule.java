@@ -4,9 +4,9 @@ import android.support.annotation.NonNull;
 
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyViewFragment.StoryViewFragmentScope;
-import com.christina.app.story.manager.ServiceManager;
-import com.christina.app.story.manager.rx.AndroidRxManager;
-import com.christina.app.story.manager.rx.RxManager;
+import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.rx.AndroidRxManager;
+import com.christina.app.story.core.manager.rx.RxManager;
 import com.christina.common.contract.Contracts;
 import com.trello.rxlifecycle.LifecycleProvider;
 import com.trello.rxlifecycle.android.FragmentEvent;

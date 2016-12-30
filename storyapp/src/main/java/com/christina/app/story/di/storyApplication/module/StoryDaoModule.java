@@ -12,7 +12,7 @@ import com.christina.api.story.model.StoryFrame;
 import com.christina.app.story.di.qualifier.StoryContentExtractorNames;
 import com.christina.app.story.di.qualifier.StoryFactoryNames;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
-import com.christina.app.story.manager.content.StoryDaoManager;
+import com.christina.app.story.core.manager.content.StoryDaoManager;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.dao.factory.ModelCollectionFactory;
 import com.christina.common.data.dao.factory.ModelContentExtractor;

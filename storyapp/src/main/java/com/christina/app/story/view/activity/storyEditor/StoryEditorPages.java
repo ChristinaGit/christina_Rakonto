@@ -3,7 +3,7 @@ package com.christina.app.story.view.activity.storyEditor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
-import com.christina.app.story.adpter.storyEditorPages.StoryEditorPageFactory;
+import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageFactory;
 import com.christina.app.story.view.fragment.storyFramesEditor.StoryFramesEditorFragment;
 import com.christina.app.story.view.fragment.storyTextEditor.StoryTextEditorFragment;
 import com.christina.common.contract.Contracts;

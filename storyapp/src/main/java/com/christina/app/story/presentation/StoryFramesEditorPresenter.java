@@ -8,7 +8,7 @@ import com.christina.api.story.model.StoryFrame;
 import com.christina.api.story.observer.StoryObserverEventArgs;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.manager.ServiceManager;
+import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.view.StoryFramesEditorPresentableView;
 import com.christina.common.AsyncCallback;
 import com.christina.common.contract.Contracts;

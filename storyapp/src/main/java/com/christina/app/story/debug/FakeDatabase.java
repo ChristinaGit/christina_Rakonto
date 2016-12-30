@@ -10,8 +10,8 @@ import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
 import com.christina.app.story.core.StoryTextUtils;
-import com.christina.common.UriSchemes;
-import com.christina.common.UriUtils;
+import com.christina.common.UriScheme;
+import com.christina.common.utility.UriUtils;
 import com.christina.content.story.StoryDatabase;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -73,7 +73,7 @@ public class FakeDatabase {
             CollectionUtils.collect(Arrays.asList(pictures), new Transformer<File, String>() {
                 @Override
                 public String transform(final File input) {
-                    return UriSchemes.FILE.getSchemeName() +
+                    return UriScheme.FILE.getSchemeName() +
                            UriUtils.SCHEMA_SEPARATOR +
                            input.getAbsolutePath();
                 }
