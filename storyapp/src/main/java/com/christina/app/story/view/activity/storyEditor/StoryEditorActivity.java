@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
@@ -14,9 +15,9 @@ import com.christina.api.story.contract.StoryContentCode;
 import com.christina.api.story.contract.StoryContract;
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
+import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageContentChangedEventArgs;
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPagesAdapter;
-import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryEditorPresentableView;
 import com.christina.app.story.view.activity.BaseStoryActivity;
@@ -178,6 +179,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
     protected boolean isNextStepAvailable() {
         boolean isNextStepAvailable = false;
 
@@ -197,6 +199,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         return isNextStepAvailable;
     }
 
+    @CallSuper
     protected boolean isPreviousStepAvailable() {
         boolean isPreviousStepAvailable = false;
 
@@ -209,6 +212,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         return isPreviousStepAvailable;
     }
 
+    @CallSuper
     @Override
     protected void onBindPresenter() {
         super.onBindPresenter();
@@ -219,6 +223,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
     @Override
     protected void onPause() {
         super.onPause();
@@ -228,6 +233,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
             .removeHandler(getEditFragmentContentChangedHandler());
     }
 
+    @CallSuper
     @Override
     protected void onResume() {
         super.onResume();
@@ -236,9 +242,19 @@ public final class StoryEditorActivity extends BaseStoryActivity
             .getOnContentChangedEvent()
             .addHandler(getEditFragmentContentChangedHandler());
 
+        if (_stepPagerView != null) {
+            _stepPagerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    onEnterStep(_stepPagerView.getCurrentItem());
+                }
+            });
+        }
+
         _invalidateNavigationButtons();
     }
 
+    @CallSuper
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -292,7 +308,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
                         break;
                     }
                     default: {
-                        throw new IllegalStateException("Unknown activity mode.");
+                        throw new IllegalStateException("Unknown activity mode: " + mode);
                     }
                 }
             } else {
@@ -303,6 +319,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresenter() {
         super.onUnbindPresenter();
@@ -313,11 +330,13 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
     protected void onDisplayedStoryIdChanged() {
         final val screensAdapter = getStoryEditorPagesAdapter();
         screensAdapter.setDisplayedStoryId(getDisplayedStoryId());
     }
 
+    @CallSuper
     protected void onEnterStep(final int position) {
         final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
         if (editorFragment != null) {
@@ -325,6 +344,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
     protected boolean onHandleEditIntent(@NonNull final Intent intent) {
         Contracts.requireNonNull(intent, "intent == null");
 
@@ -359,6 +379,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         return intentHandled;
     }
 
+    @CallSuper
     protected boolean onHandleIntent(@NonNull final Intent intent) {
         Contracts.requireNonNull(intent, "intent == null");
 
@@ -386,6 +407,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         return intentHandled;
     }
 
+    @CallSuper
     @Override
     protected void onInject() {
         super.onInject();
@@ -393,6 +415,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         getStoryViewComponent().inject(this);
     }
 
+    @CallSuper
     @Override
     protected void onReleaseInject() {
         super.onReleaseInject();
@@ -400,6 +423,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         unbindViews();
     }
 
+    @CallSuper
     protected void onLeaveStep(final int position) {
         final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
         if (editorFragment != null) {
@@ -407,6 +431,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
     @Override
     protected void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);

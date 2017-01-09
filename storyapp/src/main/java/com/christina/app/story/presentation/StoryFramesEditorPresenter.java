@@ -1,8 +1,9 @@
 package com.christina.app.story.presentation;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
+import com.christina.api.story.dao.storyFrame.StoryFrameSelections;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
 import com.christina.api.story.observer.StoryObserverEventArgs;
@@ -10,7 +11,6 @@ import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.view.StoryFramesEditorPresentableView;
-import com.christina.common.AsyncCallback;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.cursor.dataCursor.DataCursor;
 import com.christina.common.event.EventHandler;
@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 import rx.Observable;
+import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -45,6 +46,12 @@ public final class StoryFramesEditorPresenter
     }
 
     protected final void loadStory(final long storyId) {
+        final val presentableView = getPresentableView();
+        if (presentableView != null) {
+            presentableView.setLoadingVisible(true);
+            presentableView.setStoryFramesVisible(false);
+        }
+
         final val rxManager = getRxManager();
         rxManager
             .autoManage(Observable.just(storyId))
@@ -54,7 +61,7 @@ public final class StoryFramesEditorPresenter
                 public Story call(final Long storyId) {
                     Contracts.requireWorkerThread();
 
-                    return getStoryDao().get(storyId);
+                    return getStoryDaoManager().getStoryDao().get(storyId);
                 }
             })
             .observeOn(rxManager.getUIScheduler())
@@ -88,7 +95,10 @@ public final class StoryFramesEditorPresenter
                 public DataCursor<StoryFrame> call(final Story story) {
                     Contracts.requireWorkerThread();
 
-                    return getStoryFrameDao().getAllByStoryId(story.getId()).asDataCursor();
+                    return getStoryDaoManager()
+                        .getStoryFrameDao()
+                        .getAll(StoryFrameSelections.byStoryId(story.getId()))
+                        .asDataCursor();
                 }
             })
             .observeOn(rxManager.getUIScheduler())
@@ -116,9 +126,22 @@ public final class StoryFramesEditorPresenter
                     }
                 }
             })
+            .doOnCompleted(new Action0() {
+                @Override
+                public void call() {
+                    Contracts.requireMainThread();
+
+                    final val presentableView = getPresentableView();
+                    if (presentableView != null) {
+                        presentableView.setLoadingVisible(false);
+                        presentableView.setStoryFramesVisible(true);
+                    }
+                }
+            })
             .subscribe();
     }
 
+    @CallSuper
     @Override
     protected void onBindPresentableView(
         @NonNull final StoryFramesEditorPresentableView presentableView) {
@@ -128,6 +151,7 @@ public final class StoryFramesEditorPresenter
         presentableView.getOnStartEditStoryEvent().addHandler(getStartEditStoryHandler());
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresentableView(
         @NonNull final StoryFramesEditorPresentableView presentableView) {
@@ -137,6 +161,7 @@ public final class StoryFramesEditorPresenter
         presentableView.getOnStartEditStoryEvent().removeHandler(getStartEditStoryHandler());
     }
 
+    @CallSuper
     @Override
     protected void onViewAppear(
         @NonNull final StoryFramesEditorPresentableView presentableView) {
@@ -152,6 +177,7 @@ public final class StoryFramesEditorPresenter
             .addHandler(getStoryFrameExternalChangedHandler());
     }
 
+    @CallSuper
     @Override
     protected void onViewDisappear(
         @NonNull final StoryFramesEditorPresentableView presentableView) {
@@ -166,8 +192,19 @@ public final class StoryFramesEditorPresenter
             .removeHandler(getStoryFrameExternalChangedHandler());
     }
 
+    @CallSuper
     protected void onStartEditStory(final long storyId) {
         loadStory(storyId);
+    }
+
+    @CallSuper
+    protected void onStoryExternalChanged(final long changedStoryId) {
+        loadStory(changedStoryId);
+    }
+
+    @CallSuper
+    protected void onStoryFrameExternalChanged(final long editedStoryId) {
+        loadStory(editedStoryId);
     }
 
     @Getter(value = AccessLevel.PRIVATE, lazy = true)
@@ -191,10 +228,9 @@ public final class StoryFramesEditorPresenter
                 final long editedStory = getEditedStoryId();
                 final long changedStoryId = eventArgs.getId();
 
-                // FIXME: 12/24/2016
-                //                if (editedStory == changedStoryId) {
-                //                    onStoryExternalChanged(changedStoryId);
-                //                }
+                if (editedStory == changedStoryId) {
+                    onStoryExternalChanged(changedStoryId);
+                }
             }
         };
 
@@ -206,33 +242,31 @@ public final class StoryFramesEditorPresenter
             public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
                 final long changedStoryFrameId = eventArgs.getId();
 
-                // FIXME: 12/24/2016
-                //                if (editedStory == changedStoryId) {
-                //                    onStoryExternalChanged(changedStoryId);
-                //                }
+                final val rxManager = getRxManager();
+                rxManager
+                    .autoManage(Observable.just(changedStoryFrameId))
+                    .observeOn(rxManager.getIOScheduler())
+                    .map(new Func1<Long, StoryFrame>() {
+                        @Override
+                        public StoryFrame call(final Long storyFrameId) {
+                            Contracts.requireWorkerThread();
+
+                            return getStoryDaoManager().getStoryFrameDao().get(storyFrameId);
+                        }
+                    })
+                    .observeOn(rxManager.getUIScheduler())
+                    .doOnNext(new Action1<StoryFrame>() {
+                        @Override
+                        public void call(final StoryFrame storyFrame) {
+                            Contracts.requireMainThread();
+
+                            final long editedStoryId = getEditedStoryId();
+                            if (editedStoryId == storyFrame.getStoryId()) {
+                                onStoryFrameExternalChanged(editedStoryId);
+                            }
+                        }
+                    })
+                    .subscribe();
             }
         };
-
-    @NonNull
-    private AsyncCallback<DataCursor<StoryFrame>, Exception> getLoadStoryFramesCallback() {
-        return new AsyncCallback<DataCursor<StoryFrame>, Exception>() {
-            @Override
-            public void onError(
-                @Nullable final Exception error) {
-                // FIXME: 12/24/2016
-            }
-
-            @Override
-            public void onSuccess(@Nullable final DataCursor<StoryFrame> result) {
-                final val presentableView = getPresentableView();
-                if (presentableView != null) {
-                    presentableView.displayStoryFrames(result);
-                }
-            }
-        };
-    }
-
-    private void loadStoryFrames(final long storyId) {
-        //        getStoryTaskManager().loadStoryFrames(storyId, getLoadStoryFramesCallback());
-    }
 }

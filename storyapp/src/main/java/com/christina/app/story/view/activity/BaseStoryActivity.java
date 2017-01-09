@@ -1,7 +1,10 @@
 package com.christina.app.story.view.activity;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
+import com.christina.app.story.core.manager.message.ActivityMessageManager;
+import com.christina.app.story.core.manager.navigation.ActivityStoryNavigator;
 import com.christina.app.story.di.StoryApplicationComponentProvider;
 import com.christina.app.story.di.StoryViewComponentProvider;
 import com.christina.app.story.di.storyApplication.StoryApplicationComponent;
@@ -9,8 +12,6 @@ import com.christina.app.story.di.storyView.StoryViewComponent;
 import com.christina.app.story.di.storyView.module.StoryContentObserverModule;
 import com.christina.app.story.di.storyView.module.StoryViewManagerModule;
 import com.christina.app.story.di.storyView.module.StoryViewPresenterModule;
-import com.christina.app.story.core.manager.message.ActivityMessageManager;
-import com.christina.app.story.core.manager.navigation.ActivityStoryNavigator;
 import com.christina.common.view.activity.PresentableActivity;
 
 import lombok.AccessLevel;
@@ -33,6 +34,7 @@ public abstract class BaseStoryActivity extends PresentableActivity
         }
     }
 
+    @CallSuper
     @Override
     protected void onInject() {
         super.onInject();
@@ -40,6 +42,7 @@ public abstract class BaseStoryActivity extends PresentableActivity
         registerActivityListener(getActivityStoryNavigator());
     }
 
+    @CallSuper
     @Override
     protected void onReleaseInject() {
         super.onReleaseInject();

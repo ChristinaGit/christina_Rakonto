@@ -2,8 +2,6 @@ package com.christina.app.story.presentation;
 
 import android.support.annotation.NonNull;
 
-import com.christina.api.story.dao.story.StoryDao;
-import com.christina.api.story.dao.storyFrame.StoryFrameDao;
 import com.christina.api.story.observer.StoryContentObserver;
 import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.core.manager.content.StoryContentObserverManager;
@@ -50,18 +48,8 @@ public abstract class BaseStoryPresenter<TPresentableView extends PresentableVie
     }
 
     @NonNull
-    protected final StoryDao getStoryDao() {
-        return getStoryDaoManager().getStoryDao();
-    }
-
-    @NonNull
     protected final StoryDaoManager getStoryDaoManager() {
         return getServiceManager().getStoryDaoManager();
-    }
-
-    @NonNull
-    protected final StoryFrameDao getStoryFrameDao() {
-        return getStoryDaoManager().getStoryFrameDao();
     }
 
     @NonNull

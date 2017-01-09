@@ -94,6 +94,7 @@ public final class StoriesListAdapter
             .with(holder.getContext())
             .load(item.getPreviewUri())
             .asBitmap()
+            .error(R.drawable.im_loading_image_placeholder)
             .animate(android.R.anim.fade_in)
             .centerCrop()
             .into(new StoryCardViewTarget(holder));

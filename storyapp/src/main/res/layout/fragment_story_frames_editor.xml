@@ -17,6 +17,7 @@
         android:id="@+id/story_frames"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scrollbars="vertical"
         tools:context=".fragment.storyFramesEditor.StoryFramesEditorFragment"
         tools:listitem="@layout/fragment_story_frames_editor_item"/>
 </FrameLayout>

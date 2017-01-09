@@ -4,8 +4,6 @@ import android.content.ContentResolver;
 import android.support.annotation.NonNull;
 
 import com.christina.api.story.observer.StoryContentObserver;
-import com.christina.app.story.di.qualifier.ScopeNames;
-import com.christina.app.story.di.storyView.StoryViewScope;
 import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.core.manager.content.StoryContentObserverManager;
 import com.christina.app.story.core.manager.content.StoryDaoManager;
@@ -13,6 +11,8 @@ import com.christina.app.story.core.manager.message.MessageManager;
 import com.christina.app.story.core.manager.navigation.StoryNavigator;
 import com.christina.app.story.core.manager.rx.AndroidRxManager;
 import com.christina.app.story.core.manager.rx.RxManager;
+import com.christina.app.story.di.qualifier.ScopeNames;
+import com.christina.app.story.di.storyView.StoryViewScope;
 import com.christina.common.contract.Contracts;
 import com.trello.rxlifecycle.LifecycleProvider;
 import com.trello.rxlifecycle.android.ActivityEvent;

@@ -1,5 +1,6 @@
 package com.christina.app.story.presentation;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import com.christina.api.story.model.Story;
@@ -60,7 +61,7 @@ public final class StoryTextEditorPresenter
                 public Story call(final Long storyId) {
                     Contracts.requireWorkerThread();
 
-                    return getStoryDao().get(storyId);
+                    return getStoryDaoManager().getStoryDao().get(storyId);
                 }
             })
             .observeOn(rxManager.getUIScheduler())
@@ -103,6 +104,7 @@ public final class StoryTextEditorPresenter
             .subscribe();
     }
 
+    @CallSuper
     @Override
     protected void onBindPresentableView(
         @NonNull final StoryTextEditorPresentableView presentableView) {
@@ -113,6 +115,7 @@ public final class StoryTextEditorPresenter
         presentableView.getOnStoryChangedEvent().addHandler(getStoryChangedHandler());
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresentableView(
         @NonNull final StoryTextEditorPresentableView presentableView) {
@@ -123,16 +126,21 @@ public final class StoryTextEditorPresenter
         presentableView.getOnStoryChangedEvent().removeHandler(getStoryChangedHandler());
     }
 
+    @CallSuper
     @Override
     protected void onViewAppear(
         @NonNull final StoryTextEditorPresentableView presentableView) {
         super.onViewAppear(Contracts.requireNonNull(presentableView, "presentableView == null"));
+
+        presentableView.setStoryVisible(false);
+        presentableView.setLoadingVisible(true);
 
         getStoryContentObserver()
             .getOnStoryChangedEvent()
             .addHandler(getStoryExternalChangedHandler());
     }
 
+    @CallSuper
     @Override
     protected void onViewDisappear(
         @NonNull final StoryTextEditorPresentableView presentableView) {
@@ -143,10 +151,12 @@ public final class StoryTextEditorPresenter
             .removeHandler(getStoryExternalChangedHandler());
     }
 
+    @CallSuper
     protected void onStartEditStory(final long storyId) {
         loadStory(storyId);
     }
 
+    @CallSuper
     protected void onStoryChanged(@NonNull final Story story) {
         Contracts.requireNonNull(story, "story == null");
 
@@ -161,7 +171,19 @@ public final class StoryTextEditorPresenter
                 public Story call(final Story story) {
                     Contracts.requireWorkerThread();
 
-                    getStoryDao().delete(story.getId());
+                    getStoryDaoManager().getStoryDao().update(story);
+
+                    return story;
+                }
+            })
+            .map(new Func1<Story, Story>() {
+                @Override
+                public Story call(final Story story) {
+                    Contracts.requireWorkerThread();
+
+                    // FIXME: 1/1/2017
+                    //                    getStoryFrameDao().delete(StoryFrameSelections
+                    // .byStoryId(story.getId()));
 
                     return story;
                 }
@@ -176,7 +198,7 @@ public final class StoryTextEditorPresenter
                     if (storyText != null) {
                         final val storyDefaultSplit = StoryTextUtils.defaultSplit(storyText);
 
-                        final val storyFrameDao = getStoryFrameDao();
+                        final val storyFrameDao = getStoryDaoManager().getStoryFrameDao();
                         int startPosition = 0;
                         int endPosition = 0;
                         for (final val textFrame : storyDefaultSplit) {
@@ -199,6 +221,7 @@ public final class StoryTextEditorPresenter
             .subscribe();
     }
 
+    @CallSuper
     protected void onStoryExternalChanged(final long storyId) {
         loadStory(storyId);
     }

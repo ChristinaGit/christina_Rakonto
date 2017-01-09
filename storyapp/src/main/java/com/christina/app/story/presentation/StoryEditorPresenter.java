@@ -1,5 +1,6 @@
 package com.christina.app.story.presentation;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import com.christina.api.story.model.Story;
@@ -26,6 +27,7 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPr
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
+    @CallSuper
     @Override
     protected void onBindPresentableView(
         @NonNull final StoryEditorPresentableView presentableView) {
@@ -36,6 +38,7 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPr
         presentableView.getOnEditStoryEvent().addHandler(getEditStoryHandler());
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresentableView(
         @NonNull final StoryEditorPresentableView presentableView) {
@@ -46,6 +49,7 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPr
         presentableView.getOnEditStoryEvent().removeHandler(getEditStoryHandler());
     }
 
+    @CallSuper
     protected void onEditStory(final long storyId) {
         final val rxManager = getRxManager();
         rxManager
@@ -56,7 +60,7 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPr
                 public Story call(final Long storyId) {
                     Contracts.requireWorkerThread();
 
-                    return getStoryDao().get(storyId);
+                    return getStoryDaoManager().getStoryDao().get(storyId);
                 }
             })
             .observeOn(rxManager.getUIScheduler())
@@ -89,6 +93,7 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPr
             .subscribe();
     }
 
+    @CallSuper
     protected void onInsertStory() {
         final val rxManager = getRxManager();
         rxManager
@@ -99,7 +104,7 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPr
                 public void call(final Story story) {
                     Contracts.requireWorkerThread();
 
-                    getStoryDao().insert(story);
+                    getStoryDaoManager().getStoryDao().insert(story);
                 }
             })
             .observeOn(rxManager.getComputationScheduler())

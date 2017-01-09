@@ -1,5 +1,6 @@
 package com.christina.app.story.presentation;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import com.christina.app.story.R;
@@ -21,6 +22,7 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
+    @CallSuper
     @Override
     protected void onBindPresentableView(
         @NonNull final StoriesViewerPresentableView presentableView) {
@@ -30,6 +32,7 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
         presentableView.getOnInsertStoryEvent().addHandler(getViewInsertStoryHandler());
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresentableView(
         @NonNull final StoriesViewerPresentableView presentableView) {

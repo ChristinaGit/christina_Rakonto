@@ -14,8 +14,8 @@ import android.view.ViewGroup;
 
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
-import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
 import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
 import com.christina.app.story.core.delegate.LoadingViewDelegate;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoriesListPresentableView;
@@ -42,6 +42,7 @@ public final class StoriesListFragment extends BaseStoryFragment
     private static final String _KEY_SAVED_STATE =
         ConstantBuilder.savedStateKey(StoriesListFragment.class, "saved_state");
 
+    @CallSuper
     @Override
     public void displayStories(@Nullable final DataCursor<Story> stories) {
         getStoriesListAdapter().setDataCursor(stories);
@@ -85,6 +86,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         getLoadingViewDelegate().setContentVisible(visible);
     }
 
+    @CallSuper
     @Override
     public void onActivityCreated(@Nullable final Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -121,6 +123,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         return view;
     }
 
+    @CallSuper
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -130,6 +133,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         unbindViews();
     }
 
+    @CallSuper
     @Override
     protected void onBindPresenter() {
         super.onBindPresenter();
@@ -140,6 +144,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         }
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresenter() {
         super.onUnbindPresenter();
@@ -150,6 +155,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         }
     }
 
+    @CallSuper
     @Override
     public void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -164,6 +170,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         }
     }
 
+    @CallSuper
     @Override
     protected void onInject() {
         super.onInject();
@@ -171,12 +178,13 @@ public final class StoriesListFragment extends BaseStoryFragment
         getStoryViewFragmentComponent().inject(this);
     }
 
+    @CallSuper
     protected void onInitializeStoriesView() {
         if (_storiesView != null) {
             final val context = _storiesView.getContext();
             final val resources = context.getResources();
 
-            final int spacing = resources.getDimensionPixelOffset(R.dimen.card_large_grid_spacing);
+            final int spacing = resources.getDimensionPixelOffset(R.dimen.grid_large_spacing);
 
             final val spacingDecorator = ItemSpacingDecorator
                 .builder()
@@ -194,6 +202,7 @@ public final class StoriesListFragment extends BaseStoryFragment
         }
     }
 
+    @CallSuper
     protected void onSwipeStory(final long storyId) {
         _onDeleteStoryEvent.rise(new StoryEventArgs(storyId));
     }

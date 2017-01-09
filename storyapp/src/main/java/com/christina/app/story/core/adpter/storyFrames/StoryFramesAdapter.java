@@ -88,6 +88,7 @@ public final class StoryFramesAdapter
             .with(holder.getContext())
             .load(item.getImageUri())
             .animate(android.R.anim.fade_in)
+            .error(R.drawable.im_loading_image_placeholder)
             .centerCrop()
             .into(holder.storyFrameImageView);
     }

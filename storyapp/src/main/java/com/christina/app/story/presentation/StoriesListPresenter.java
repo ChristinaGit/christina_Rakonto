@@ -1,5 +1,6 @@
 package com.christina.app.story.presentation;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import com.christina.api.story.model.Story;
@@ -29,7 +30,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
-    protected void loadStories() {
+    protected final void loadStories() {
         final val presentableView = getPresentableView();
         if (presentableView != null) {
             presentableView.setStoriesVisible(false);
@@ -44,7 +45,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
                     throws Exception {
                     Contracts.requireWorkerThread();
 
-                    return getStoryDao().getAll().asDataCursor();
+                    return getStoryDaoManager().getStoryDao().getAll().asDataCursor();
                 }
             }))
             .subscribeOn(rxManager.getIOScheduler())
@@ -88,6 +89,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
             .subscribe();
     }
 
+    @CallSuper
     @Override
     protected void onBindPresentableView(
         @NonNull final StoriesListPresentableView presentableView) {
@@ -98,6 +100,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
         presentableView.getOnEditStoryEvent().addHandler(getEditStoryHandler());
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresentableView(
         @NonNull final StoriesListPresentableView presentableView) {
@@ -108,6 +111,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
         presentableView.getOnEditStoryEvent().removeHandler(getEditStoryHandler());
     }
 
+    @CallSuper
     @Override
     protected void onViewAppear(@NonNull final StoriesListPresentableView presentableView) {
         super.onViewAppear(Contracts.requireNonNull(presentableView, "presentableView == null"));
@@ -121,6 +125,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
         loadStories();
     }
 
+    @CallSuper
     @Override
     protected void onViewDisappear(@NonNull final StoriesListPresentableView presentableView) {
         super.onViewDisappear(Contracts.requireNonNull(presentableView, "presentableView == null"));
@@ -132,17 +137,20 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
             .removeHandler(getStoryExternalChangedHandler());
     }
 
+    @CallSuper
     protected void onStoriesExternalChanged() {
         loadStories();
     }
 
+    @CallSuper
     protected void onStoryDelete(final long id) {
-        final int deleted = getStoryDao().delete(id);
+        final int deleted = getStoryDaoManager().getStoryDao().delete(id);
         if (deleted > 0) {
             getMessageManager().showInfoMessage(R.string.message_story_deleted);
         }
     }
 
+    @CallSuper
     protected void onStoryEdit(final long storyId) {
         getStoryNavigator().navigateToEditStory(storyId);
     }

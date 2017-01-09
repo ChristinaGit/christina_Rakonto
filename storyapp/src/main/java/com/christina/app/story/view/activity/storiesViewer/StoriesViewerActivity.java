@@ -3,6 +3,7 @@ package com.christina.app.story.view.activity.storiesViewer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Process;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -49,12 +50,14 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         return _onInsertStoryEvent;
     }
 
+    @CallSuper
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.stories_viewer_menu, menu);
         return true;
     }
 
+    @CallSuper
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         final boolean handled;
@@ -83,6 +86,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         return handled;
     }
 
+    @CallSuper
     @Override
     protected void onBindPresenter() {
         super.onBindPresenter();
@@ -132,6 +136,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresenter() {
         super.onUnbindPresenter();
@@ -147,6 +152,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         _onInsertStoryEvent.rise();
     }
 
+    @CallSuper
     protected boolean onHandleIntent(@NonNull final Intent intent) {
         Contracts.requireNonNull(intent, "intent == null");
 
@@ -170,6 +176,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         return intentHandled;
     }
 
+    @CallSuper
     @Override
     protected void onInject() {
         super.onInject();
@@ -177,6 +184,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         getStoryViewComponent().inject(this);
     }
 
+    @CallSuper
     @Override
     protected void onReleaseInject() {
         super.onReleaseInject();

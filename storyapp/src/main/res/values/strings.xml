@@ -23,4 +23,5 @@
     <string name="story_creator_input_hint">Your beautiful story…</string>
 
     <string name="content_description_story_image_preview">A story image preview</string>
+    <string name="content_description_story_frame_image_preview">A story frame image preview</string>
 </resources>

@@ -14,18 +14,18 @@ import android.widget.EditText;
 
 import com.christina.api.story.model.Story;
 import com.christina.app.story.R;
-import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPage;
 import com.christina.app.story.core.StoryContentEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPage;
 import com.christina.app.story.core.delegate.LoadingViewDelegate;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryTextEditorPresentableView;
 import com.christina.app.story.view.fragment.BaseStoryFragment;
-import com.christina.common.utility.ImeUtils;
 import com.christina.common.event.BaseEvent;
 import com.christina.common.event.BaseNoticeEvent;
 import com.christina.common.event.Event;
 import com.christina.common.event.NoticeEvent;
+import com.christina.common.utility.ImeUtils;
 import com.christina.common.view.presentation.Presenter;
 
 import javax.inject.Inject;
@@ -36,6 +36,7 @@ import butterknife.OnTextChanged;
 import butterknife.OnTextChanged.Callback;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
@@ -57,6 +58,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         return _onContentChangedEvent;
     }
 
+    @CallSuper
     @Override
     public boolean hasContent() {
         final boolean hasContent;
@@ -74,11 +76,9 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     @CallSuper
     @Override
     public void onStartEditing() {
-        if (getEditedStory() == null) {
-            final long editedStoryId = getEditedStoryId();
-            if (editedStoryId != Story.NO_ID) {
-                _onStartEditStoryEvent.rise(new StoryEventArgs(editedStoryId));
-            }
+        final long editedStoryId = getEditedStoryId();
+        if (editedStoryId != Story.NO_ID) {
+            _onStartEditStoryEvent.rise(new StoryEventArgs(editedStoryId));
         }
 
         if (_storyTextView != null && !_storyTextView.hasFocus()) {
@@ -97,9 +97,11 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         onSaveStoryChanges();
     }
 
+    @CallSuper
     @Override
     public void displayStory(@Nullable final Story story) {
         setEditedStory(story);
+        notifyEditedStoryChanged();
     }
 
     @NonNull
@@ -133,22 +135,6 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         getLoadingViewDelegate().setContentVisible(visible);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (getEditedStory() == null) {
-            onStartEditing();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        onSaveStoryChanges();
-    }
-
     @Nullable
     @CallSuper
     @Override
@@ -170,6 +156,15 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         return view;
     }
 
+    @CallSuper
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        onSaveStoryChanges();
+    }
+
+    @CallSuper
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -177,6 +172,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         unbindViews();
     }
 
+    @CallSuper
     @Override
     protected void onBindPresenter() {
         super.onBindPresenter();
@@ -187,6 +183,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         }
     }
 
+    @CallSuper
     @Override
     protected void onUnbindPresenter() {
         super.onUnbindPresenter();
@@ -197,12 +194,10 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         }
     }
 
-    protected final void setEditedStory(@Nullable final Story editedStory) {
-        if (_editedStory != editedStory) {
-            _editedStory = editedStory;
+    protected final void notifyEditedStoryChanged() {
+        onEditedStoryChanged();
 
-            onEditedStoryChanged();
-        }
+        _onContentChangedEvent.rise();
     }
 
     @CallSuper
@@ -220,12 +215,12 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
                 _storyTextView.setEnabled(true);
             }
         }
-
-        _onContentChangedEvent.rise();
     }
 
+    @CallSuper
     protected void onEditedStoryIdChanged() {
         setEditedStory(null);
+        notifyEditedStoryChanged();
 
         final long editedStoryId = getEditedStoryId();
         if (editedStoryId != Story.NO_ID) {
@@ -233,6 +228,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
         }
     }
 
+    @CallSuper
     @Override
     protected void onInject() {
         super.onInject();
@@ -244,6 +240,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     protected void onSaveStoryChanges() {
         final val editedStory = getEditedStory();
         if (editedStory != null) {
+            // TODO: 1/1/2017 Add real check.
             _onStoryChangedEvent.rise(new StoryContentEventArgs(editedStory));
         }
     }
@@ -292,6 +289,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     private final BaseEvent<StoryContentEventArgs> _onStoryChangedEvent = new BaseEvent<>();
 
     @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
     @Nullable
     private Story _editedStory;
 

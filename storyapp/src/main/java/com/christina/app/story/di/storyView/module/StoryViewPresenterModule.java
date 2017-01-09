@@ -2,10 +2,10 @@ package com.christina.app.story.di.storyView.module;
 
 import android.support.annotation.NonNull;
 
+import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyView.StoryViewScope;
-import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.presentation.StoriesViewerPresenter;
 import com.christina.app.story.presentation.StoryEditorPresenter;
 import com.christina.app.story.view.StoriesViewerPresentableView;
