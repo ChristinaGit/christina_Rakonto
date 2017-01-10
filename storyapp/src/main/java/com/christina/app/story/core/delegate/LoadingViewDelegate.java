@@ -56,10 +56,12 @@ public class LoadingViewDelegate {
         invalidateLoadingView();
     }
 
+    @CallSuper
     protected void onContentVisibilityChanged() {
         invalidateContentView();
     }
 
+    @CallSuper
     protected void onLoadingVisibilityChanged() {
         invalidateLoadingView();
     }

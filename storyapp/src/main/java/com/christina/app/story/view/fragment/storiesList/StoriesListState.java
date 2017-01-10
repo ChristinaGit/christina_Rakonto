@@ -12,23 +12,23 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "_")
-/*package-private*/ final class StoriesListSavedState implements Parcelable {
-    public static final Creator<StoriesListSavedState> CREATOR =
-        new Creator<StoriesListSavedState>() {
+/*package-private*/ final class StoriesListState implements Parcelable {
+    public static final Creator<StoriesListState> CREATOR =
+        new Creator<StoriesListState>() {
             @Override
-            public StoriesListSavedState createFromParcel(@NonNull final Parcel source) {
+            public StoriesListState createFromParcel(@NonNull final Parcel source) {
                 Contracts.requireNonNull(source, "in == null");
 
-                return new StoriesListSavedState(source);
+                return new StoriesListState(source);
             }
 
             @Override
-            public StoriesListSavedState[] newArray(final int size) {
-                return new StoriesListSavedState[size];
+            public StoriesListState[] newArray(final int size) {
+                return new StoriesListState[size];
             }
         };
 
-    public StoriesListSavedState() {
+    public StoriesListState() {
     }
 
     @CallSuper
@@ -43,7 +43,7 @@ import lombok.experimental.Accessors;
         dest.writeInt(_scrollPosition);
     }
 
-    protected StoriesListSavedState(@NonNull final Parcel in) {
+    protected StoriesListState(@NonNull final Parcel in) {
         Contracts.requireNonNull(in, "in == null");
 
         _scrollPosition = in.readInt();

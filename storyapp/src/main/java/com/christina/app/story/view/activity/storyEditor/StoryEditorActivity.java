@@ -259,24 +259,18 @@ public final class StoryEditorActivity extends BaseStoryActivity
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final boolean initialized;
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(_KEY_SAVED_STATE)) {
-            _savedState = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
-
-            if (_savedState != null) {
-                _mode = _savedState.getMode();
-                _displayedStoryId = _savedState.getDisplayedStoryId();
-
-                initialized = true;
-            } else {
-                initialized = false;
-            }
-        } else {
-            initialized = onHandleIntent(getIntent());
+        if (savedInstanceState != null) {
+            _state = onHandleSavedState(savedInstanceState);
         }
 
-        if (initialized) {
+        if (_state == null) {
+            _state = onHandleIntent(getIntent());
+        }
+
+        if (_state != null) {
+            _mode = _state.getMode();
+            _displayedStoryId = _state.getDisplayedStoryId();
+
             setContentView(R.layout.activity_story_editor);
 
             bindViews();
@@ -287,13 +281,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
                 screensAdapter.setDisplayedStoryId(getDisplayedStoryId());
                 _stepPagerView.setAdapter(screensAdapter);
 
-                final int activePage;
-                if (_savedState != null) {
-                    activePage = _savedState.getActivePage();
-                } else {
-                    activePage = 0;
-                }
-                _stepPagerView.setCurrentItem(activePage, false);
+                _stepPagerView.setCurrentItem(_state.getActivePage(), false);
             }
 
             final val mode = getMode();
@@ -344,11 +332,12 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @Nullable
     @CallSuper
-    protected boolean onHandleEditIntent(@NonNull final Intent intent) {
+    protected StoryEditorState onHandleEditIntent(@NonNull final Intent intent) {
         Contracts.requireNonNull(intent, "intent == null");
 
-        final boolean intentHandled;
+        final StoryEditorState state;
 
         final val data = intent.getData();
         if (data != null) {
@@ -361,50 +350,74 @@ public final class StoryEditorActivity extends BaseStoryActivity
                     storyId = Story.NO_ID;
                 }
                 if (storyId != Story.NO_ID) {
-                    _displayedStoryId = storyId;
-                    intentHandled = true;
+                    state = new StoryEditorState();
+                    state.setMode(Mode.EDIT);
+                    state.setDisplayedStoryId(storyId);
                 } else {
                     setResult(RESULT_NO_DATA);
-                    intentHandled = false;
+                    state = null;
                 }
             } else {
                 setResult(RESULT_NO_DATA);
-                intentHandled = false;
+                state = null;
             }
         } else {
             setResult(RESULT_NO_DATA);
-            intentHandled = false;
+            state = null;
         }
 
-        return intentHandled;
+        return state;
     }
 
+    @Nullable
     @CallSuper
-    protected boolean onHandleIntent(@NonNull final Intent intent) {
+    protected StoryEditorState onHandleInsertIntent(@NonNull final Intent intent) {
         Contracts.requireNonNull(intent, "intent == null");
 
-        final boolean intentHandled;
+        final val state = new StoryEditorState();
+
+        state.setMode(Mode.INSERT);
+
+        return state;
+    }
+
+    @Nullable
+    @CallSuper
+    protected StoryEditorState onHandleIntent(@NonNull final Intent intent) {
+        Contracts.requireNonNull(intent, "intent == null");
+
+        final StoryEditorState state;
 
         final val action = getIntent().getAction();
         switch (action) {
             case Intent.ACTION_INSERT: {
-                _mode = Mode.INSERT;
-                intentHandled = true;
+                state = onHandleInsertIntent(intent);
                 break;
             }
             case Intent.ACTION_EDIT: {
-                _mode = Mode.EDIT;
-                intentHandled = onHandleEditIntent(intent);
+                state = onHandleEditIntent(intent);
                 break;
             }
             default: {
                 setResult(RESULT_UNSUPPORTED_ACTION);
-                intentHandled = false;
+                state = null;
                 break;
             }
         }
 
-        return intentHandled;
+        return state;
+    }
+
+    @Nullable
+    @CallSuper
+    protected StoryEditorState onHandleSavedState(@NonNull final Bundle savedInstanceState) {
+        StoryEditorState state = null;
+
+        if (savedInstanceState.containsKey(_KEY_SAVED_STATE)) {
+            state = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
+        }
+
+        return state;
     }
 
     @CallSuper
@@ -437,18 +450,18 @@ public final class StoryEditorActivity extends BaseStoryActivity
         super.onSaveInstanceState(outState);
 
         if (outState != null) {
-            if (_savedState == null) {
-                _savedState = new StoryEditorSavedState();
+            if (_state == null) {
+                _state = new StoryEditorState();
             }
 
-            _savedState.setMode(getMode());
-            _savedState.setDisplayedStoryId(getDisplayedStoryId());
+            _state.setMode(getMode());
+            _state.setDisplayedStoryId(getDisplayedStoryId());
             if (_stepPagerView != null) {
-                _savedState.setActivePage(_stepPagerView.getCurrentItem());
+                _state.setActivePage(_stepPagerView.getCurrentItem());
             } else {
-                _savedState.setActivePage(0);
+                _state.setActivePage(0);
             }
-            outState.putParcelable(_KEY_SAVED_STATE, _savedState);
+            outState.putParcelable(_KEY_SAVED_STATE, _state);
         }
     }
 
@@ -532,7 +545,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
     private Mode _mode;
 
     @Nullable
-    private StoryEditorSavedState _savedState;
+    private StoryEditorState _state;
 
     private void _invalidateNavigationButtons() {
         if (_stepPagerView != null) {

@@ -13,21 +13,21 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(prefix = "_")
-/*package-private*/ final class StoryEditorSavedState implements Parcelable {
-    public static final Creator<StoryEditorSavedState> CREATOR =
-        new Creator<StoryEditorSavedState>() {
+/*package-private*/ final class StoryEditorState implements Parcelable {
+    public static final Creator<StoryEditorState> CREATOR =
+        new Creator<StoryEditorState>() {
             @Override
-            public StoryEditorSavedState createFromParcel(final Parcel source) {
-                return new StoryEditorSavedState(source);
+            public StoryEditorState createFromParcel(final Parcel source) {
+                return new StoryEditorState(source);
             }
 
             @Override
-            public StoryEditorSavedState[] newArray(final int size) {
-                return new StoryEditorSavedState[size];
+            public StoryEditorState[] newArray(final int size) {
+                return new StoryEditorState[size];
             }
         };
 
-    public StoryEditorSavedState() {
+    public StoryEditorState() {
     }
 
     @Override
@@ -50,7 +50,7 @@ import lombok.experimental.Accessors;
         dest.writeInt(_activePage);
     }
 
-    protected StoryEditorSavedState(@NonNull final Parcel in) {
+    protected StoryEditorState(@NonNull final Parcel in) {
         Contracts.requireNonNull(in, "in == null");
 
         final String modeName = in.readString();

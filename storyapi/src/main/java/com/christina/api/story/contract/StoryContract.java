@@ -34,8 +34,8 @@ public final class StoryContract {
         TYPE = "story";
         SEGMENT = "stories";
 
-        ITEM_TYPE = MimeTypeUtils.combineItemContentType(StoryContentContract.COMPANY_NAME, TYPE);
-        DIR_TYPE = MimeTypeUtils.combineDirContentType(StoryContentContract.COMPANY_NAME, TYPE);
+        ITEM_TYPE = MimeTypeUtils.combineItemContentType(StoryContentContract.AUTHORITY, TYPE);
+        DIR_TYPE = MimeTypeUtils.combineDirContentType(StoryContentContract.AUTHORITY, TYPE);
 
         TYPE_STORY = ITEM_TYPE;
         TYPE_STORIES = DIR_TYPE;

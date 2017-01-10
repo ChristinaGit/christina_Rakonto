@@ -3,6 +3,7 @@ package com.christina.app.story.presentation;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
+import com.christina.api.story.dao.storyFrame.StoryFrameSelections;
 import com.christina.api.story.model.Story;
 import com.christina.api.story.model.StoryFrame;
 import com.christina.api.story.observer.StoryObserverEventArgs;
@@ -181,9 +182,9 @@ public final class StoryTextEditorPresenter
                 public Story call(final Story story) {
                     Contracts.requireWorkerThread();
 
-                    // FIXME: 1/1/2017
-                    //                    getStoryFrameDao().delete(StoryFrameSelections
-                    // .byStoryId(story.getId()));
+                    final int deleted = getStoryDaoManager()
+                        .getStoryFrameDao()
+                        .delete(StoryFrameSelections.byStoryId(story.getId()));
 
                     return story;
                 }

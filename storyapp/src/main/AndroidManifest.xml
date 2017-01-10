@@ -9,12 +9,12 @@
         android:label="@string/story_permission_group_label"/>
 
     <permission
-        android:name="com.christina.provider.stories.permission.READ"
+        android:name="com.christina.provider.story.permission.READ"
         android:description="@string/story_permission_read_description"
         android:label="@string/story_permission_read_label"
         android:permissionGroup="com.christina.permission-group.STORIES"/>
     <permission
-        android:name="com.christina.provider.stories.permission.WRITE"
+        android:name="com.christina.provider.story.permission.WRITE"
         android:description="@string/story_permission_write_description"
         android:label="@string/story_permission_write_label"
         android:permissionGroup="com.christina.permission-group.STORIES"/>
@@ -23,7 +23,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
-        android:name="com.christina.app.story.StoryApplication"
+        android:name=".StoryApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
@@ -31,7 +31,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.christina.app.story.view.activity.storiesViewer.StoriesViewerActivity"
+            android:name=".view.activity.storiesViewer.StoriesViewerActivity"
             android:label="@string/application_name"
             android:theme="@style/AppTheme.NoActionBar">
 
@@ -47,14 +47,14 @@
                 <action android:name="android.intent.action.VIEW"/>
 
                 <data
-                    android:host="com.christina.provider"
+                    android:host="com.christina.provider.story"
                     android:path="/stories"
                     android:scheme="content"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name="com.christina.app.story.view.activity.storyEditor.StoryEditorActivity"
+            android:name=".view.activity.storyEditor.StoryEditorActivity"
             android:windowSoftInputMode="adjustResize">
 
             <intent-filter>
@@ -62,7 +62,7 @@
                 <action android:name="android.intent.action.INSERT"/>
 
                 <data
-                    android:host="com.christina.provider"
+                    android:host="com.christina.provider.story"
                     android:path="/stories"
                     android:scheme="content"/>
             </intent-filter>
@@ -72,7 +72,7 @@
                 <action android:name="android.intent.action.EDIT"/>
 
                 <data
-                    android:host="com.christina.provider"
+                    android:host="com.christina.provider.story"
                     android:path="/stories/*"
                     android:scheme="content"/>
             </intent-filter>
@@ -80,8 +80,8 @@
 
         <provider
             android:name="com.christina.content.story.StoryContentProvider"
-            android:authorities="com.christina.provider"
-            android:readPermission="com.christina.provider.stories.permission.READ"
-            android:writePermission="com.christina.provider.stories.permission.WRITE"/>
+            android:authorities="com.christina.provider.story"
+            android:readPermission="com.christina.provider.story.permission.READ"
+            android:writePermission="com.christina.provider.story.permission.WRITE"/>
     </application>
 </manifest>

@@ -28,6 +28,8 @@ import com.christina.common.event.NoticeEvent;
 import com.christina.common.utility.ImeUtils;
 import com.christina.common.view.presentation.Presenter;
 
+import java.util.Objects;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -208,6 +210,8 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
             if (editedStory != null) {
                 final val storyText = editedStory.getText();
 
+                _originalStoryText = storyText;
+
                 _storyTextView.setEnabled(true);
                 _storyTextView.setText(storyText);
             } else {
@@ -239,15 +243,14 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
     @CallSuper
     protected void onSaveStoryChanges() {
         final val editedStory = getEditedStory();
-        if (editedStory != null) {
-            // TODO: 1/1/2017 Add real check.
+        if (editedStory != null && !Objects.equals(editedStory.getText(), _originalStoryText)) {
             _onStoryChangedEvent.rise(new StoryContentEventArgs(editedStory));
         }
     }
 
     @OnTextChanged(value = R.id.story_text, callback = Callback.AFTER_TEXT_CHANGED)
     protected void onStoryTextChanged(final Editable s) {
-        final val storyText = s != null ? s.toString() : null;
+        final val storyText = s != null ? s.toString().trim() : null;
 
         final val editedStory = getEditedStory();
         if (editedStory != null) {
@@ -295,4 +298,7 @@ public final class StoryTextEditorFragment extends BaseStoryFragment
 
     @Getter(onMethod = @__(@Override))
     private long _editedStoryId;
+
+    @Nullable
+    private String _originalStoryText;
 }

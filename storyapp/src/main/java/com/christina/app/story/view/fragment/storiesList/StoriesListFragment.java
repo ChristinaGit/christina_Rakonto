@@ -47,10 +47,10 @@ public final class StoriesListFragment extends BaseStoryFragment
     public void displayStories(@Nullable final DataCursor<Story> stories) {
         getStoriesListAdapter().setDataCursor(stories);
 
-        if (_savedState != null && !_savedState.isScrollPositionRestored()) {
-            final int scrollPosition = _savedState.getScrollPosition();
+        if (_state != null && !_state.isScrollPositionRestored()) {
+            final int scrollPosition = _state.getScrollPosition();
             getStoriesLayoutManager().scrollToPositionWithOffset(scrollPosition, 0);
-            _savedState.setScrollPositionRestored(true);
+            _state.setScrollPositionRestored(true);
         }
     }
 
@@ -92,10 +92,10 @@ public final class StoriesListFragment extends BaseStoryFragment
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState != null) {
-            _savedState = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
+            _state = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
 
-            if (_savedState != null) {
-                _savedState.setScrollPositionRestored(false);
+            if (_state != null) {
+                _state.setScrollPositionRestored(false);
             }
         }
     }
@@ -161,12 +161,12 @@ public final class StoriesListFragment extends BaseStoryFragment
         super.onSaveInstanceState(outState);
 
         if (outState != null) {
-            if (_savedState == null) {
-                _savedState = new StoriesListSavedState();
+            if (_state == null) {
+                _state = new StoriesListState();
             }
 
-            _savedState.setScrollPosition(getStoriesLayoutManager().findFirstVisibleItemPosition());
-            outState.putParcelable(_KEY_SAVED_STATE, _savedState);
+            _state.setScrollPosition(getStoriesLayoutManager().findFirstVisibleItemPosition());
+            outState.putParcelable(_KEY_SAVED_STATE, _state);
         }
     }
 
@@ -253,7 +253,7 @@ public final class StoriesListFragment extends BaseStoryFragment
     private final StoriesListAdapter _storiesListAdapter = new StoriesListAdapter();
 
     @Nullable
-    private StoriesListSavedState _savedState;
+    private StoriesListState _state;
 
     @NonNull
     private GridLayoutManager _createStoriesLayoutManager() {
