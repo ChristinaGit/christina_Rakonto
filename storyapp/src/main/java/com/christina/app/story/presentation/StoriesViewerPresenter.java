@@ -43,7 +43,22 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
     private final NoticeEventHandler _removeAllHandler = new NoticeEventHandler() {
         @Override
         public void onEvent() {
-            Realm.deleteRealm(getRealmManager().getRealmConfiguration());
+            getRealmManager().getRealm().executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(final Realm realm) {
+                    realm.deleteAll();
+                }
+            }, new Realm.Transaction.OnSuccess() {
+                @Override
+                public void onSuccess() {
+                    getMessageManager().showInfoMessage(R.string.message_database_cleared);
+                }
+            }, new Realm.Transaction.OnError() {
+                @Override
+                public void onError(final Throwable error) {
+                    getMessageManager().showInfoMessage(R.string.message_database_clear_fail);
+                }
+            });
         }
     };
 

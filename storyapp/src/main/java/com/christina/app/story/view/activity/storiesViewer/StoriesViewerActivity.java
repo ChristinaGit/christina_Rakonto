@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
@@ -31,7 +30,6 @@ import com.christina.common.event.Events;
 import com.christina.common.event.notice.ManagedNoticeEvent;
 import com.christina.common.event.notice.NoticeEvent;
 import com.christina.common.presentation.Presenter;
-import com.christina.common.view.FabScrollAutoHideBehavior;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -99,21 +97,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity implements St
 
             bindViews();
 
-            if (_fabView != null) {
-                final val fabLayoutParams =
-                    (CoordinatorLayout.LayoutParams) _fabView.getLayoutParams();
-                fabLayoutParams.setBehavior(new FabScrollAutoHideBehavior());
-                _fabView.setLayoutParams(fabLayoutParams);
-            }
-
             setSupportActionBar(_toolbarView);
-
-            final val actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayShowHomeEnabled(false);
-                actionBar.setDisplayShowTitleEnabled(true);
-                actionBar.setDisplayHomeAsUpEnabled(false);
-            }
 
             final val fragmentManager = getSupportFragmentManager();
             if (fragmentManager.findFragmentById(R.id.content_container) == null) {

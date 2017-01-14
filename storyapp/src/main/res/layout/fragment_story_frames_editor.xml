@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ProgressBar
+    <com.christina.common.view.ContentLoaderProgressBar
         android:id="@+id/story_frames_loading"
         style="?android:progressBarStyleLarge"
         android:layout_width="wrap_content"

@@ -30,9 +30,9 @@ import java.util.Random;
 public final class FakeDatabase {
     private static final String _LOG_TAG = ConstantBuilder.logTag(FakeDatabase.class);
 
-    public static final int STORY_COUNT = 55;
+    public static final int STORY_COUNT = 155;
 
-    public static final int RANDOM_SEED = 11;
+    public static final int RANDOM_SEED = 121;
 
     public static final int STORY_NAME_MIN_WORD_COUNT = 2;
 

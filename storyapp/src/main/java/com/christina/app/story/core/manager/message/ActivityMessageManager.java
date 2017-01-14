@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
+import com.christina.app.story.R;
 import com.christina.common.contract.Contracts;
 import com.christina.common.view.observerable.ObservableActivity;
 
@@ -47,7 +48,7 @@ public final class ActivityMessageManager implements MessageManager {
     @Nullable
     protected final View getContentView() {
         if (_contentView == null) {
-            _contentView = getActivity().findViewById(android.R.id.content);
+            _contentView = getActivity().findViewById(R.id.coordinator);
         }
 
         return _contentView;
