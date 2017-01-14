@@ -6,23 +6,24 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
-import com.christina.api.story.dao.storyFrame.StoryFrameFullProjection;
-import com.christina.api.story.model.StoryFrame;
-import com.christina.app.story.R;
-import com.christina.common.contract.Contracts;
-import com.christina.common.view.recyclerView.adapter.DataCursorRecyclerViewAdapter;
-
-import java.util.Objects;
-
-import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
+import com.bumptech.glide.Glide;
+
+import com.christina.app.story.R;
+import com.christina.app.story.data.model.StoryFrame;
+import com.christina.common.contract.Contracts;
+import com.christina.common.view.recyclerView.adapter.RecyclerViewListAdapter;
+
+import java.util.List;
+import java.util.Objects;
+
 @Accessors(prefix = "_")
 public final class StoryFramesAdapter
-    extends DataCursorRecyclerViewAdapter<StoryFrame, StoryFrameViewHolder> {
+    extends RecyclerViewListAdapter<StoryFrame, StoryFrameViewHolder> {
     public StoryFramesAdapter() {
         setHasStableIds(true);
     }
@@ -45,16 +46,9 @@ public final class StoryFramesAdapter
 
     @Override
     public final long getItemId(final int position) {
-        final long itemId;
+        Contracts.requireInRange(position, 0, getItemCount() - 1, new IndexOutOfBoundsException());
 
-        final val dataCursor = getDataCursor();
-        if (dataCursor != null && dataCursor.moveToPosition(position)) {
-            itemId = getStoryFrameFullProjection().getId(dataCursor);
-        } else {
-            itemId = StoryFrame.NO_ID;
-        }
-
-        return itemId;
+        return getItem(position).getId();
     }
 
     @Override
@@ -62,8 +56,12 @@ public final class StoryFramesAdapter
         @NonNull final StoryFrameViewHolder holder,
         @NonNull final StoryFrame item,
         final int position) {
-        Contracts.requireNonNull(holder, "holder == null");
-        Contracts.requireNonNull(item, "item == null");
+        super.onBindViewHolder(Contracts.requireNonNull(holder, "holder == null"),
+                               Contracts.requireNonNull(item, "item == null"),
+                               Contracts.requireInRange(position,
+                                                        0,
+                                                        getItemCount() - 1,
+                                                        new IndexOutOfBoundsException()));
 
         final String storyFrameText;
 
@@ -94,10 +92,10 @@ public final class StoryFramesAdapter
             .into(holder.storyFrameImageView);
     }
 
-    @Getter(value = AccessLevel.PROTECTED, lazy = true)
-    @NonNull
-    private final StoryFrameFullProjection _storyFrameFullProjection =
-        new StoryFrameFullProjection();
+    @Getter(onMethod = @__(@Override))
+    @Setter
+    @Nullable
+    private List<StoryFrame> _items;
 
     @Getter
     @Nullable

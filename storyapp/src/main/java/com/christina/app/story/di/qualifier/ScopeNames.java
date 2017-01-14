@@ -7,9 +7,9 @@ public final class ScopeNames {
 
     public static final String APPLICATION = NAME_PREFIX + "application";
 
-    public static final String ACTIVITY = NAME_PREFIX + "activity";
+    public static final String SCREEN = NAME_PREFIX + "screen";
 
-    public static final String FRAGMENT = NAME_PREFIX + "fragment";
+    public static final String SUBSCREEN = NAME_PREFIX + "subscreen";
 
     private ScopeNames() {
         Contracts.unreachable();

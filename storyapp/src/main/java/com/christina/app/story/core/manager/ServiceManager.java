@@ -2,36 +2,35 @@ package com.christina.app.story.core.manager;
 
 import android.support.annotation.NonNull;
 
-import com.christina.app.story.core.manager.content.StoryContentObserverManager;
-import com.christina.app.story.core.manager.content.StoryDaoManager;
-import com.christina.app.story.core.manager.message.MessageManager;
-import com.christina.app.story.core.manager.navigation.StoryNavigator;
-import com.christina.app.story.core.manager.rx.RxManager;
-import com.christina.common.contract.Contracts;
-
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
+import com.christina.app.story.core.manager.data.RealmManager;
+import com.christina.app.story.core.manager.message.MessageManager;
+import com.christina.app.story.core.manager.navigation.StoryNavigator;
+import com.christina.app.story.core.manager.resource.ResourceManager;
+import com.christina.app.story.core.manager.rx.RxManager;
+import com.christina.common.contract.Contracts;
 
 @Accessors(prefix = "_")
 public final class ServiceManager {
     public ServiceManager(
+        @NonNull final ResourceManager resourceManager,
         @NonNull final StoryNavigator storyNavigator,
+        @NonNull final RealmManager realmManager,
         @NonNull final RxManager rxManager,
-        @NonNull final MessageManager messageManager,
-        @NonNull final StoryDaoManager storyDaoManager,
-        @NonNull final StoryContentObserverManager storyContentObserverManager) {
+        @NonNull final MessageManager messageManager) {
+        Contracts.requireNonNull(resourceManager, "resourceManager == null");
         Contracts.requireNonNull(storyNavigator, "storyNavigator == null");
+        Contracts.requireNonNull(realmManager, "realmManager == null");
         Contracts.requireNonNull(rxManager, "rxManager == null");
         Contracts.requireNonNull(messageManager, "messageManager == null");
-        Contracts.requireNonNull(storyDaoManager, "storyDaoManager == null");
-        Contracts.requireNonNull(storyContentObserverManager,
-                                 "storyContentObserverManager == null");
 
+        _resourceManager = resourceManager;
         _storyNavigator = storyNavigator;
+        _realmManager = realmManager;
         _rxManager = rxManager;
         _messageManager = messageManager;
-        _storyDaoManager = storyDaoManager;
-        _storyContentObserverManager = storyContentObserverManager;
     }
 
     @Getter
@@ -40,15 +39,15 @@ public final class ServiceManager {
 
     @Getter
     @NonNull
+    private final RealmManager _realmManager;
+
+    @Getter
+    @NonNull
+    private final ResourceManager _resourceManager;
+
+    @Getter
+    @NonNull
     private final RxManager _rxManager;
-
-    @Getter
-    @NonNull
-    private final StoryContentObserverManager _storyContentObserverManager;
-
-    @Getter
-    @NonNull
-    private final StoryDaoManager _storyDaoManager;
 
     @Getter
     @NonNull

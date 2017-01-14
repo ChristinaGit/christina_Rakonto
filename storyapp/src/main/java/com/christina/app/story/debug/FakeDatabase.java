@@ -1,25 +1,23 @@
 package com.christina.app.story.debug;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.christina.api.story.dao.story.StoryDao;
-import com.christina.api.story.dao.storyFrame.StoryFrameDao;
-import com.christina.api.story.model.Story;
-import com.christina.api.story.model.StoryFrame;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import lombok.val;
+
+import io.realm.Realm;
+
+import com.christina.app.story.core.RealmIdGenerator;
 import com.christina.app.story.core.StoryTextUtils;
+import com.christina.app.story.data.model.Story;
+import com.christina.app.story.data.model.StoryFrame;
 import com.christina.common.ConstantBuilder;
 import com.christina.common.UriScheme;
 import com.christina.common.contract.Contracts;
 import com.christina.common.utility.UriUtils;
-import com.christina.content.story.StoryDatabase;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -27,11 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.experimental.Accessors;
-import lombok.val;
 
 @Accessors(prefix = "_")
 public final class FakeDatabase {
@@ -103,43 +96,44 @@ public final class FakeDatabase {
             .split(" ");
 
     public FakeDatabase(
-        @NonNull final StoryDao storyDao,
-        @NonNull final StoryFrameDao storyFrameDao,
+        @NonNull final Realm realm,
+        @NonNull final RealmIdGenerator realmIdGenerator,
         final boolean networkAvailable) {
-        Contracts.requireNonNull(storyDao, "storyDao == null");
-        Contracts.requireNonNull(storyFrameDao, "storyFrameDao == null");
+        Contracts.requireNonNull(realm, "realm == null");
+        Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
 
-        _storyDao = storyDao;
-        _storyFrameDao = storyFrameDao;
+        _realm = realm;
+        _realmIdGenerator = realmIdGenerator;
+
         if (networkAvailable) {
             _images = Arrays.asList(NET_IMAGES);
         } else {
-            final File picturesDirectory =
+            final val picturesDirectory =
                 new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES);
-            final File[] pictures = picturesDirectory.listFiles(new FileFilter() {
+            final val pictures = picturesDirectory.listFiles(new FileFilter() {
                 @Override
                 public boolean accept(final File pathname) {
                     return pathname.isFile();
                 }
             });
 
-            _images = new ArrayList<>();
-            CollectionUtils.collect(Arrays.asList(pictures), new Transformer<File, String>() {
-                @Override
-                public String transform(final File input) {
-                    return UriScheme.FILE.getSchemeName() +
-                           UriUtils.SCHEMA_SEPARATOR +
-                           input.getAbsolutePath();
-                }
-            }, _images);
+            _images = new ArrayList<>(pictures.length);
+
+            for (final val picture : pictures) {
+                _images.add(UriScheme.FILE.getSchemeName() +
+                            UriUtils.SCHEMA_SEPARATOR +
+                            picture.getAbsolutePath());
+            }
         }
     }
 
-    public void create(@NonNull final Context context) {
-        Contracts.requireNonNull(context, "context == null");
+    public void create() {
+        final val realm = getRealm();
 
-        if (!Arrays.asList(context.databaseList()).contains(StoryDatabase.NAME)) {
+        if (realm.isEmpty()) {
+            realm.beginTransaction();
             createStories(new Random(RANDOM_SEED));
+            realm.commitTransaction();
         }
     }
 
@@ -148,21 +142,23 @@ public final class FakeDatabase {
 
     @Getter(AccessLevel.PRIVATE)
     @NonNull
-    private final StoryDao _storyDao;
+    private final Realm _realm;
 
     @Getter(AccessLevel.PRIVATE)
     @NonNull
-    private final StoryFrameDao _storyFrameDao;
+    private final RealmIdGenerator _realmIdGenerator;
 
     private void createStories(@NonNull final Random random) {
         Contracts.requireNonNull(random, "random == null");
 
-        final val storyDao = getStoryDao();
+        final val realm = getRealm();
+        final val idGenerator = getRealmIdGenerator();
 
         final long createDate = System.currentTimeMillis();
 
         for (int i = 0; i < STORY_COUNT; i++) {
-            final val story = new Story();
+            final long id = idGenerator.generateNextId(StoryFrame.class);
+            final val story = realm.createObject(Story.class, id);
             story.setCreateDate(createDate);
             story.setModifyDate(createDate);
             story.setName(getSentence(random,
@@ -175,12 +171,6 @@ public final class FakeDatabase {
                                       true));
             story.setPreviewUri(getImage(random));
 
-            if (storyDao.insert(story) != Story.NO_ID) {
-                Log.d(_LOG_TAG, "Inserted: " + story);
-            } else {
-                Log.d(_LOG_TAG, "Failed to insert: " + story);
-            }
-
             createStoryFrames(random, story);
         }
     }
@@ -189,7 +179,8 @@ public final class FakeDatabase {
         Contracts.requireNonNull(random, "random == null");
         Contracts.requireNonNull(story, "story == null");
 
-        final val storyFrameDao = getStoryFrameDao();
+        final val realm = getRealm();
+        final val idGenerator = getRealmIdGenerator();
 
         final val storyText = story.getText();
 
@@ -202,28 +193,28 @@ public final class FakeDatabase {
                 startPosition += endPosition;
                 endPosition += textFrame.length();
 
-                final val storyFrame = new StoryFrame();
+                final long id = idGenerator.generateNextId(StoryFrame.class);
+                final val storyFrame = realm.createObject(StoryFrame.class, id);
                 storyFrame.setStoryId(story.getId());
                 storyFrame.setImageUri(getImage(random));
 
                 storyFrame.setTextStartPosition(startPosition);
                 storyFrame.setTextEndPosition(endPosition);
 
-                if (storyFrameDao.insert(storyFrame) != StoryFrame.NO_ID) {
-                    Log.d(_LOG_TAG, "Inserted: " + storyFrame);
-                } else {
-                    Log.d(_LOG_TAG, "Failed to insert: " + storyFrame);
+                final val storyFrames = story.getStoryFrames();
+                if (storyFrames != null) {
+                    storyFrames.add(storyFrame);
                 }
             }
         }
     }
 
     @NonNull
-    private Uri getImage(@NonNull final Random random) {
+    private String getImage(@NonNull final Random random) {
         Contracts.requireNonNull(random, "random == null");
 
         final val images = getImages();
-        return Uri.parse(images.get(random.nextInt(images.size() - 1)));
+        return images.get(random.nextInt(images.size() - 1));
     }
 
     @NonNull
@@ -241,7 +232,7 @@ public final class FakeDatabase {
         for (int i = 0; i < wordCount; i++) {
             result += getWord(random) + " ";
         }
-        result = StringUtils.capitalize(result.trim());
+        result = result.trim();
         if (addPeriod) {
             result += ".";
         }

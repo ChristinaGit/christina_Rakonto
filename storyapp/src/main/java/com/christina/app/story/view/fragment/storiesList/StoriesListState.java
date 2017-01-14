@@ -5,28 +5,27 @@ import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
-import com.christina.common.contract.Contracts;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import com.christina.common.contract.Contracts;
+
 @Accessors(prefix = "_")
 /*package-private*/ final class StoriesListState implements Parcelable {
-    public static final Creator<StoriesListState> CREATOR =
-        new Creator<StoriesListState>() {
-            @Override
-            public StoriesListState createFromParcel(@NonNull final Parcel source) {
-                Contracts.requireNonNull(source, "in == null");
+    public static final Creator<StoriesListState> CREATOR = new Creator<StoriesListState>() {
+        @Override
+        public StoriesListState createFromParcel(@NonNull final Parcel source) {
+            Contracts.requireNonNull(source, "in == null");
 
-                return new StoriesListState(source);
-            }
+            return new StoriesListState(source);
+        }
 
-            @Override
-            public StoriesListState[] newArray(final int size) {
-                return new StoriesListState[size];
-            }
-        };
+        @Override
+        public StoriesListState[] newArray(final int size) {
+            return new StoriesListState[size];
+        }
+    };
 
     public StoriesListState() {
     }

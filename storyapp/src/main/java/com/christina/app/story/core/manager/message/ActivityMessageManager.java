@@ -1,25 +1,26 @@
 package com.christina.app.story.core.manager.message;
 
-import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-
-import com.christina.common.contract.Contracts;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
+import com.christina.common.contract.Contracts;
+import com.christina.common.view.observerable.ObservableActivity;
+
 @Accessors(prefix = "_")
 public final class ActivityMessageManager implements MessageManager {
-    public ActivityMessageManager(@NonNull final Activity activity) {
-        Contracts.requireNonNull(activity, "activity == null");
+    public ActivityMessageManager(@NonNull final ObservableActivity observableActivity) {
+        Contracts.requireNonNull(observableActivity, "observableActivity == null");
 
-        _activity = activity;
+        _observableActivity = observableActivity;
     }
 
     @Override
@@ -38,6 +39,11 @@ public final class ActivityMessageManager implements MessageManager {
         }
     }
 
+    @NonNull
+    protected final AppCompatActivity getActivity() {
+        return getObservableActivity().asActivity();
+    }
+
     @Nullable
     protected final View getContentView() {
         if (_contentView == null) {
@@ -49,7 +55,7 @@ public final class ActivityMessageManager implements MessageManager {
 
     @Getter(AccessLevel.PROTECTED)
     @NonNull
-    private final Activity _activity;
+    private final ObservableActivity _observableActivity;
 
     @Nullable
     private View _contentView;

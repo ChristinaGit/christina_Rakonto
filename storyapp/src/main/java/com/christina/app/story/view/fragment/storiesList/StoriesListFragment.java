@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -12,40 +11,49 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.christina.api.story.model.Story;
-import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
-import com.christina.app.story.core.delegate.LoadingViewDelegate;
-import com.christina.app.story.di.qualifier.PresenterNames;
-import com.christina.app.story.view.StoriesListPresentableView;
-import com.christina.app.story.view.fragment.BaseStoryFragment;
-import com.christina.common.ConstantBuilder;
-import com.christina.common.data.cursor.dataCursor.DataCursor;
-import com.christina.common.event.BaseEvent;
-import com.christina.common.event.Event;
-import com.christina.common.view.ItemSpacingDecorator;
-import com.christina.common.view.presentation.Presenter;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import butterknife.BindView;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
+import butterknife.BindView;
+
+import com.christina.app.story.R;
+import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
+import com.christina.app.story.core.delegate.LoadingViewDelegate;
+import com.christina.app.story.data.model.Story;
+import com.christina.app.story.di.qualifier.PresenterNames;
+import com.christina.app.story.view.StoriesListScreen;
+import com.christina.app.story.view.fragment.BaseStoryFragment;
+import com.christina.common.ConstantBuilder;
+import com.christina.common.event.Events;
+import com.christina.common.event.generic.Event;
+import com.christina.common.event.generic.ManagedEvent;
+import com.christina.common.event.notice.ManagedNoticeEvent;
+import com.christina.common.event.notice.NoticeEvent;
+import com.christina.common.presentation.Presenter;
+import com.christina.common.view.ContentLoaderProgressBar;
+import com.christina.common.view.ItemSpacingDecorator;
+
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
 @Accessors(prefix = "_")
-public final class StoriesListFragment extends BaseStoryFragment
-    implements StoriesListPresentableView {
+public final class StoriesListFragment extends BaseStoryFragment implements StoriesListScreen {
     private static final String _KEY_SAVED_STATE =
         ConstantBuilder.savedStateKey(StoriesListFragment.class, "saved_state");
 
     @CallSuper
     @Override
-    public void displayStories(@Nullable final DataCursor<Story> stories) {
-        getStoriesListAdapter().setDataCursor(stories);
+    public void displayStories(@Nullable List<Story> stories) {
+        getLoadingViewDelegate().showContent();
+
+        final val storiesListAdapter = getStoriesListAdapter();
+        storiesListAdapter.setItems(stories);
+        storiesListAdapter.notifyDataSetChanged();
 
         if (_state != null && !_state.isScrollPositionRestored()) {
             final int scrollPosition = _state.getScrollPosition();
@@ -54,36 +62,27 @@ public final class StoriesListFragment extends BaseStoryFragment
         }
     }
 
-    @NonNull
     @Override
-    public final Event<StoryEventArgs> getOnDeleteStoryEvent() {
-        return _onDeleteStoryEvent;
+    public final void displayStoriesLoading() {
+        getLoadingViewDelegate().showLoading();
     }
 
     @NonNull
     @Override
-    public final Event<StoryEventArgs> getOnEditStoryEvent() {
-        return getStoriesListAdapter().getOnEditStoryEvent();
+    public final Event<StoryEventArgs> getDeleteStoryEvent() {
+        return _deleteStoryEvent;
     }
 
+    @NonNull
     @Override
-    public final boolean isLoadingVisible() {
-        return getLoadingViewDelegate().isLoadingVisible();
+    public final Event<StoryEventArgs> getEditStoryEvent() {
+        return getStoriesListAdapter().getEditStoryEvent();
     }
 
+    @NonNull
     @Override
-    public final void setLoadingVisible(final boolean visible) {
-        getLoadingViewDelegate().setLoadingVisible(visible);
-    }
-
-    @Override
-    public final boolean isStoriesVisible() {
-        return getLoadingViewDelegate().isContentVisible();
-    }
-
-    @Override
-    public final void setStoriesVisible(final boolean visible) {
-        getLoadingViewDelegate().setContentVisible(visible);
+    public final NoticeEvent getViewStoriesEvent() {
+        return _viewStoriesEvent;
     }
 
     @CallSuper
@@ -118,41 +117,9 @@ public final class StoriesListFragment extends BaseStoryFragment
         final val loadingViewDelegate = getLoadingViewDelegate();
         loadingViewDelegate.setContentView(_storiesView);
         loadingViewDelegate.setLoadingView(_storiesLoadingView);
-        loadingViewDelegate.invalidateViews();
+        loadingViewDelegate.hideAll();
 
         return view;
-    }
-
-    @CallSuper
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        getStoriesListAdapter().setDataCursor(null);
-
-        unbindViews();
-    }
-
-    @CallSuper
-    @Override
-    protected void onBindPresenter() {
-        super.onBindPresenter();
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.setPresentableView(this);
-        }
-    }
-
-    @CallSuper
-    @Override
-    protected void onUnbindPresenter() {
-        super.onUnbindPresenter();
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.setPresentableView(null);
-        }
     }
 
     @CallSuper
@@ -172,10 +139,44 @@ public final class StoriesListFragment extends BaseStoryFragment
 
     @CallSuper
     @Override
-    protected void onInject() {
-        super.onInject();
+    protected void onInjectMembers() {
+        super.onInjectMembers();
 
-        getStoryViewFragmentComponent().inject(this);
+        getStorySubscreenComponent().inject(this);
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.bindScreen(this);
+        }
+    }
+
+    @Override
+    protected void onReleaseInjectedMembers() {
+        super.onReleaseInjectedMembers();
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.unbindScreen();
+        }
+
+        unbindViews();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        _viewStoriesEvent.rise();
+    }
+
+    @CallSuper
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        final val storiesListAdapter = getStoriesListAdapter();
+        storiesListAdapter.setItems(null);
+        storiesListAdapter.notifyDataSetChanged();
     }
 
     @CallSuper
@@ -204,28 +205,25 @@ public final class StoriesListFragment extends BaseStoryFragment
 
     @CallSuper
     protected void onSwipeStory(final long storyId) {
-        _onDeleteStoryEvent.rise(new StoryEventArgs(storyId));
+        _deleteStoryEvent.rise(new StoryEventArgs(storyId));
     }
 
     @Named(PresenterNames.STORIES_LIST)
     @Inject
     @Getter(AccessLevel.PROTECTED)
     @Nullable
-    /*package-private*/ Presenter<StoriesListPresentableView> _presenter;
+    /*package-private*/ Presenter<StoriesListScreen> _presenter;
 
     @BindView(R.id.stories_loading)
     @Nullable
-    /*package-private*/ ContentLoadingProgressBar _storiesLoadingView;
+    /*package-private*/ ContentLoaderProgressBar _storiesLoadingView;
 
     @BindView(R.id.stories_list)
     @Nullable
     /*package-private*/ RecyclerView _storiesView;
 
-    @Getter(value = AccessLevel.PROTECTED, lazy = true)
     @NonNull
-    private final LoadingViewDelegate _loadingViewDelegate = new LoadingViewDelegate();
-
-    private final BaseEvent<StoryEventArgs> _onDeleteStoryEvent = new BaseEvent<>();
+    private final ManagedEvent<StoryEventArgs> _deleteStoryEvent = Events.createEvent();
 
     @NonNull
     private final ItemTouchHelper.SimpleCallback _deleteStoryOnSwipeCallback =
@@ -244,19 +242,26 @@ public final class StoriesListFragment extends BaseStoryFragment
             }
         };
 
-    @Getter(value = AccessLevel.PROTECTED, lazy = true)
+    @Getter(value = AccessLevel.PROTECTED)
     @NonNull
-    private final GridLayoutManager _storiesLayoutManager = _createStoriesLayoutManager();
+    private final LoadingViewDelegate _loadingViewDelegate = new LoadingViewDelegate();
 
     @Getter(value = AccessLevel.PROTECTED, lazy = true)
     @NonNull
+    private final GridLayoutManager _storiesLayoutManager = createStoriesLayoutManager();
+
+    @Getter(value = AccessLevel.PROTECTED)
+    @NonNull
     private final StoriesListAdapter _storiesListAdapter = new StoriesListAdapter();
+
+    @NonNull
+    private final ManagedNoticeEvent _viewStoriesEvent = Events.createNoticeEvent();
 
     @Nullable
     private StoriesListState _state;
 
     @NonNull
-    private GridLayoutManager _createStoriesLayoutManager() {
+    private GridLayoutManager createStoriesLayoutManager() {
         final int columnCount = getResources().getInteger(R.integer.stories_viewer_column_count);
         return new GridLayoutManager(getContext(), columnCount);
     }

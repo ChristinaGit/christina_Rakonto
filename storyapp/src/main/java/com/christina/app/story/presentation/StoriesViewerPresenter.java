@@ -3,54 +3,57 @@ package com.christina.app.story.presentation;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
-import com.christina.app.story.R;
-import com.christina.app.story.core.manager.ServiceManager;
-import com.christina.app.story.core.manager.navigation.NavigationResult;
-import com.christina.app.story.core.manager.navigation.editStory.InsertStoryNavigationCallback;
-import com.christina.app.story.view.StoriesViewerPresentableView;
-import com.christina.common.contract.Contracts;
-import com.christina.common.event.NoticeEventHandler;
-
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import io.realm.Realm;
+
+import com.christina.app.story.R;
+import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.navigation.NavigationCallback;
+import com.christina.app.story.core.manager.navigation.NavigationResult;
+import com.christina.app.story.view.StoriesViewerScreen;
+import com.christina.common.contract.Contracts;
+import com.christina.common.event.notice.NoticeEventHandler;
+
 @Accessors(prefix = "_")
-public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesViewerPresentableView> {
-    public StoriesViewerPresenter(
-        @NonNull final ServiceManager serviceManager) {
+public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesViewerScreen> {
+    public StoriesViewerPresenter(@NonNull final ServiceManager serviceManager) {
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
     @CallSuper
     @Override
-    protected void onBindPresentableView(
-        @NonNull final StoriesViewerPresentableView presentableView) {
-        super.onBindPresentableView(Contracts.requireNonNull(presentableView,
-                                                             "presentableView == null"));
+    protected void onBindScreen(@NonNull final StoriesViewerScreen screen) {
+        super.onBindScreen(Contracts.requireNonNull(screen, "screen == null"));
 
-        presentableView.getOnInsertStoryEvent().addHandler(getViewInsertStoryHandler());
+        screen.getRequestInsertStoryEvent().addHandler(_requestInsertStoryHandler);
+        screen.getRemoveAllEvent().addHandler(_removeAllHandler);
     }
 
     @CallSuper
     @Override
-    protected void onUnbindPresentableView(
-        @NonNull final StoriesViewerPresentableView presentableView) {
-        super.onUnbindPresentableView(Contracts.requireNonNull(presentableView,
-                                                               "presentableView == null"));
+    protected void onUnbindScreen(@NonNull final StoriesViewerScreen screen) {
+        super.onUnbindScreen(Contracts.requireNonNull(screen, "screen == null"));
 
-        presentableView.getOnInsertStoryEvent().removeHandler(getViewInsertStoryHandler());
+        screen.getRequestInsertStoryEvent().removeHandler(_requestInsertStoryHandler);
+        screen.getRemoveAllEvent().removeHandler(_removeAllHandler);
     }
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
-    private final NoticeEventHandler _viewInsertStoryHandler = new NoticeEventHandler() {
+    private final NoticeEventHandler _removeAllHandler = new NoticeEventHandler() {
         @Override
         public void onEvent() {
-            getStoryNavigator().navigateToInsertStory(new InsertStoryNavigationCallback() {
+            Realm.deleteRealm(getRealmManager().getRealmConfiguration());
+        }
+    };
+
+    @NonNull
+    private final NoticeEventHandler _requestInsertStoryHandler = new NoticeEventHandler() {
+        @Override
+        public void onEvent() {
+            getStoryNavigator().navigateToInsertStory(new NavigationCallback() {
                 @Override
-                public void onInsertStoryNavigationResult(
-                    @NonNull final NavigationResult result) {
+                public void onNavigationResult(@NonNull final NavigationResult result) {
                     Contracts.requireNonNull(result, "result == null");
 
                     if (result == NavigationResult.SUCCESS) {

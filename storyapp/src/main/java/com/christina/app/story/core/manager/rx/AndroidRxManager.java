@@ -2,16 +2,18 @@ package com.christina.app.story.core.manager.rx;
 
 import android.support.annotation.NonNull;
 
-import com.christina.common.contract.Contracts;
-import com.trello.rxlifecycle.LifecycleProvider;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+
+import com.trello.rxlifecycle.LifecycleProvider;
+
+import com.christina.common.contract.Contracts;
 
 @Accessors(prefix = "_")
 public final class AndroidRxManager<TLifecycleEvent> implements RxManager {

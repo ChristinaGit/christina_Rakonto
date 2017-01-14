@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageFactory;
 import com.christina.app.story.view.fragment.storyFramesEditor.StoryFramesEditorFragment;
 import com.christina.app.story.view.fragment.storyTextEditor.StoryTextEditorFragment;
-import com.christina.common.contract.Contracts;
 
 public final class StoryEditorPages implements StoryEditorPageFactory {
     private static int _positionIndexer = 0;
@@ -17,17 +16,15 @@ public final class StoryEditorPages implements StoryEditorPageFactory {
 
     @NonNull
     @Override
-    public final Fragment create(@NonNull final Integer argument) {
-        Contracts.requireNonNull(argument, "argument == null");
-
+    public final Fragment createPageFragment(final int position) {
         final Fragment pageFragment;
 
-        if (POSITION_TEXT_EDITOR == argument) {
+        if (POSITION_TEXT_EDITOR == position) {
             pageFragment = new StoryTextEditorFragment();
-        } else if (POSITION_FRAMES_EDITOR == argument) {
+        } else if (POSITION_FRAMES_EDITOR == position) {
             pageFragment = new StoryFramesEditorFragment();
         } else {
-            throw new IllegalArgumentException("Illegal position: " + argument);
+            throw new IllegalArgumentException("Illegal position: " + position);
         }
 
         return pageFragment;

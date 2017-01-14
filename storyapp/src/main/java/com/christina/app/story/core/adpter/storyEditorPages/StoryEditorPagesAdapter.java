@@ -8,19 +8,21 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
-import com.christina.common.contract.Contracts;
-import com.christina.common.event.BaseEvent;
-import com.christina.common.event.Event;
-import com.christina.common.event.NoticeEventHandler;
-
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.val;
+
+import com.christina.common.contract.Contracts;
+import com.christina.common.event.Events;
+import com.christina.common.event.generic.Event;
+import com.christina.common.event.generic.ManagedEvent;
+import com.christina.common.event.notice.NoticeEventHandler;
+
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 @Accessors(prefix = "_")
 public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
@@ -29,15 +31,15 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
     }
 
     @NonNull
-    public final Event<StoryEditorPageContentChangedEventArgs> getOnContentChangedEvent() {
-        return _onContentChangedEvent;
+    public final Event<StoryEditorPageChangedEventArgs> getContentChangedEvent() {
+        return _contentChangedEvent;
     }
 
-    public final void setDisplayedStoryId(final long displayedStoryId) {
-        if (_displayedStoryId != displayedStoryId) {
-            _displayedStoryId = displayedStoryId;
+    public final void setStoryId(@Nullable final Long storyId) {
+        if (!Objects.equals(_storyId, storyId)) {
+            _storyId = storyId;
 
-            onDisplayedStoryChanged();
+            onStoryIdChanged();
         }
     }
 
@@ -87,27 +89,25 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(final int position) {
-        if (0 <= position && position < getCount()) {
-            final Fragment pageFragment;
+        Contracts.requireInRange(position, 0, getCount() - 1, new IndexOutOfBoundsException());
 
-            final val pageFactory = getPageFactory();
+        final Fragment pageFragment;
 
-            if (pageFactory != null) {
-                pageFragment = pageFactory.create(position);
+        final val pageFactory = getPageFactory();
 
-                if (pageFragment instanceof StoryEditorPage) {
-                    final val editorFragment = (StoryEditorPage) pageFragment;
+        if (pageFactory != null) {
+            pageFragment = pageFactory.createPageFragment(position);
 
-                    editorFragment.setEditedStoryId(getDisplayedStoryId());
-                }
-            } else {
-                pageFragment = null;
+            if (pageFragment instanceof StoryEditorPage) {
+                final val editorFragment = (StoryEditorPage) pageFragment;
+
+                editorFragment.setStoryId(getStoryId());
             }
-
-            return pageFragment;
         } else {
-            throw new IllegalArgumentException("Illegal position: " + position);
+            pageFragment = null;
         }
+
+        return pageFragment;
     }
 
     @Override
@@ -152,26 +152,8 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
 
         final val internalHandler = getInternalContentChangedHandlers().get(position);
         if (internalHandler != null) {
-            editorFragment.getOnContentChangedEvent().removeHandler(internalHandler);
+            editorFragment.getContentChangedEvent().removeHandler(internalHandler);
             getInternalContentChangedHandlers().remove(position);
-        }
-    }
-
-    protected void onDisplayedStoryChanged() {
-        final val fragments = getFragments();
-
-        for (int i = 0; i < fragments.size(); i++) {
-            final val fragmentRef = fragments.get(fragments.keyAt(i));
-
-            if (fragmentRef != null) {
-                final val fragment = fragmentRef.get();
-
-                if (fragment instanceof StoryEditorPage) {
-                    final val editorPage = (StoryEditorPage) fragment;
-
-                    editorPage.setEditedStoryId(getDisplayedStoryId());
-                }
-            }
         }
     }
 
@@ -197,33 +179,52 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
             internalHandler = new NoticeEventHandler() {
                 @Override
                 public void onEvent() {
-                    final val eventArgs = new StoryEditorPageContentChangedEventArgs(position);
-                    _onContentChangedEvent.rise(eventArgs);
+                    final val eventArgs = new StoryEditorPageChangedEventArgs(position);
+                    _contentChangedEvent.rise(eventArgs);
                 }
             };
             getInternalContentChangedHandlers().append(position, internalHandler);
         }
-        editorFragment.getOnContentChangedEvent().addHandler(internalHandler);
+        editorFragment.getContentChangedEvent().addHandler(internalHandler);
     }
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
+    protected void onStoryIdChanged() {
+        final val fragments = getFragments();
+
+        for (int i = 0; i < fragments.size(); i++) {
+            final val fragmentRef = fragments.get(fragments.keyAt(i));
+
+            if (fragmentRef != null) {
+                final val fragment = fragmentRef.get();
+
+                if (fragment instanceof StoryEditorPage) {
+                    final val editorPage = (StoryEditorPage) fragment;
+
+                    editorPage.setStoryId(getStoryId());
+                }
+            }
+        }
+    }
+
+    @NonNull
+    private final ManagedEvent<StoryEditorPageChangedEventArgs> _contentChangedEvent =
+        Events.createEvent();
+
+    @Getter(value = AccessLevel.PRIVATE)
     @NonNull
     private final SparseArray<Reference<Fragment>> _fragments = new SparseArray<>();
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
+    @Getter(value = AccessLevel.PRIVATE)
     @NonNull
     private final SparseArray<NoticeEventHandler> _internalContentChangedHandlers =
         new SparseArray<>();
-
-    @NonNull
-    private final BaseEvent<StoryEditorPageContentChangedEventArgs> _onContentChangedEvent =
-        new BaseEvent<>();
-
-    @Getter
-    private long _displayedStoryId;
 
     @Getter
     @Setter
     @Nullable
     private StoryEditorPageFactory _pageFactory;
+
+    @Getter
+    @Nullable
+    private Long _storyId;
 }

@@ -5,27 +5,26 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.christina.api.story.model.Story;
-import com.christina.common.contract.Contracts;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import com.christina.common.contract.Contracts;
+import com.christina.common.utility.ParcelUtils;
+
 @Accessors(prefix = "_")
 /*package-private*/ final class StoryEditorState implements Parcelable {
-    public static final Creator<StoryEditorState> CREATOR =
-        new Creator<StoryEditorState>() {
-            @Override
-            public StoryEditorState createFromParcel(final Parcel source) {
-                return new StoryEditorState(source);
-            }
+    public static final Creator<StoryEditorState> CREATOR = new Creator<StoryEditorState>() {
+        @Override
+        public StoryEditorState createFromParcel(final Parcel source) {
+            return new StoryEditorState(source);
+        }
 
-            @Override
-            public StoryEditorState[] newArray(final int size) {
-                return new StoryEditorState[size];
-            }
-        };
+        @Override
+        public StoryEditorState[] newArray(final int size) {
+            return new StoryEditorState[size];
+        }
+    };
 
     public StoryEditorState() {
     }
@@ -46,7 +45,14 @@ import lombok.experimental.Accessors;
             modeName = null;
         }
         dest.writeString(modeName);
-        dest.writeLong(_displayedStoryId);
+
+        if (_storyId != null) {
+            ParcelUtils.writeBoolean(dest, true);
+            dest.writeLong(_storyId);
+        } else {
+            ParcelUtils.writeBoolean(dest, false);
+        }
+
         dest.writeInt(_activePage);
     }
 
@@ -55,11 +61,17 @@ import lombok.experimental.Accessors;
 
         final String modeName = in.readString();
         if (modeName != null) {
-            _mode = StoryEditorActivity.Mode.valueOf(modeName);
+            _mode = StoryEditorMode.valueOf(modeName);
         } else {
             _mode = null;
         }
-        _displayedStoryId = in.readLong();
+
+        if (ParcelUtils.readBoolean(in)) {
+            _storyId = in.readLong();
+        } else {
+            _storyId = null;
+        }
+
         _activePage = in.readInt();
     }
 
@@ -69,10 +81,11 @@ import lombok.experimental.Accessors;
 
     @Getter
     @Setter
-    private long _displayedStoryId = Story.NO_ID;
+    @Nullable
+    private StoryEditorMode _mode;
 
     @Getter
     @Setter
     @Nullable
-    private StoryEditorActivity.Mode _mode;
+    private Long _storyId;
 }

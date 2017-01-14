@@ -2,11 +2,11 @@ package com.christina.app.story.core;
 
 import android.support.annotation.Nullable;
 
-import com.christina.api.story.model.Story;
-import com.christina.common.event.eventArgs.EventArgs;
-
 import lombok.Getter;
 import lombok.experimental.Accessors;
+
+import com.christina.app.story.data.model.Story;
+import com.christina.common.event.eventArgs.EventArgs;
 
 @Accessors(prefix = "_")
 public class StoryContentEventArgs extends EventArgs {

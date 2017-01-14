@@ -7,13 +7,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import butterknife.BindView;
+
 import com.christina.app.story.R;
 import com.christina.common.contract.Contracts;
 import com.christina.common.view.recyclerView.viewHolder.ExtendedRecyclerViewHolder;
 
-import butterknife.BindView;
-
-@SuppressWarnings("PublicField")
 /*package-private*/ final class StoryViewHolder extends ExtendedRecyclerViewHolder {
     @BindView(R.id.story_card)
     @NonNull

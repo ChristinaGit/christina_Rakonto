@@ -1,20 +1,22 @@
 package com.christina.app.story.core.adpter.storyEditorPages;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.christina.common.event.NoticeEvent;
+import com.christina.common.event.notice.NoticeEvent;
 
 public interface StoryEditorPage {
-    long getEditedStoryId();
-
-    void setEditedStoryId(long editedStoryId);
-
     @NonNull
-    NoticeEvent getOnContentChangedEvent();
+    NoticeEvent getContentChangedEvent();
+
+    @Nullable
+    Long getStoryId();
+
+    void setStoryId(@Nullable Long storyId);
 
     boolean hasContent();
 
-    void onStartEditing();
+    void notifyStartEditing();
 
-    void onStopEditing();
+    void notifyStopEditing();
 }

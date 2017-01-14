@@ -1,23 +1,19 @@
 package com.christina.app.story.core;
 
-import com.christina.api.story.model.Story;
-import com.christina.common.event.eventArgs.EventArgs;
+import android.support.annotation.Nullable;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import com.christina.common.event.eventArgs.EventArgs;
+
 @Accessors(prefix = "_")
 public class StoryEventArgs extends EventArgs {
-    public static final StoryEventArgs EMPTY = new StoryEventArgs();
-
-    public StoryEventArgs() {
-        this(Story.NO_ID);
-    }
-
-    public StoryEventArgs(final long storyId) {
+    public StoryEventArgs(@Nullable final Long storyId) {
         _storyId = storyId;
     }
 
     @Getter
-    private final long _storyId;
+    @Nullable
+    private final Long _storyId;
 }

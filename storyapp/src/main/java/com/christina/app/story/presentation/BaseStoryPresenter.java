@@ -2,29 +2,32 @@ package com.christina.app.story.presentation;
 
 import android.support.annotation.NonNull;
 
-import com.christina.api.story.observer.StoryContentObserver;
-import com.christina.app.story.core.manager.ServiceManager;
-import com.christina.app.story.core.manager.content.StoryContentObserverManager;
-import com.christina.app.story.core.manager.content.StoryDaoManager;
-import com.christina.app.story.core.manager.message.MessageManager;
-import com.christina.app.story.core.manager.navigation.StoryNavigator;
-import com.christina.app.story.core.manager.rx.RxManager;
-import com.christina.common.contract.Contracts;
-import com.christina.common.view.presentation.AbstractPresenter;
-import com.christina.common.view.presentation.PresentableView;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
+import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.data.RealmManager;
+import com.christina.app.story.core.manager.message.MessageManager;
+import com.christina.app.story.core.manager.navigation.StoryNavigator;
+import com.christina.app.story.core.manager.rx.RxManager;
+import com.christina.common.contract.Contracts;
+import com.christina.common.presentation.AbstractPresenter;
+import com.christina.common.presentation.Screen;
+
 @Accessors(prefix = "_")
-public abstract class BaseStoryPresenter<TPresentableView extends PresentableView>
-    extends AbstractPresenter<TPresentableView> {
+public abstract class BaseStoryPresenter<TScreen extends Screen>
+    extends AbstractPresenter<TScreen> {
     public BaseStoryPresenter(
         @NonNull final ServiceManager serviceManager) {
         Contracts.requireNonNull(serviceManager, "serviceManager == null");
 
         _serviceManager = serviceManager;
+    }
+
+    @NonNull
+    public final RealmManager getRealmManager() {
+        return getServiceManager().getRealmManager();
     }
 
     @NonNull
@@ -35,21 +38,6 @@ public abstract class BaseStoryPresenter<TPresentableView extends PresentableVie
     @NonNull
     protected final MessageManager getMessageManager() {
         return getServiceManager().getMessageManager();
-    }
-
-    @NonNull
-    protected final StoryContentObserver getStoryContentObserver() {
-        return getStoryContentObserverManager().getStoryContentObserver();
-    }
-
-    @NonNull
-    protected final StoryContentObserverManager getStoryContentObserverManager() {
-        return getServiceManager().getStoryContentObserverManager();
-    }
-
-    @NonNull
-    protected final StoryDaoManager getStoryDaoManager() {
-        return getServiceManager().getStoryDaoManager();
     }
 
     @NonNull

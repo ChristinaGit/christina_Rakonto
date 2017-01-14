@@ -25,6 +25,7 @@
     <application
         android:name=".StoryApplication"
         android:allowBackup="true"
+        android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
         android:supportsRtl="true"
@@ -78,10 +79,10 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name="com.christina.content.story.StoryContentProvider"
-            android:authorities="com.christina.provider.story"
-            android:readPermission="com.christina.provider.story.permission.READ"
-            android:writePermission="com.christina.provider.story.permission.WRITE"/>
+        <!--<provider-->
+        <!--android:name="com.christina.content.story.StoryContentProvider"-->
+        <!--android:authorities="com.christina.provider.story"-->
+        <!--android:readPermission="com.christina.provider.story.permission.READ"-->
+        <!--android:writePermission="com.christina.provider.story.permission.WRITE"/>-->
     </application>
 </manifest>

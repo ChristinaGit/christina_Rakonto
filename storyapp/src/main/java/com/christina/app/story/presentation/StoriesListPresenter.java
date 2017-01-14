@@ -2,160 +2,108 @@ package com.christina.app.story.presentation;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.christina.api.story.model.Story;
-import com.christina.api.story.observer.StoryObserverEventArgs;
+import lombok.experimental.Accessors;
+import lombok.val;
+
+import rx.functions.Action1;
+
+import io.realm.Realm;
+import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.Sort;
+
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.manager.ServiceManager;
-import com.christina.app.story.view.StoriesListPresentableView;
+import com.christina.app.story.data.model.Story;
+import com.christina.app.story.view.StoriesListScreen;
 import com.christina.common.contract.Contracts;
-import com.christina.common.data.cursor.dataCursor.DataCursor;
-import com.christina.common.event.EventHandler;
-
-import java.util.concurrent.Callable;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.experimental.Accessors;
-import lombok.val;
-import rx.Observable;
-import rx.functions.Action0;
-import rx.functions.Action1;
+import com.christina.common.event.generic.EventHandler;
+import com.christina.common.event.notice.NoticeEventHandler;
 
 @Accessors(prefix = "_")
-public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPresentableView> {
-    public StoriesListPresenter(
-        @NonNull final ServiceManager serviceManager) {
+public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListScreen> {
+    public StoriesListPresenter(@NonNull final ServiceManager serviceManager) {
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
-    protected final void loadStories() {
-        final val presentableView = getPresentableView();
-        if (presentableView != null) {
-            presentableView.setStoriesVisible(false);
-            presentableView.setLoadingVisible(true);
+    protected final void displayStories() {
+        final val screen = getScreen();
+        if (screen != null) {
+            screen.displayStoriesLoading();
         }
 
         final val rxManager = getRxManager();
+        final val realm = getRealmManager().getRealm();
+
+        final val requestResult =
+            realm.where(Story.class).findAllSortedAsync(Story.ID, Sort.ASCENDING).asObservable();
         rxManager
-            .autoManage(Observable.fromCallable(new Callable<DataCursor<Story>>() {
-                @Override
-                public DataCursor<Story> call()
-                    throws Exception {
-                    Contracts.requireWorkerThread();
-
-                    return getStoryDaoManager().getStoryDao().getAll().asDataCursor();
-                }
-            }))
-            .subscribeOn(rxManager.getIOScheduler())
+            .autoManage(requestResult)
             .observeOn(rxManager.getUIScheduler())
-            .doOnError(new Action1<Throwable>() {
+            .subscribeOn(rxManager.getUIScheduler())
+            .subscribe(new Action1<RealmResults<Story>>() {
                 @Override
-                public void call(final Throwable error) {
+                public void call(final RealmResults<Story> stories) {
                     Contracts.requireMainThread();
 
-                    final val presentableView = getPresentableView();
-                    if (presentableView != null) {
-                        presentableView.displayStories(null);
-                    }
-
-                    getMessageManager().showInfoMessage(R.string.message_stories_load_fail);
-                }
-            })
-            .doOnNext(new Action1<DataCursor<Story>>() {
-                @Override
-                public void call(final DataCursor<Story> stories) {
-                    Contracts.requireMainThread();
-
-                    final val presentableView = getPresentableView();
-                    if (presentableView != null) {
-                        presentableView.displayStories(stories);
+                    final val screen = getScreen();
+                    if (screen != null) {
+                        screen.displayStories(stories);
                     }
                 }
-            })
-            .doOnCompleted(new Action0() {
-                @Override
-                public void call() {
-                    Contracts.requireMainThread();
-
-                    final val presentableView = getPresentableView();
-                    if (presentableView != null) {
-                        presentableView.setStoriesVisible(true);
-                        presentableView.setLoadingVisible(false);
-                    }
-                }
-            })
-            .subscribe();
+            });
     }
 
     @CallSuper
-    @Override
-    protected void onBindPresentableView(
-        @NonNull final StoriesListPresentableView presentableView) {
-        super.onBindPresentableView(Contracts.requireNonNull(presentableView,
-                                                             "presentableView == null"));
-
-        presentableView.getOnDeleteStoryEvent().addHandler(getDeleteStoryHandler());
-        presentableView.getOnEditStoryEvent().addHandler(getEditStoryHandler());
+    protected void deleteStory(@Nullable final Long storyId) {
+        final val realm = getRealmManager().getRealm();
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(final Realm realm) {
+                final val story = realm.where(Story.class).equalTo(Story.ID, storyId).findFirst();
+                RealmObject.deleteFromRealm(story);
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                getMessageManager().showInfoMessage(R.string.message_story_deleted);
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(final Throwable error) {
+                getMessageManager().showInfoMessage(R.string.message_story_delete_fail);
+            }
+        });
     }
 
     @CallSuper
-    @Override
-    protected void onUnbindPresentableView(
-        @NonNull final StoriesListPresentableView presentableView) {
-        super.onUnbindPresentableView(Contracts.requireNonNull(presentableView,
-                                                               "presentableView == null"));
-
-        presentableView.getOnDeleteStoryEvent().removeHandler(getDeleteStoryHandler());
-        presentableView.getOnEditStoryEvent().removeHandler(getEditStoryHandler());
-    }
-
-    @CallSuper
-    @Override
-    protected void onViewAppear(@NonNull final StoriesListPresentableView presentableView) {
-        super.onViewAppear(Contracts.requireNonNull(presentableView, "presentableView == null"));
-
-        getStoryContentObserverManager().registerStoryContentObserver();
-
-        getStoryContentObserver()
-            .getOnStoryChangedEvent()
-            .addHandler(getStoryExternalChangedHandler());
-
-        loadStories();
-    }
-
-    @CallSuper
-    @Override
-    protected void onViewDisappear(@NonNull final StoriesListPresentableView presentableView) {
-        super.onViewDisappear(Contracts.requireNonNull(presentableView, "presentableView == null"));
-
-        getStoryContentObserverManager().unregisterStoryContentObserver();
-
-        getStoryContentObserver()
-            .getOnStoryChangedEvent()
-            .removeHandler(getStoryExternalChangedHandler());
-    }
-
-    @CallSuper
-    protected void onStoriesExternalChanged() {
-        loadStories();
-    }
-
-    @CallSuper
-    protected void onStoryDelete(final long id) {
-        final int deleted = getStoryDaoManager().getStoryDao().delete(id);
-        if (deleted > 0) {
-            getMessageManager().showInfoMessage(R.string.message_story_deleted);
-        }
-    }
-
-    @CallSuper
-    protected void onStoryEdit(final long storyId) {
+    protected void editStory(final long storyId) {
         getStoryNavigator().navigateToEditStory(storyId);
     }
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
+    @CallSuper
+    @Override
+    protected void onBindScreen(@NonNull final StoriesListScreen screen) {
+        super.onBindScreen(Contracts.requireNonNull(screen, "screen == null"));
+
+        screen.getViewStoriesEvent().addHandler(_viewStoriesHandler);
+        screen.getDeleteStoryEvent().addHandler(_deleteStoryHandler);
+        screen.getEditStoryEvent().addHandler(_editStoryHandler);
+    }
+
+    @CallSuper
+    @Override
+    protected void onUnbindScreen(@NonNull final StoriesListScreen screen) {
+        super.onUnbindScreen(Contracts.requireNonNull(screen, "screen == null"));
+
+        screen.getViewStoriesEvent().removeHandler(_viewStoriesHandler);
+        screen.getDeleteStoryEvent().removeHandler(_deleteStoryHandler);
+        screen.getEditStoryEvent().removeHandler(_editStoryHandler);
+    }
+
     @NonNull
     private final EventHandler<StoryEventArgs> _deleteStoryHandler =
         new EventHandler<StoryEventArgs>() {
@@ -163,11 +111,10 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
             public void onEvent(@NonNull final StoryEventArgs eventArgs) {
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
-                onStoryDelete(eventArgs.getStoryId());
+                deleteStory(eventArgs.getStoryId());
             }
         };
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
     private final EventHandler<StoryEventArgs> _editStoryHandler =
         new EventHandler<StoryEventArgs>() {
@@ -175,19 +122,18 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListPr
             public void onEvent(@NonNull final StoryEventArgs eventArgs) {
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
-                onStoryEdit(eventArgs.getStoryId());
+                final Long storyId = eventArgs.getStoryId();
+                if (storyId != null) {
+                    editStory(storyId);
+                }
             }
         };
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
-    private final EventHandler<StoryObserverEventArgs> _storyExternalChangedHandler =
-        new EventHandler<StoryObserverEventArgs>() {
-            @Override
-            public void onEvent(@NonNull final StoryObserverEventArgs eventArgs) {
-                Contracts.requireNonNull(eventArgs, "eventArgs == null");
-
-                onStoriesExternalChanged();
-            }
-        };
+    private final NoticeEventHandler _viewStoriesHandler = new NoticeEventHandler() {
+        @Override
+        public void onEvent() {
+            displayStories();
+        }
+    };
 }

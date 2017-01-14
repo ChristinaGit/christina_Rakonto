@@ -2,52 +2,56 @@ package com.christina.app.story.view.activity.storiesViewer;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Process;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.widget.Toolbar;
 
-import com.christina.api.story.observer.StoryContentObserver;
-import com.christina.app.story.R;
-import com.christina.app.story.di.qualifier.PresenterNames;
-import com.christina.app.story.view.StoriesViewerPresentableView;
-import com.christina.app.story.view.activity.BaseStoryActivity;
-import com.christina.app.story.view.fragment.storiesList.StoriesListFragment;
-import com.christina.common.contract.Contracts;
-import com.christina.common.event.BaseNoticeEvent;
-import com.christina.common.event.NoticeEvent;
-import com.christina.common.view.FabScrollAutoHideBehavior;
-import com.christina.common.view.presentation.Presenter;
-import com.christina.content.story.StoryDatabase;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import butterknife.BindView;
-import butterknife.OnClick;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
+import butterknife.BindView;
+import butterknife.OnClick;
+
+import com.christina.app.story.R;
+import com.christina.app.story.di.qualifier.PresenterNames;
+import com.christina.app.story.view.StoriesViewerScreen;
+import com.christina.app.story.view.activity.BaseStoryActivity;
+import com.christina.app.story.view.fragment.storiesList.StoriesListFragment;
+import com.christina.common.contract.Contracts;
+import com.christina.common.event.Events;
+import com.christina.common.event.notice.ManagedNoticeEvent;
+import com.christina.common.event.notice.NoticeEvent;
+import com.christina.common.presentation.Presenter;
+import com.christina.common.view.FabScrollAutoHideBehavior;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
 @Accessors(prefix = "_")
-public final class StoriesViewerActivity extends BaseStoryActivity
-    implements StoriesViewerPresentableView {
+public final class StoriesViewerActivity extends BaseStoryActivity implements StoriesViewerScreen {
     protected static int resultCodeIndexer = 100;
 
     public static final int RESULT_UNSUPPORTED_ACTION = resultCodeIndexer++;
 
     @NonNull
     @Override
-    public final NoticeEvent getOnInsertStoryEvent() {
-        return _onInsertStoryEvent;
+    public final NoticeEvent getRequestInsertStoryEvent() {
+        return _requestInsertStoryEvent;
+    }
+
+    @NonNull
+    @Override
+    public final NoticeEvent getRemoveAllEvent() {
+        return _removeAllEvent;
     }
 
     @CallSuper
@@ -63,10 +67,8 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         final boolean handled;
 
         switch (item.getItemId()) {
-            // TODO: 11/28/2016 remove.
-            case R.id.action_settings: {
-                deleteDatabase(StoryDatabase.NAME);
-                Process.killProcess(Process.myPid());
+            case R.id.action_remove_all: {
+                _removeAllEvent.rise();
 
                 handled = true;
                 break;
@@ -84,17 +86,6 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         }
 
         return handled;
-    }
-
-    @CallSuper
-    @Override
-    protected void onBindPresenter() {
-        super.onBindPresenter();
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.setPresentableView(this);
-        }
     }
 
     @Override
@@ -115,9 +106,9 @@ public final class StoriesViewerActivity extends BaseStoryActivity
                 _fabView.setLayoutParams(fabLayoutParams);
             }
 
-            setActionBar(_toolbarView);
+            setSupportActionBar(_toolbarView);
 
-            final val actionBar = getActionBar();
+            final val actionBar = getSupportActionBar();
             if (actionBar != null) {
                 actionBar.setDisplayShowHomeEnabled(false);
                 actionBar.setDisplayShowTitleEnabled(true);
@@ -136,20 +127,9 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         }
     }
 
-    @CallSuper
-    @Override
-    protected void onUnbindPresenter() {
-        super.onUnbindPresenter();
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.setPresentableView(null);
-        }
-    }
-
     @OnClick(R.id.fab)
     protected void onFabClick() {
-        _onInsertStoryEvent.rise();
+        _requestInsertStoryEvent.rise();
     }
 
     @CallSuper
@@ -162,7 +142,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity
         switch (action) {
             case Intent.ACTION_MAIN:
             case Intent.ACTION_VIEW: {
-                _mode = Mode.VIEW;
+                _mode = StoriesViewerMode.VIEW;
                 intentHandled = true;
                 break;
             }
@@ -178,16 +158,26 @@ public final class StoriesViewerActivity extends BaseStoryActivity
 
     @CallSuper
     @Override
-    protected void onInject() {
-        super.onInject();
+    protected void onInjectMembers() {
+        super.onInjectMembers();
 
-        getStoryViewComponent().inject(this);
+        getStoryScreenComponent().inject(this);
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.bindScreen(this);
+        }
     }
 
     @CallSuper
     @Override
-    protected void onReleaseInject() {
-        super.onReleaseInject();
+    protected void onReleaseInjectedMembers() {
+        super.onReleaseInjectedMembers();
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.unbindScreen();
+        }
 
         unbindViews();
     }
@@ -204,25 +194,19 @@ public final class StoriesViewerActivity extends BaseStoryActivity
     @Inject
     @Getter(AccessLevel.PROTECTED)
     @Nullable
-    /*package-private*/ Presenter<StoriesViewerPresentableView> _presenter;
-
-    @Inject
-    @Getter(AccessLevel.PROTECTED)
-    @Nullable
-    /*package-private*/ StoryContentObserver _storyContentObserver;
+    /*package-private*/ Presenter<StoriesViewerScreen> _presenter;
 
     @Nullable
     @BindView(R.id.toolbar)
     /*package-private*/ Toolbar _toolbarView;
 
     @NonNull
-    private final BaseNoticeEvent _onInsertStoryEvent = new BaseNoticeEvent();
+    private final ManagedNoticeEvent _removeAllEvent = Events.createNoticeEvent();
+
+    @NonNull
+    private final ManagedNoticeEvent _requestInsertStoryEvent = Events.createNoticeEvent();
 
     @Nullable
     @Getter(AccessLevel.PROTECTED)
-    private Mode _mode;
-
-    protected enum Mode {
-        VIEW
-    }
+    private StoriesViewerMode _mode;
 }

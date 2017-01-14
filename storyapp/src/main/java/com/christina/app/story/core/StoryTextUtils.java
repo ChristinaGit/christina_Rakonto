@@ -2,12 +2,12 @@ package com.christina.app.story.core;
 
 import android.support.annotation.NonNull;
 
+import lombok.val;
+
 import com.christina.common.contract.Contracts;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.val;
 
 public final class StoryTextUtils {
     private static final int PART_MAX_WORDS_COUNT = 3;

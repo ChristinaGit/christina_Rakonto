@@ -2,149 +2,119 @@ package com.christina.app.story.presentation;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.christina.api.story.model.Story;
+import lombok.experimental.Accessors;
+import lombok.val;
+
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmObject;
+
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.manager.ServiceManager;
-import com.christina.app.story.view.StoryEditorPresentableView;
+import com.christina.app.story.data.model.Story;
+import com.christina.app.story.view.StoryEditorScreen;
 import com.christina.common.contract.Contracts;
-import com.christina.common.event.EventHandler;
-import com.christina.common.event.NoticeEventHandler;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.experimental.Accessors;
-import lombok.val;
-import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func1;
+import com.christina.common.event.generic.EventHandler;
+import com.christina.common.event.notice.NoticeEventHandler;
 
 @Accessors(prefix = "_")
-public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPresentableView> {
-    public StoryEditorPresenter(
-        @NonNull final ServiceManager serviceManager) {
+public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorScreen> {
+    public StoryEditorPresenter(@NonNull final ServiceManager serviceManager) {
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
     @CallSuper
-    @Override
-    protected void onBindPresentableView(
-        @NonNull final StoryEditorPresentableView presentableView) {
-        super.onBindPresentableView(Contracts.requireNonNull(presentableView,
-                                                             "presentableView == null"));
+    protected void editStory(@Nullable final Long storyId) {
+        if (storyId == null) {
+            final val screen = getScreen();
+            if (screen != null) {
+                screen.displayStory(null);
+            }
+        } else {
+            final val screen = getScreen();
+            if (screen != null) {
+                screen.displayStoryLoading();
+            }
 
-        presentableView.getOnInsertStoryEvent().addHandler(getInsertStoryHandler());
-        presentableView.getOnEditStoryEvent().addHandler(getEditStoryHandler());
+            final val realm = getRealmManager().getRealm();
+
+            final val story = realm.where(Story.class).equalTo(Story.ID, storyId).findFirst();
+
+            RealmObject.addChangeListener(story, new RealmChangeListener<Story>() {
+                @Override
+                public void onChange(final Story element) {
+                    final val screen = getScreen();
+                    if (screen != null) {
+                        if (RealmObject.isValid(story)) {
+                            screen.displayStory(story.getId());
+                        } else {
+                            screen.displayStory(null);
+                        }
+                    }
+                }
+            });
+
+            if (screen != null) {
+                if (RealmObject.isValid(story)) {
+                    screen.displayStory(story.getId());
+                } else {
+                    screen.displayStory(null);
+                }
+            }
+        }
+    }
+
+    @CallSuper
+    protected void insertStory() {
+        final val screen = getScreen();
+        if (screen != null) {
+            screen.displayStoryLoading();
+        }
+
+        final val realmManager = getRealmManager();
+        final val realm = realmManager.getRealm();
+
+        final long storyId = realmManager.generateNextId(Story.class);
+
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(final Realm realm) {
+                realm.createObject(Story.class, storyId);
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                editStory(storyId);
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(final Throwable error) {
+                getMessageManager().showInfoMessage(R.string.message_story_insert_fail);
+            }
+        });
     }
 
     @CallSuper
     @Override
-    protected void onUnbindPresentableView(
-        @NonNull final StoryEditorPresentableView presentableView) {
-        super.onUnbindPresentableView(Contracts.requireNonNull(presentableView,
-                                                               "presentableView == null"));
+    protected void onBindScreen(@NonNull final StoryEditorScreen screen) {
+        super.onBindScreen(Contracts.requireNonNull(screen, "screen == null"));
 
-        presentableView.getOnInsertStoryEvent().removeHandler(getInsertStoryHandler());
-        presentableView.getOnEditStoryEvent().removeHandler(getEditStoryHandler());
+        screen.getInsertStoryEvent().addHandler(_insertStoryHandler);
+        screen.getEditStoryEvent().addHandler(_editStoryHandler);
     }
 
     @CallSuper
-    protected void onEditStory(final long storyId) {
-        final val rxManager = getRxManager();
-        rxManager
-            .autoManage(Observable.just(storyId))
-            .observeOn(rxManager.getIOScheduler())
-            .map(new Func1<Long, Story>() {
-                @Override
-                public Story call(final Long storyId) {
-                    Contracts.requireWorkerThread();
+    @Override
+    protected void onUnbindScreen(@NonNull final StoryEditorScreen screen) {
+        super.onUnbindScreen(Contracts.requireNonNull(screen, "screen == null"));
 
-                    return getStoryDaoManager().getStoryDao().get(storyId);
-                }
-            })
-            .observeOn(rxManager.getUIScheduler())
-            .doOnError(new Action1<Throwable>() {
-                @Override
-                public void call(final Throwable error) {
-                    Contracts.requireMainThread();
-
-                    getMessageManager().showInfoMessage(R.string.message_story_load_fail);
-
-                    final val presentableView = getPresentableView();
-                    if (presentableView != null) {
-                        presentableView.displayStory(Story.NO_ID);
-                    }
-                }
-            })
-            .doOnNext(new Action1<Story>() {
-                @Override
-                public void call(final Story story) {
-                    Contracts.requireMainThread();
-
-                    final long id = story != null ? story.getId() : Story.NO_ID;
-
-                    final val presentableView = getPresentableView();
-                    if (presentableView != null) {
-                        presentableView.displayStory(id);
-                    }
-                }
-            })
-            .subscribe();
+        screen.getInsertStoryEvent().removeHandler(_insertStoryHandler);
+        screen.getEditStoryEvent().removeHandler(_editStoryHandler);
     }
 
-    @CallSuper
-    protected void onInsertStory() {
-        final val rxManager = getRxManager();
-        rxManager
-            .autoManage(Observable.just(new Story()))
-            .observeOn(rxManager.getIOScheduler())
-            .doOnNext(new Action1<Story>() {
-                @Override
-                public void call(final Story story) {
-                    Contracts.requireWorkerThread();
-
-                    getStoryDaoManager().getStoryDao().insert(story);
-                }
-            })
-            .observeOn(rxManager.getComputationScheduler())
-            .map(new Func1<Story, Long>() {
-                @Override
-                public Long call(final Story story) {
-                    Contracts.requireWorkerThread();
-
-                    return story != null ? story.getId() : Story.NO_ID;
-                }
-            })
-            .observeOn(rxManager.getUIScheduler())
-            .doOnError(new Action1<Throwable>() {
-                @Override
-                public void call(final Throwable error) {
-                    Contracts.requireMainThread();
-
-                    final val presentableView = getPresentableView();
-                    if (presentableView != null) {
-                        presentableView.displayStory(Story.NO_ID);
-                    }
-
-                    getMessageManager().showInfoMessage(R.string.message_story_insert_fail);
-                }
-            })
-            .doOnNext(new Action1<Long>() {
-                @Override
-                public void call(final Long storyId) {
-                    Contracts.requireMainThread();
-
-                    final val presentableView = getPresentableView();
-                    if (presentableView != null) {
-                        presentableView.displayStory(storyId);
-                    }
-                }
-            })
-            .subscribe();
-    }
-
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
     private final EventHandler<StoryEventArgs> _editStoryHandler =
         new EventHandler<StoryEventArgs>() {
@@ -152,16 +122,15 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorPr
             public void onEvent(@NonNull final StoryEventArgs eventArgs) {
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
-                onEditStory(eventArgs.getStoryId());
+                editStory(eventArgs.getStoryId());
             }
         };
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
     private final NoticeEventHandler _insertStoryHandler = new NoticeEventHandler() {
         @Override
         public void onEvent() {
-            onInsertStory();
+            insertStory();
         }
     };
 }

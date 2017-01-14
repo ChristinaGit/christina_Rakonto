@@ -11,40 +11,42 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.christina.api.story.contract.StoryContentCode;
-import com.christina.api.story.contract.StoryContract;
-import com.christina.api.story.model.Story;
-import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageContentChangedEventArgs;
-import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPagesAdapter;
-import com.christina.app.story.di.qualifier.PresenterNames;
-import com.christina.app.story.view.StoryEditorPresentableView;
-import com.christina.app.story.view.activity.BaseStoryActivity;
-import com.christina.common.ConstantBuilder;
-import com.christina.common.contract.Contracts;
-import com.christina.common.event.BaseEvent;
-import com.christina.common.event.BaseNoticeEvent;
-import com.christina.common.event.Event;
-import com.christina.common.event.EventHandler;
-import com.christina.common.event.NoticeEvent;
-import com.christina.common.utility.AnimationViewUtils;
-import com.christina.common.view.presentation.Presenter;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import butterknife.BindView;
-import butterknife.OnClick;
-import butterknife.OnPageChange;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
+import butterknife.BindView;
+import butterknife.OnClick;
+import butterknife.OnPageChange;
+
+import com.christina.app.story.R;
+import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageChangedEventArgs;
+import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPagesAdapter;
+import com.christina.app.story.data.contract.StoryContentCode;
+import com.christina.app.story.data.contract.StoryContract;
+import com.christina.app.story.di.qualifier.PresenterNames;
+import com.christina.app.story.view.StoryEditorScreen;
+import com.christina.app.story.view.activity.BaseStoryActivity;
+import com.christina.common.ConstantBuilder;
+import com.christina.common.contract.Contracts;
+import com.christina.common.event.Events;
+import com.christina.common.event.generic.Event;
+import com.christina.common.event.generic.EventHandler;
+import com.christina.common.event.generic.ManagedEvent;
+import com.christina.common.event.notice.ManagedNoticeEvent;
+import com.christina.common.event.notice.NoticeEvent;
+import com.christina.common.presentation.Presenter;
+import com.christina.common.utility.AnimationViewUtils;
+
+import java.util.Objects;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
 @Accessors(prefix = "_")
-public final class StoryEditorActivity extends BaseStoryActivity
-    implements StoryEditorPresentableView {
+public final class StoryEditorActivity extends BaseStoryActivity implements StoryEditorScreen {
     private static final String _KEY_SAVED_STATE =
         ConstantBuilder.savedStateKey(StoryEditorActivity.class, "saved_state");
 
@@ -107,42 +109,47 @@ public final class StoryEditorActivity extends BaseStoryActivity
     }
 
     @Override
-    public final void displayStory(final long storyId) {
-        setDisplayedStoryId(storyId);
+    public final void displayStory(@Nullable final Long storyId) {
+        setStoryId(storyId);
 
-        if (storyId != Story.NO_ID) {
+        if (storyId != null) {
             final val mode = getMode();
-            if (mode == Mode.INSERT) {
+            if (mode == StoryEditorMode.INSERT) {
                 final val resultData = new Intent();
                 resultData.setData(StoryContract.getStoryUri(String.valueOf(storyId)));
                 setResult(RESULT_OK, resultData);
-            } else if (mode == Mode.EDIT) {
+            } else if (mode == StoryEditorMode.EDIT) {
                 final val resultData = new Intent();
                 resultData.setData(getIntent().getData());
                 setResult(RESULT_OK, resultData);
             }
         } else {
             final val mode = getMode();
-            if (mode == Mode.INSERT) {
+            if (mode == StoryEditorMode.INSERT) {
                 setResult(RESULT_INSERT_STORY_FAILED);
                 finish();
-            } else if (mode == Mode.EDIT) {
+            } else if (mode == StoryEditorMode.EDIT) {
                 setResult(RESULT_NOT_FOUND);
                 finish();
             }
         }
     }
 
-    @NonNull
     @Override
-    public final Event<StoryEventArgs> getOnEditStoryEvent() {
-        return _onEditStoryEvent;
+    public void displayStoryLoading() {
+        // No loading state.
     }
 
     @NonNull
     @Override
-    public final NoticeEvent getOnInsertStoryEvent() {
-        return _onInsertStoryEvent;
+    public final Event<StoryEventArgs> getEditStoryEvent() {
+        return _editStoryEvent;
+    }
+
+    @NonNull
+    @Override
+    public final NoticeEvent getInsertStoryEvent() {
+        return _insertStoryEvent;
     }
 
     protected final void nextStep() {
@@ -171,11 +178,11 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
-    protected final void setDisplayedStoryId(final long displayedStoryId) {
-        if (_displayedStoryId != displayedStoryId) {
-            _displayedStoryId = displayedStoryId;
+    protected final void setStoryId(@Nullable final Long storyId) {
+        if (!Objects.equals(_storyId, storyId)) {
+            _storyId = storyId;
 
-            onDisplayedStoryIdChanged();
+            onSoryIdChanged();
         }
     }
 
@@ -213,122 +220,10 @@ public final class StoryEditorActivity extends BaseStoryActivity
     }
 
     @CallSuper
-    @Override
-    protected void onBindPresenter() {
-        super.onBindPresenter();
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.setPresentableView(this);
-        }
-    }
-
-    @CallSuper
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        getStoryEditorPagesAdapter()
-            .getOnContentChangedEvent()
-            .removeHandler(getEditFragmentContentChangedHandler());
-    }
-
-    @CallSuper
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        getStoryEditorPagesAdapter()
-            .getOnContentChangedEvent()
-            .addHandler(getEditFragmentContentChangedHandler());
-
-        if (_stepPagerView != null) {
-            _stepPagerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    onEnterStep(_stepPagerView.getCurrentItem());
-                }
-            });
-        }
-
-        _invalidateNavigationButtons();
-    }
-
-    @CallSuper
-    @Override
-    protected void onCreate(@Nullable final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            _state = onHandleSavedState(savedInstanceState);
-        }
-
-        if (_state == null) {
-            _state = onHandleIntent(getIntent());
-        }
-
-        if (_state != null) {
-            _mode = _state.getMode();
-            _displayedStoryId = _state.getDisplayedStoryId();
-
-            setContentView(R.layout.activity_story_editor);
-
-            bindViews();
-
-            if (_stepPagerView != null) {
-                final val screensAdapter = getStoryEditorPagesAdapter();
-                screensAdapter.setPageFactory(getStoryEditorPages());
-                screensAdapter.setDisplayedStoryId(getDisplayedStoryId());
-                _stepPagerView.setAdapter(screensAdapter);
-
-                _stepPagerView.setCurrentItem(_state.getActivePage(), false);
-            }
-
-            final val mode = getMode();
-            if (mode != null) {
-                switch (mode) {
-                    case INSERT: {
-                        _onInsertStoryEvent.rise();
-                        break;
-                    }
-                    case EDIT: {
-                        _onEditStoryEvent.rise(new StoryEventArgs(getDisplayedStoryId()));
-                        break;
-                    }
-                    default: {
-                        throw new IllegalStateException("Unknown activity mode: " + mode);
-                    }
-                }
-            } else {
-                throw new IllegalStateException("Activity mode is null after the handled intent.");
-            }
-        } else {
-            finish();
-        }
-    }
-
-    @CallSuper
-    @Override
-    protected void onUnbindPresenter() {
-        super.onUnbindPresenter();
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.setPresentableView(null);
-        }
-    }
-
-    @CallSuper
-    protected void onDisplayedStoryIdChanged() {
-        final val screensAdapter = getStoryEditorPagesAdapter();
-        screensAdapter.setDisplayedStoryId(getDisplayedStoryId());
-    }
-
-    @CallSuper
     protected void onEnterStep(final int position) {
         final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
         if (editorFragment != null) {
-            editorFragment.onStartEditing();
+            editorFragment.notifyStartEditing();
         }
     }
 
@@ -343,16 +238,16 @@ public final class StoryEditorActivity extends BaseStoryActivity
         if (data != null) {
             final int code = StoryContentCode.Matcher.get(data);
             if (code == StoryContract.CODE_STORY) {
-                long storyId;
+                Long storyId;
                 try {
                     storyId = Long.parseLong(StoryContract.extractStoryId(data));
                 } catch (final NumberFormatException e) {
-                    storyId = Story.NO_ID;
+                    storyId = null;
                 }
-                if (storyId != Story.NO_ID) {
+                if (storyId != null) {
                     state = new StoryEditorState();
-                    state.setMode(Mode.EDIT);
-                    state.setDisplayedStoryId(storyId);
+                    state.setMode(StoryEditorMode.EDIT);
+                    state.setStoryId(storyId);
                 } else {
                     setResult(RESULT_NO_DATA);
                     state = null;
@@ -376,7 +271,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
 
         final val state = new StoryEditorState();
 
-        state.setMode(Mode.INSERT);
+        state.setMode(StoryEditorMode.INSERT);
 
         return state;
     }
@@ -421,26 +316,94 @@ public final class StoryEditorActivity extends BaseStoryActivity
     }
 
     @CallSuper
-    @Override
-    protected void onInject() {
-        super.onInject();
-
-        getStoryViewComponent().inject(this);
-    }
-
-    @CallSuper
-    @Override
-    protected void onReleaseInject() {
-        super.onReleaseInject();
-
-        unbindViews();
-    }
-
-    @CallSuper
     protected void onLeaveStep(final int position) {
         final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
         if (editorFragment != null) {
-            editorFragment.onStopEditing();
+            editorFragment.notifyStopEditing();
+        }
+    }
+
+    @CallSuper
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        getStoryEditorPagesAdapter()
+            .getContentChangedEvent()
+            .removeHandler(_editFragmentContentChangedHandler);
+    }
+
+    @CallSuper
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getStoryEditorPagesAdapter()
+            .getContentChangedEvent()
+            .addHandler(_editFragmentContentChangedHandler);
+
+        if (_stepPagerView != null) {
+            _stepPagerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    onEnterStep(_stepPagerView.getCurrentItem());
+                }
+            });
+        }
+
+        invalidateNavigationButtons();
+    }
+
+    @CallSuper
+    @Override
+    protected void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            _state = onHandleSavedState(savedInstanceState);
+        }
+
+        if (_state == null) {
+            _state = onHandleIntent(getIntent());
+        }
+
+        if (_state != null) {
+            _mode = _state.getMode();
+            _storyId = _state.getStoryId();
+
+            setContentView(R.layout.activity_story_editor);
+
+            bindViews();
+
+            if (_stepPagerView != null) {
+                final val screensAdapter = getStoryEditorPagesAdapter();
+                screensAdapter.setPageFactory(getStoryEditorPages());
+                screensAdapter.setStoryId(getStoryId());
+                _stepPagerView.setAdapter(screensAdapter);
+
+                _stepPagerView.setCurrentItem(_state.getActivePage(), false);
+            }
+
+            final val mode = getMode();
+            if (mode != null) {
+                switch (mode) {
+                    case INSERT: {
+                        _insertStoryEvent.rise();
+                        break;
+                    }
+                    case EDIT: {
+                        _editStoryEvent.rise(new StoryEventArgs(getStoryId()));
+                        break;
+                    }
+                    default: {
+                        throw new IllegalStateException("Unknown activity mode: " + mode);
+                    }
+                }
+            } else {
+                throw new IllegalStateException("Activity mode is null after the handled intent.");
+            }
+        } else {
+            finish();
         }
     }
 
@@ -455,7 +418,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
             }
 
             _state.setMode(getMode());
-            _state.setDisplayedStoryId(getDisplayedStoryId());
+            _state.setStoryId(getStoryId());
             if (_stepPagerView != null) {
                 _state.setActivePage(_stepPagerView.getCurrentItem());
             } else {
@@ -465,9 +428,40 @@ public final class StoryEditorActivity extends BaseStoryActivity
         }
     }
 
+    @CallSuper
+    @Override
+    protected void onInjectMembers() {
+        super.onInjectMembers();
+
+        getStoryScreenComponent().inject(this);
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.bindScreen(this);
+        }
+    }
+
+    @CallSuper
+    @Override
+    protected void onReleaseInjectedMembers() {
+        super.onReleaseInjectedMembers();
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.unbindScreen();
+        }
+
+        unbindViews();
+    }
+
+    @CallSuper
+    protected void onSoryIdChanged() {
+        getStoryEditorPagesAdapter().setStoryId(getStoryId());
+    }
+
     @OnPageChange(R.id.creation_step_pager)
     protected void onStepChanged(final int position) {
-        _invalidateNavigationButtons();
+        invalidateNavigationButtons();
     }
 
     @BindView(R.id.content_container)
@@ -486,7 +480,7 @@ public final class StoryEditorActivity extends BaseStoryActivity
     @Inject
     @Getter(AccessLevel.PROTECTED)
     @Nullable
-    /*package-private*/ Presenter<StoryEditorPresentableView> _presenter;
+    /*package-private*/ Presenter<StoryEditorScreen> _presenter;
 
     @BindView(R.id.previous_step)
     @Nullable
@@ -506,48 +500,47 @@ public final class StoryEditorActivity extends BaseStoryActivity
         previousStep();
     }
 
-    @Getter(value = AccessLevel.PRIVATE, lazy = true)
     @NonNull
-    private final EventHandler<StoryEditorPageContentChangedEventArgs>
-        _editFragmentContentChangedHandler =
-        new EventHandler<StoryEditorPageContentChangedEventArgs>() {
+    private final EventHandler<StoryEditorPageChangedEventArgs> _editFragmentContentChangedHandler =
+        new EventHandler<StoryEditorPageChangedEventArgs>() {
             @Override
-            public void onEvent(@NonNull final StoryEditorPageContentChangedEventArgs eventArgs) {
+            public void onEvent(@NonNull final StoryEditorPageChangedEventArgs eventArgs) {
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
                 if (_stepPagerView != null &&
                     _stepPagerView.getCurrentItem() == eventArgs.getPage()) {
-                    _invalidateNavigationButtons();
+                    invalidateNavigationButtons();
                 }
             }
         };
 
     @NonNull
-    private final BaseEvent<StoryEventArgs> _onEditStoryEvent = new BaseEvent<>();
+    private final ManagedEvent<StoryEventArgs> _editStoryEvent = Events.createEvent();
 
     @NonNull
-    private final BaseNoticeEvent _onInsertStoryEvent = new BaseNoticeEvent();
+    private final ManagedNoticeEvent _insertStoryEvent = Events.createNoticeEvent();
 
-    @Getter(value = AccessLevel.PROTECTED, lazy = true)
+    @Getter(value = AccessLevel.PROTECTED)
     @NonNull
     private final StoryEditorPages _storyEditorPages = new StoryEditorPages();
 
-    @Getter(value = AccessLevel.PROTECTED, lazy = true)
+    @Getter(value = AccessLevel.PROTECTED)
     @NonNull
     private final StoryEditorPagesAdapter _storyEditorPagesAdapter =
         new StoryEditorPagesAdapter(getSupportFragmentManager());
 
-    @Getter
-    private long _displayedStoryId = Story.NO_ID;
-
     @Getter(AccessLevel.PROTECTED)
     @Nullable
-    private Mode _mode;
+    private StoryEditorMode _mode;
 
     @Nullable
     private StoryEditorState _state;
 
-    private void _invalidateNavigationButtons() {
+    @Getter
+    @Nullable
+    private Long _storyId;
+
+    private void invalidateNavigationButtons() {
         if (_stepPagerView != null) {
             final boolean nextStepAvailable = isNextStepAvailable();
             final boolean previousStepAvailable = isPreviousStepAvailable();
@@ -575,10 +568,5 @@ public final class StoryEditorActivity extends BaseStoryActivity
                                                         R.anim.slide_out_bottom_medium);
             }
         }
-    }
-
-    public enum Mode {
-        INSERT,
-        EDIT
     }
 }

@@ -8,12 +8,13 @@
     <string name="story_permission_write_description">story_permission_write_description</string>
     <string name="story_permission_write_label">story_permission_write_label</string>
 
-    <string name="action_settings">Wipe</string>
+    <string name="action_remove_all">Remove all</string>
     <string name="action_share_story">Share</string>
     <string name="action_edit_story">Edit</string>
 
     <string name="message_story_inserted">Story created</string>
     <string name="message_story_deleted">Story deleted</string>
+    <string name="message_story_delete_fail">Failed to delete a story</string>
     <string name="message_story_insert_fail">Failed to create a story</string>
     <string name="message_story_load_fail">Failed to load story</string>
     <string name="message_stories_load_fail">Failed to load stories</string>
