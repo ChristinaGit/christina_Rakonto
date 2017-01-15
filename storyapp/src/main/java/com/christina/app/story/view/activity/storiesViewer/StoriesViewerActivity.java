@@ -6,7 +6,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,7 +71,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity implements St
                 break;
             }
             case android.R.id.home: {
-                NavUtils.navigateUpFromSameTask(this);
+                finishAffinity();
 
                 handled = true;
                 break;
@@ -98,6 +97,9 @@ public final class StoriesViewerActivity extends BaseStoryActivity implements St
             bindViews();
 
             setSupportActionBar(_toolbarView);
+
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
 
             final val fragmentManager = getSupportFragmentManager();
             if (fragmentManager.findFragmentById(R.id.content_container) == null) {

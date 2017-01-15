@@ -27,14 +27,14 @@
         android:allowBackup="true"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/application_name"
+        android:label="@string/story_application_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
         <activity
             android:name=".view.activity.storiesViewer.StoriesViewerActivity"
-            android:label="@string/application_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:label="@string/story_application_name"
+            android:theme="@style/AppTheme.NoActionBar.FullScreen">
 
             <intent-filter>
 
@@ -56,6 +56,7 @@
 
         <activity
             android:name=".view.activity.storyEditor.StoryEditorActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize">
 
             <intent-filter>

@@ -49,7 +49,7 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
     @CallSuper
     @Override
     public void displayStories(@Nullable List<? extends UIStory> stories) {
-        getLoadingViewDelegate().showContent();
+        getLoadingViewDelegate().showContent(stories != null && !stories.isEmpty());
 
         final val storiesListAdapter = getStoriesListAdapter();
         storiesListAdapter.setItems((List<UIStory>) stories);
@@ -116,6 +116,7 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
 
         final val loadingViewDelegate = getLoadingViewDelegate();
         loadingViewDelegate.setContentView(_storiesView);
+        loadingViewDelegate.setNoContentView(_noStoriesView);
         loadingViewDelegate.setLoadingView(_storiesLoadingView);
         loadingViewDelegate.hideAll();
 
@@ -207,6 +208,10 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
     protected void onSwipeStory(final long storyId) {
         _deleteStoryEvent.rise(new StoryEventArgs(storyId));
     }
+
+    @BindView(R.id.stories_no_content)
+    @Nullable
+    /*package-private*/ View _noStoriesView;
 
     @Named(PresenterNames.STORIES_LIST)
     @Inject

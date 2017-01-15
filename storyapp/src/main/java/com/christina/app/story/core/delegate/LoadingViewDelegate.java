@@ -17,13 +17,32 @@ import com.christina.common.view.ContentLoaderProgressBar;
 public class LoadingViewDelegate {
     public final void invalidateContentView() {
         final val contentView = getContentView();
-        if (contentView != null) {
-            if (isContentVisible()) {
-                AnimationViewUtils.animateSetVisibility(contentView,
-                                                        View.VISIBLE,
-                                                        R.anim.fade_in_long);
+        final val noContentView = getNoContentView();
+
+        if (isContentVisible()) {
+            if (hasContent()) {
+                if (contentView != null) {
+                    AnimationViewUtils.animateSetVisibility(contentView,
+                                                            View.VISIBLE,
+                                                            R.anim.fade_in_long);
+                }
+                if (noContentView != null) {
+                    noContentView.setVisibility(View.GONE);
+                }
             } else {
-                contentView.setVisibility(View.INVISIBLE);
+                if (noContentView != null) {
+                    noContentView.setVisibility(View.VISIBLE);
+                }
+                if (contentView != null) {
+                    contentView.setVisibility(View.GONE);
+                }
+            }
+        } else {
+            if (contentView != null) {
+                contentView.setVisibility(View.GONE);
+            }
+            if (noContentView != null) {
+                noContentView.setVisibility(View.GONE);
             }
         }
     }
@@ -44,6 +63,14 @@ public class LoadingViewDelegate {
             _contentVisible = visible;
 
             onContentVisibilityChanged();
+        }
+    }
+
+    public final void setHasContent(final boolean hasContent) {
+        if (_hasContent != hasContent) {
+            _hasContent = hasContent;
+
+            onContentChanged();
         }
     }
 
@@ -69,6 +96,12 @@ public class LoadingViewDelegate {
 
     @CallSuper
     public void showContent() {
+        showContent(true);
+    }
+
+    @CallSuper
+    public void showContent(final boolean hasContent) {
+        setHasContent(hasContent);
         setContentVisible(true);
         setLoadingVisible(false);
     }
@@ -77,6 +110,11 @@ public class LoadingViewDelegate {
     public void showLoading() {
         setContentVisible(false);
         setLoadingVisible(true);
+    }
+
+    @CallSuper
+    protected void onContentChanged() {
+        invalidateContentView();
     }
 
     @CallSuper
@@ -98,10 +136,19 @@ public class LoadingViewDelegate {
     private boolean _contentVisible;
 
     @Getter
+    @Accessors(fluent = true, prefix = "_")
+    private boolean _hasContent;
+
+    @Getter
     @Setter
     @Nullable
     private ContentLoaderProgressBar _loadingView;
 
     @Getter
     private boolean _loadingVisible;
+
+    @Getter
+    @Setter
+    @Nullable
+    private View _noContentView;
 }

@@ -8,6 +8,7 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -382,6 +383,8 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
 
             bindViews();
 
+            setSupportActionBar(_toolbarView);
+
             if (_stepPagerView != null) {
                 final val screensAdapter = getStoryEditorPagesAdapter();
                 screensAdapter.setPageFactory(getStoryEditorPages());
@@ -504,6 +507,10 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     @BindView(R.id.creation_step_pager)
     @Nullable
     /*package-private*/ ViewPager _stepPagerView;
+
+    @BindView(R.id.toolbar)
+    @Nullable
+    /*package-private*/ Toolbar _toolbarView;
 
     @OnClick(R.id.next_step)
     /*package-private*/ void onNextStepClick() {

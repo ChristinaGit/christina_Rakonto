@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top|start"
-                android:hint="@string/story_creator_input_hint"
+                android:hint="@string/caption_story_editor_input_hint"
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
                 android:minLines="3"/>
         </android.support.design.widget.TextInputLayout>

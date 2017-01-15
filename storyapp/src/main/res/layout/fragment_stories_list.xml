@@ -20,4 +20,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:indeterminate="true"/>
+
+    <TextView
+        android:id="@+id/stories_no_content"
+        style="@style/NoContentTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 </FrameLayout>

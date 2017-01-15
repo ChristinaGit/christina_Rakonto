@@ -34,9 +34,15 @@ import com.christina.common.contract.Contracts;
             final val holder = getHolder();
 
             holder.cardView.setCardBackgroundColor(backgroundColor);
+
             holder.storyNameView.setTextColor(titleColor);
+            holder.storyNameView.setHintTextColor(bodyColor);
+
             holder.storyTextView.setTextColor(bodyColor);
+            holder.storyTextView.setHintTextColor(bodyColor);
+
             holder.editStoryView.setTextColor(titleColor);
+
             holder.shareStoryView.setTextColor(titleColor);
         }
     }
