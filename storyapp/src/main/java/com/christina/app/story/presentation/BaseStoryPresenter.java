@@ -10,6 +10,7 @@ import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.core.manager.data.RealmManager;
 import com.christina.app.story.core.manager.message.MessageManager;
 import com.christina.app.story.core.manager.navigation.StoryNavigator;
+import com.christina.app.story.core.manager.resource.ResourceManager;
 import com.christina.app.story.core.manager.rx.RxManager;
 import com.christina.common.contract.Contracts;
 import com.christina.common.presentation.AbstractPresenter;
@@ -28,6 +29,11 @@ public abstract class BaseStoryPresenter<TScreen extends Screen>
     @NonNull
     public final RealmManager getRealmManager() {
         return getServiceManager().getRealmManager();
+    }
+
+    @NonNull
+    public final ResourceManager getResourceManager() {
+        return getServiceManager().getResourceManager();
     }
 
     @NonNull

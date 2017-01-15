@@ -1,6 +1,6 @@
 package com.christina.app.story.view.activity.storyEditor;
 
-public enum StoryEditorMode {
+/*package-private*/ enum StoryEditorMode {
     INSERT,
     EDIT
 }

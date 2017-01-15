@@ -9,6 +9,7 @@ import lombok.val;
 
 import rx.functions.Action1;
 
+import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -30,10 +31,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListSc
     }
 
     protected final void displayStories() {
-        final val screen = getScreen();
-        if (screen != null) {
-            screen.displayStoriesLoading();
-        }
+        displayStoriesLoading();
 
         final val rxManager = getRxManager();
         final val realm = getRealmManager().getRealm();
@@ -49,12 +47,27 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListSc
                 public void call(final RealmResults<Story> stories) {
                     Contracts.requireMainThread();
 
-                    final val screen = getScreen();
-                    if (screen != null) {
-                        screen.displayStories(stories);
-                    }
+                    displayStories(stories);
                 }
             });
+    }
+
+    protected final void displayStories(@Nullable final OrderedRealmCollection<Story> stories) {
+        final val screen = getScreen();
+        if (screen != null) {
+            if (stories == null || stories.isValid()) {
+                screen.displayStories(stories);
+            } else {
+                screen.displayStories(null);
+            }
+        }
+    }
+
+    protected final void displayStoriesLoading() {
+        final val screen = getScreen();
+        if (screen != null) {
+            screen.displayStoriesLoading();
+        }
     }
 
     @CallSuper

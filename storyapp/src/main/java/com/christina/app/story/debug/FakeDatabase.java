@@ -157,7 +157,7 @@ public final class FakeDatabase {
         final long createDate = System.currentTimeMillis();
 
         for (int i = 0; i < STORY_COUNT; i++) {
-            final long id = idGenerator.generateNextId(StoryFrame.class);
+            final long id = idGenerator.generateNextId(Story.class);
             final val story = realm.createObject(Story.class, id);
             story.setCreateDate(createDate);
             story.setModifyDate(createDate);
@@ -195,16 +195,12 @@ public final class FakeDatabase {
 
                 final long id = idGenerator.generateNextId(StoryFrame.class);
                 final val storyFrame = realm.createObject(StoryFrame.class, id);
-                storyFrame.setStoryId(story.getId());
                 storyFrame.setImageUri(getImage(random));
 
                 storyFrame.setTextStartPosition(startPosition);
                 storyFrame.setTextEndPosition(endPosition);
 
-                final val storyFrames = story.getStoryFrames();
-                if (storyFrames != null) {
-                    storyFrames.add(storyFrame);
-                }
+                story.getStoryFrames().add(storyFrame);
             }
         }
     }

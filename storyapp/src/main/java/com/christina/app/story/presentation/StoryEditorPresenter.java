@@ -12,6 +12,7 @@ import io.realm.RealmChangeListener;
 import io.realm.RealmObject;
 
 import com.christina.app.story.R;
+import com.christina.app.story.core.RealmChangesObserver;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.data.model.Story;
@@ -26,53 +27,44 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorSc
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
+    protected final void displayStory(@Nullable final Story story) {
+        final val screen = getScreen();
+        if (screen != null) {
+            if (RealmObject.isValid(story)) {
+                screen.displayStory(story);
+            } else {
+                screen.displayStory(null);
+            }
+        }
+    }
+
+    protected final void displayStoryLoading() {
+        final val screen = getScreen();
+        if (screen != null) {
+            screen.displayStoryLoading();
+        }
+    }
+
     @CallSuper
     protected void editStory(@Nullable final Long storyId) {
         if (storyId == null) {
-            final val screen = getScreen();
-            if (screen != null) {
-                screen.displayStory(null);
-            }
+            displayStory(null);
         } else {
-            final val screen = getScreen();
-            if (screen != null) {
-                screen.displayStoryLoading();
-            }
+            displayStoryLoading();
 
             final val realm = getRealmManager().getRealm();
 
             final val story = realm.where(Story.class).equalTo(Story.ID, storyId).findFirst();
 
-            RealmObject.addChangeListener(story, new RealmChangeListener<Story>() {
-                @Override
-                public void onChange(final Story element) {
-                    final val screen = getScreen();
-                    if (screen != null) {
-                        if (RealmObject.isValid(story)) {
-                            screen.displayStory(story.getId());
-                        } else {
-                            screen.displayStory(null);
-                        }
-                    }
-                }
-            });
+            _displayedStoryObserver.enable(story);
 
-            if (screen != null) {
-                if (RealmObject.isValid(story)) {
-                    screen.displayStory(story.getId());
-                } else {
-                    screen.displayStory(null);
-                }
-            }
+            displayStory(story);
         }
     }
 
     @CallSuper
     protected void insertStory() {
-        final val screen = getScreen();
-        if (screen != null) {
-            screen.displayStoryLoading();
-        }
+        displayStoryLoading();
 
         final val realmManager = getRealmManager();
         final val realm = realmManager.getRealm();
@@ -108,12 +100,29 @@ public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorSc
 
     @CallSuper
     @Override
+    protected void onScreenDestroy(@NonNull final StoryEditorScreen screen) {
+        super.onScreenDestroy(Contracts.requireNonNull(screen, "screen == null"));
+
+        _displayedStoryObserver.release();
+    }
+
+    @CallSuper
+    @Override
     protected void onUnbindScreen(@NonNull final StoryEditorScreen screen) {
         super.onUnbindScreen(Contracts.requireNonNull(screen, "screen == null"));
 
         screen.getInsertStoryEvent().removeHandler(_insertStoryHandler);
         screen.getEditStoryEvent().removeHandler(_editStoryHandler);
     }
+
+    @NonNull
+    private final RealmChangesObserver<Story> _displayedStoryObserver =
+        new RealmChangesObserver<>(new RealmChangeListener<Story>() {
+            @Override
+            public void onChange(final Story element) {
+                displayStory(element);
+            }
+        });
 
     @NonNull
     private final EventHandler<StoryEventArgs> _editStoryHandler =

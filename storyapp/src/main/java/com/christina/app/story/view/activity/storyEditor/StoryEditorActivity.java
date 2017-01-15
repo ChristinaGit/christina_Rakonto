@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
@@ -26,6 +27,7 @@ import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageChang
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPagesAdapter;
 import com.christina.app.story.data.contract.StoryContentCode;
 import com.christina.app.story.data.contract.StoryContract;
+import com.christina.app.story.data.model.ui.UIStory;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryEditorScreen;
 import com.christina.app.story.view.activity.BaseStoryActivity;
@@ -109,14 +111,15 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     }
 
     @Override
-    public final void displayStory(@Nullable final Long storyId) {
-        setStoryId(storyId);
+    public final void displayStory(@Nullable final UIStory story) {
+        setStory(story);
+        notifyStoryChanged();
 
-        if (storyId != null) {
+        if (story != null) {
             final val mode = getMode();
             if (mode == StoryEditorMode.INSERT) {
                 final val resultData = new Intent();
-                resultData.setData(StoryContract.getStoryUri(String.valueOf(storyId)));
+                resultData.setData(StoryContract.getStoryUri(String.valueOf(story.getId())));
                 setResult(RESULT_OK, resultData);
             } else if (mode == StoryEditorMode.EDIT) {
                 final val resultData = new Intent();
@@ -163,6 +166,10 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
                 _stepPagerView.setCurrentItem(nextStep, true);
             }
         }
+    }
+
+    protected final void notifyStoryChanged() {
+        onStoryChanged();
     }
 
     protected final void previousStep() {
@@ -378,7 +385,6 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
             if (_stepPagerView != null) {
                 final val screensAdapter = getStoryEditorPagesAdapter();
                 screensAdapter.setPageFactory(getStoryEditorPages());
-                screensAdapter.setStoryId(getStoryId());
                 _stepPagerView.setAdapter(screensAdapter);
 
                 _stepPagerView.setCurrentItem(_state.getActivePage(), false);
@@ -464,6 +470,15 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
         invalidateNavigationButtons();
     }
 
+    @CallSuper
+    protected void onStoryChanged() {
+        final val story = getStory();
+
+        final Long storyId = story != null ? story.getId() : null;
+
+        getStoryEditorPagesAdapter().setStoryId(storyId);
+    }
+
     @BindView(R.id.content_container)
     @Nullable
     /*package-private*/ ViewGroup _contentContainerView;
@@ -535,6 +550,11 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
 
     @Nullable
     private StoryEditorState _state;
+
+    @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
+    @Nullable
+    private UIStory _story;
 
     @Getter
     @Nullable

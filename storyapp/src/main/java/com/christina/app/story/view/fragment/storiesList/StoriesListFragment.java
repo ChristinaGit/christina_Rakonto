@@ -22,7 +22,7 @@ import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
 import com.christina.app.story.core.delegate.LoadingViewDelegate;
-import com.christina.app.story.data.model.Story;
+import com.christina.app.story.data.model.ui.UIStory;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoriesListScreen;
 import com.christina.app.story.view.fragment.BaseStoryFragment;
@@ -48,11 +48,11 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
 
     @CallSuper
     @Override
-    public void displayStories(@Nullable List<Story> stories) {
+    public void displayStories(@Nullable List<? extends UIStory> stories) {
         getLoadingViewDelegate().showContent();
 
         final val storiesListAdapter = getStoriesListAdapter();
-        storiesListAdapter.setItems(stories);
+        storiesListAdapter.setItems((List<UIStory>) stories);
         storiesListAdapter.notifyDataSetChanged();
 
         if (_state != null && !_state.isScrollPositionRestored()) {

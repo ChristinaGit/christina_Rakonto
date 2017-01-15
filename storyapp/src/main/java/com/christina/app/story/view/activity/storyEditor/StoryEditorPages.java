@@ -7,7 +7,7 @@ import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageFacto
 import com.christina.app.story.view.fragment.storyFramesEditor.StoryFramesEditorFragment;
 import com.christina.app.story.view.fragment.storyTextEditor.StoryTextEditorFragment;
 
-public final class StoryEditorPages implements StoryEditorPageFactory {
+/*package-private*/ final class StoryEditorPages implements StoryEditorPageFactory {
     private static int _positionIndexer = 0;
 
     public static final int POSITION_TEXT_EDITOR = _positionIndexer++;

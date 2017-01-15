@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide;
 
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.data.model.Story;
+import com.christina.app.story.data.model.ui.UIStory;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.Events;
 import com.christina.common.event.generic.Event;
@@ -26,7 +26,7 @@ import com.christina.common.view.recyclerView.adapter.RecyclerViewListAdapter;
 import java.util.List;
 
 @Accessors(prefix = "_")
-public final class StoriesListAdapter extends RecyclerViewListAdapter<Story, StoryViewHolder> {
+public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, StoryViewHolder> {
     public static long getStoryId(@NonNull final RecyclerView.ViewHolder holder) {
         Contracts.requireNonNull(holder, "holder == null");
 
@@ -68,7 +68,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<Story, Sto
 
     @Override
     protected void onBindViewHolder(
-        @NonNull final StoryViewHolder holder, @NonNull final Story item, final int position) {
+        @NonNull final StoryViewHolder holder, @NonNull final UIStory item, final int position) {
         super.onBindViewHolder(Contracts.requireNonNull(holder, "holder == null"),
                                Contracts.requireNonNull(item, "item == null"),
                                Contracts.requireInRange(position,
@@ -137,5 +137,5 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<Story, Sto
     @Getter(onMethod = @__(@Override))
     @Setter
     @Nullable
-    private List<Story> _items;
+    private List<UIStory> _items;
 }

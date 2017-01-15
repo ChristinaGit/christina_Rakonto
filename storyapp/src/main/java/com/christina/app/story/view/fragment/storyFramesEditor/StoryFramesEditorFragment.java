@@ -22,9 +22,8 @@ import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.adpter.storyFrames.StoryFramesAdapter;
 import com.christina.app.story.core.delegate.LoadingViewDelegate;
-import com.christina.app.story.data.model.Story;
-import com.christina.app.story.data.model.StoryFrame;
-import com.christina.common.view.ContentLoaderProgressBar;
+import com.christina.app.story.data.model.ui.UIStory;
+import com.christina.app.story.data.model.ui.UIStoryFrame;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryFramesEditorScreen;
 import com.christina.app.story.view.fragment.BaseStoryEditorFragment;
@@ -34,6 +33,7 @@ import com.christina.common.event.generic.ManagedEvent;
 import com.christina.common.event.notice.ManagedNoticeEvent;
 import com.christina.common.event.notice.NoticeEvent;
 import com.christina.common.presentation.Presenter;
+import com.christina.common.view.ContentLoaderProgressBar;
 import com.christina.common.view.ItemSpacingDecorator;
 
 import java.util.List;
@@ -75,33 +75,17 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
 
     @CallSuper
     @Override
-    public void displayStory(@Nullable final Story story) {
+    public void displayStory(@Nullable final UIStory story) {
+        getLoadingViewDelegate().showContent();
+
         setStory(story);
+
         notifyEditedStoryChanged();
-    }
-
-    @CallSuper
-    @Override
-    public void displayStoryFrames(@Nullable final List<StoryFrame> storyFrames) {
-        final val storyFramesAdapter = getStoryFramesAdapter();
-        storyFramesAdapter.setItems(storyFrames);
-        storyFramesAdapter.notifyDataSetChanged();
-
-        _contentChangedEvent.rise();
-    }
-
-    @Override
-    public final void displayStoryFramesLoading() {
-        final val loadingViewDelegate = getLoadingViewDelegate();
-        loadingViewDelegate.setContentVisible(false);
-        loadingViewDelegate.setLoadingVisible(true);
     }
 
     @Override
     public final void displayStoryLoading() {
-        final val loadingViewDelegate = getLoadingViewDelegate();
-        loadingViewDelegate.setContentVisible(false);
-        loadingViewDelegate.setLoadingVisible(true);
+        getLoadingViewDelegate().showLoading();
     }
 
     @NonNull
@@ -127,7 +111,7 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
         final val loadingViewDelegate = getLoadingViewDelegate();
         loadingViewDelegate.setLoadingView(_storyFramesLoadingView);
         loadingViewDelegate.setContentView(_storyFramesView);
-        loadingViewDelegate.invalidateViews();
+        loadingViewDelegate.hideAll();
 
         return view;
     }
@@ -182,19 +166,19 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
 
     @CallSuper
     protected void onEditedStoryChanged() {
-        final val editedStory = getStory();
+        final val story = getStory();
 
         final val storyFramesAdapter = getStoryFramesAdapter();
 
         storyFramesAdapter.setItems(null);
 
-        final String storyText;
-        if (editedStory != null) {
-            storyText = editedStory.getText();
+        if (story != null) {
+            storyFramesAdapter.setStoryText(story.getText());
+            storyFramesAdapter.setItems((List<UIStoryFrame>) story.getStoryFrames());
         } else {
-            storyText = null;
+            storyFramesAdapter.setStoryText(null);
+            storyFramesAdapter.setItems(null);
         }
-        storyFramesAdapter.setStoryText(storyText);
 
         storyFramesAdapter.notifyDataSetChanged();
     }
@@ -273,5 +257,5 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
     @Getter(AccessLevel.PROTECTED)
     @Setter(AccessLevel.PROTECTED)
     @Nullable
-    private Story _story;
+    private UIStory _story;
 }

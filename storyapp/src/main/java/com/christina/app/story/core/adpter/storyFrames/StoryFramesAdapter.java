@@ -14,7 +14,7 @@ import lombok.val;
 import com.bumptech.glide.Glide;
 
 import com.christina.app.story.R;
-import com.christina.app.story.data.model.StoryFrame;
+import com.christina.app.story.data.model.ui.UIStoryFrame;
 import com.christina.common.contract.Contracts;
 import com.christina.common.view.recyclerView.adapter.RecyclerViewListAdapter;
 
@@ -23,7 +23,7 @@ import java.util.Objects;
 
 @Accessors(prefix = "_")
 public final class StoryFramesAdapter
-    extends RecyclerViewListAdapter<StoryFrame, StoryFrameViewHolder> {
+    extends RecyclerViewListAdapter<UIStoryFrame, StoryFrameViewHolder> {
     public StoryFramesAdapter() {
         setHasStableIds(true);
     }
@@ -54,7 +54,7 @@ public final class StoryFramesAdapter
     @Override
     protected void onBindViewHolder(
         @NonNull final StoryFrameViewHolder holder,
-        @NonNull final StoryFrame item,
+        @NonNull final UIStoryFrame item,
         final int position) {
         super.onBindViewHolder(Contracts.requireNonNull(holder, "holder == null"),
                                Contracts.requireNonNull(item, "item == null"),
@@ -95,7 +95,7 @@ public final class StoryFramesAdapter
     @Getter(onMethod = @__(@Override))
     @Setter
     @Nullable
-    private List<StoryFrame> _items;
+    private List<UIStoryFrame> _items;
 
     @Getter
     @Nullable

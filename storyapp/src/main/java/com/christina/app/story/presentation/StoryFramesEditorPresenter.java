@@ -7,16 +7,13 @@ import android.support.annotation.Nullable;
 import lombok.experimental.Accessors;
 import lombok.val;
 
-import rx.functions.Action1;
-
 import io.realm.RealmChangeListener;
 import io.realm.RealmObject;
-import io.realm.RealmResults;
 
+import com.christina.app.story.core.RealmChangesObserver;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.data.model.Story;
-import com.christina.app.story.data.model.StoryFrame;
 import com.christina.app.story.view.StoryFramesEditorScreen;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.generic.EventHandler;
@@ -27,12 +24,37 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
+    protected final void displayStory(@Nullable final Story story) {
+        final val screen = getScreen();
+        if (screen != null) {
+            if (RealmObject.isValid(story)) {
+                screen.displayStory(story);
+            } else {
+                screen.displayStory(null);
+            }
+        }
+    }
+
+    protected final void displayStoryLoading() {
+        final val screen = getScreen();
+        if (screen != null) {
+            screen.displayStoryLoading();
+        }
+    }
+
     @CallSuper
     @Override
     protected void onBindScreen(@NonNull final StoryFramesEditorScreen screen) {
         super.onBindScreen(Contracts.requireNonNull(screen, "screen == null"));
 
         screen.getStartEditStoryEvent().addHandler(_startEditStoryHandler);
+    }
+
+    @Override
+    protected void onScreenDisappear(@NonNull final StoryFramesEditorScreen screen) {
+        super.onScreenDisappear(Contracts.requireNonNull(screen, "screen == null"));
+
+        _displayedStoryObserver.release();
     }
 
     @CallSuper
@@ -46,61 +68,29 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
     @CallSuper
     protected void startEditStory(@Nullable final Long storyId) {
         if (storyId == null) {
-            final val screen = getScreen();
-            if (screen != null) {
-                screen.displayStory(null);
-            }
+            displayStory(null);
         } else {
-            final val screen = getScreen();
-            if (screen != null) {
-                screen.displayStoryLoading();
-            }
+            displayStoryLoading();
 
-            final val rxManager = getRxManager();
             final val realmManager = getRealmManager();
             final val realm = realmManager.getRealm();
 
             final val story = realm.where(Story.class).equalTo(Story.ID, storyId).findFirst();
 
-            RealmObject.addChangeListener(story, new RealmChangeListener<Story>() {
-                @Override
-                public void onChange(final Story element) {
-                    final val screen = getScreen();
-                    if (screen != null) {
-                        screen.displayStory(element);
-                    }
-                }
-            });
+            _displayedStoryObserver.enable(story);
 
-            if (screen != null) {
-                screen.displayStory(story);
-
-                screen.displayStoryFramesLoading();
-            }
-
-            final val storyFrames = realm
-                .where(StoryFrame.class)
-                .equalTo(StoryFrame.STORY_ID, storyId)
-                .findAllAsync()
-                .asObservable();
-
-            rxManager
-                .autoManage(storyFrames)
-                .observeOn(rxManager.getIOScheduler())
-                .subscribeOn(rxManager.getUIScheduler())
-                .subscribe(new Action1<RealmResults<StoryFrame>>() {
-                    @Override
-                    public void call(final RealmResults<StoryFrame> storyFrames) {
-                        Contracts.requireMainThread();
-
-                        final val screen = getScreen();
-                        if (screen != null) {
-                            screen.displayStoryFrames(storyFrames);
-                        }
-                    }
-                });
+            displayStory(story);
         }
     }
+
+    @NonNull
+    private final RealmChangesObserver<Story> _displayedStoryObserver =
+        new RealmChangesObserver<>(new RealmChangeListener<Story>() {
+            @Override
+            public void onChange(final Story element) {
+                displayStory(element);
+            }
+        });
 
     @NonNull
     private final EventHandler<StoryEventArgs> _startEditStoryHandler =

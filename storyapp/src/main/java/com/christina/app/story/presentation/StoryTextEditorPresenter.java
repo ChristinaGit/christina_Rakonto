@@ -2,14 +2,22 @@ package com.christina.app.story.presentation;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import lombok.experimental.Accessors;
 import lombok.val;
 
-import com.christina.app.story.core.StoryContentEventArgs;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmObject;
+
+import com.christina.app.story.core.RealmChangesObserver;
+import com.christina.app.story.core.StoryChangedEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.StoryTextUtils;
 import com.christina.app.story.core.manager.ServiceManager;
 import com.christina.app.story.data.model.Story;
+import com.christina.app.story.data.model.StoryFrame;
 import com.christina.app.story.view.StoryTextEditorScreen;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.generic.EventHandler;
@@ -20,63 +28,22 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
         super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
     }
 
-    protected final void loadStory(final long storyId) {
-        //        final val presentableView = getScreen();
-        //        if (presentableView != null) {
-        //            presentableView.setLoadingVisible(true);
-        //            presentableView.setStoryVisible(false);
-        //        }
-        //
-        //        final val rxManager = getRxManager();
-        //        rxManager
-        //            .autoManage(Observable.just(storyId))
-        //            .observeOn(rxManager.getIOScheduler())
-        //            .map(new Func1<Long, Story>() {
-        //                @Override
-        //                public Story call(final Long storyId) {
-        //                    Contracts.requireWorkerThread();
-        //
-        //                    return getStoryDaoManager().getStoryDao().get(storyId);
-        //                }
-        //            })
-        //            .observeOn(rxManager.getUIScheduler())
-        //            .doOnError(new Action1<Throwable>() {
-        //                @Override
-        //                public void call(final Throwable throwable) {
-        //                    Contracts.requireMainThread();
-        //
-        //                    final val presentableView = getScreen();
-        //                    if (presentableView != null) {
-        //                        presentableView.displayStory(null);
-        //                    }
-        //
-        //                    getMessageManager().showInfoMessage(R.string.message_story_load_fail);
-        //                }
-        //            })
-        //            .doOnNext(new Action1<Story>() {
-        //                @Override
-        //                public void call(final Story story) {
-        //                    Contracts.requireMainThread();
-        //
-        //                    final val presentableView = getScreen();
-        //                    if (presentableView != null) {
-        //                        presentableView.displayStory(story);
-        //                    }
-        //                }
-        //            })
-        //            .doOnCompleted(new Action0() {
-        //                @Override
-        //                public void call() {
-        //                    Contracts.requireMainThread();
-        //
-        //                    final val presentableView = getScreen();
-        //                    if (presentableView != null) {
-        //                        presentableView.setLoadingVisible(false);
-        //                        presentableView.setStoryVisible(true);
-        //                    }
-        //                }
-        //            })
-        //            .subscribe();
+    protected final void displayStory(@Nullable final Story story) {
+        final val screen = getScreen();
+        if (screen != null) {
+            if (RealmObject.isValid(story)) {
+                screen.displayStory(story);
+            } else {
+                screen.displayStory(null);
+            }
+        }
+    }
+
+    protected final void displayStoryLoading() {
+        final val screen = getScreen();
+        if (screen != null) {
+            screen.displayStoryLoading();
+        }
     }
 
     @CallSuper
@@ -86,6 +53,13 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
 
         screen.getStartEditStoryEvent().addHandler(_startEditStoryHandler);
         screen.getStoryChangedEvent().addHandler(_storyChangedHandler);
+    }
+
+    @Override
+    protected void onScreenDisappear(@NonNull final StoryTextEditorScreen screen) {
+        super.onScreenDisappear(screen);
+
+        _displayedStoryObserver.release();
     }
 
     @CallSuper
@@ -98,75 +72,32 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
     }
 
     @CallSuper
-    protected void startEditStory(final long storyId) {
-        loadStory(storyId);
+    protected void startEditStory(@Nullable final Long storyId) {
+        if (storyId == null) {
+            displayStory(null);
+        } else {
+            displayStoryLoading();
+
+            final val story = getRealmManager()
+                .getRealm()
+                .where(Story.class)
+                .equalTo(Story.ID, storyId)
+                .findFirst();
+
+            _displayedStoryObserver.enable(story);
+
+            displayStory(story);
+        }
     }
 
-    @CallSuper
-    protected void onStoryChanged(@NonNull final Story story) {
-        Contracts.requireNonNull(story, "story == null");
-
-        //        story.setModifyDate(System.currentTimeMillis());
-        //
-        //        final val rxManager = getRxManager();
-        //        rxManager
-        //            .autoManage(Observable.just(story))
-        //            .observeOn(rxManager.getIOScheduler())
-        //            .map(new Func1<Story, Story>() {
-        //                @Override
-        //                public Story call(final Story story) {
-        //                    Contracts.requireWorkerThread();
-        //
-        //                    getStoryDaoManager().getStoryDao().update(story);
-        //
-        //                    return story;
-        //                }
-        //            })
-        //            .map(new Func1<Story, Story>() {
-        //                @Override
-        //                public Story call(final Story story) {
-        //                    Contracts.requireWorkerThread();
-        //
-        //                    final int deleted = getStoryDaoManager()
-        //                        .getStoryFrameDao()
-        //                        .delete(StoryFrameSelections.byStoryId(story.getId()));
-        //
-        //                    return story;
-        //                }
-        //            })
-        //            .map(new Func1<Story, Story>() {
-        //                @Override
-        //                public Story call(final Story story) {
-        //                    Contracts.requireWorkerThread();
-        //
-        //                    final val storyText = story.getText();
-        //
-        //                    if (storyText != null) {
-        //                        final val storyDefaultSplit = StoryTextUtils.defaultSplit
-        // (storyText);
-        //
-        //                        final val storyFrameDao = getStoryDaoManager().getStoryFrameDao();
-        //                        int startPosition = 0;
-        //                        int endPosition = 0;
-        //                        for (final val textFrame : storyDefaultSplit) {
-        //                            startPosition += endPosition;
-        //                            endPosition += textFrame.length();
-        //
-        //                            final val storyFrame = new StoryFrame();
-        //                            storyFrame.setStoryId(story.getId());
-        //
-        //                            storyFrame.setTextStartPosition(startPosition);
-        //                            storyFrame.setTextEndPosition(endPosition);
-        //
-        //                            storyFrameDao.insert(storyFrame);
-        //                        }
-        //                    }
-        //
-        //                    return story;
-        //                }
-        //            })
-        //            .subscribe();
-    }
+    @NonNull
+    private final RealmChangesObserver<Story> _displayedStoryObserver =
+        new RealmChangesObserver<>(new RealmChangeListener<Story>() {
+            @Override
+            public void onChange(final Story element) {
+                displayStory(element);
+            }
+        });
 
     @NonNull
     private final EventHandler<StoryEventArgs> _startEditStoryHandler =
@@ -180,18 +111,54 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
         };
 
     @NonNull
-    private final EventHandler<StoryContentEventArgs> _storyChangedHandler =
-        new EventHandler<StoryContentEventArgs>() {
+    private final EventHandler<StoryChangedEventArgs> _storyChangedHandler =
+        new EventHandler<StoryChangedEventArgs>() {
             @Override
-            public void onEvent(@NonNull final StoryContentEventArgs eventArgs) {
+            public void onEvent(@NonNull final StoryChangedEventArgs eventArgs) {
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
-                final val story = eventArgs.getStory();
-
-                // FIXME: 1/11/2017
-                if (story != null) {
-                    //                    onStoryChanged(new Story(story));
-                }
+                saveStoryChanged(eventArgs);
             }
         };
+
+    private void saveStoryChanged(@NonNull final StoryChangedEventArgs eventArgs) {
+        Contracts.requireNonNull(eventArgs, "eventArgs == null");
+
+        getRealmManager().getRealm().executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(final Realm realm) {
+                final val realmManager = getRealmManager();
+
+                final val story =
+                    realm.where(Story.class).equalTo(Story.ID, eventArgs.getStoryId()).findFirst();
+
+                if (story != null) {
+                    story.setText(eventArgs.getStoryText());
+
+                    story.getStoryFrames().deleteAllFromRealm();
+
+                    final val storyText = story.getText();
+
+                    if (storyText != null) {
+                        final val storyDefaultSplit = StoryTextUtils.defaultSplit(storyText);
+
+                        int startPosition = 0;
+                        int endPosition = 0;
+                        for (final val textFrame : storyDefaultSplit) {
+                            startPosition += endPosition;
+                            endPosition += textFrame.length();
+
+                            final val storyFrame = new StoryFrame();
+
+                            storyFrame.setId(realmManager.generateNextId(StoryFrame.class));
+                            storyFrame.setTextStartPosition(startPosition);
+                            storyFrame.setTextEndPosition(endPosition);
+
+                            story.getStoryFrames().add(storyFrame);
+                        }
+                    }
+                }
+            }
+        });
+    }
 }
