@@ -41,14 +41,14 @@ public final class StoriesViewerActivity extends BaseStoryActivity implements St
 
     @NonNull
     @Override
-    public final NoticeEvent getRequestInsertStoryEvent() {
-        return _requestInsertStoryEvent;
+    public final NoticeEvent getRemoveAllEvent() {
+        return _removeAllEvent;
     }
 
     @NonNull
     @Override
-    public final NoticeEvent getRemoveAllEvent() {
-        return _removeAllEvent;
+    public final NoticeEvent getRequestInsertStoryEvent() {
+        return _requestInsertStoryEvent;
     }
 
     @CallSuper
@@ -98,8 +98,11 @@ public final class StoriesViewerActivity extends BaseStoryActivity implements St
 
             setSupportActionBar(_toolbarView);
 
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            final val actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(false);
+            }
 
             final val fragmentManager = getSupportFragmentManager();
             if (fragmentManager.findFragmentById(R.id.content_container) == null) {

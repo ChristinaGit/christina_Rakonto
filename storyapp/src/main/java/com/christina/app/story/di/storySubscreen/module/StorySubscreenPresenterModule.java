@@ -2,7 +2,7 @@ package com.christina.app.story.di.storySubscreen.module;
 
 import android.support.annotation.NonNull;
 
-import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storySubscreen.StorySubscreenScope;
@@ -28,10 +28,10 @@ public final class StorySubscreenPresenterModule {
     @StorySubscreenScope
     @NonNull
     public final Presenter<StoriesListScreen> provideStoriesViewerPresenter(
-        @Named(ScopeNames.SUBSCREEN) @NonNull final ServiceManager serviceManager) {
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
+        @Named(ScopeNames.SUBSCREEN) @NonNull final StoryServiceManager storyServiceManager) {
+        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
 
-        return new StoriesListPresenter(serviceManager);
+        return new StoriesListPresenter(storyServiceManager);
     }
 
     @Named(PresenterNames.STORY_FRAMES_EDITOR)
@@ -39,10 +39,10 @@ public final class StorySubscreenPresenterModule {
     @StorySubscreenScope
     @NonNull
     public final Presenter<StoryFramesEditorScreen> provideStoryFramesEditorPresenter(
-        @Named(ScopeNames.SUBSCREEN) @NonNull final ServiceManager serviceManager) {
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
+        @Named(ScopeNames.SUBSCREEN) @NonNull final StoryServiceManager storyServiceManager) {
+        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
 
-        return new StoryFramesEditorPresenter(serviceManager);
+        return new StoryFramesEditorPresenter(storyServiceManager);
     }
 
     @Named(PresenterNames.STORY_TEXT_EDITOR)
@@ -50,9 +50,9 @@ public final class StorySubscreenPresenterModule {
     @StorySubscreenScope
     @NonNull
     public final Presenter<StoryTextEditorScreen> provideStoryTextEditorPresenter(
-        @Named(ScopeNames.SUBSCREEN) @NonNull final ServiceManager serviceManager) {
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
+        @Named(ScopeNames.SUBSCREEN) @NonNull final StoryServiceManager storyServiceManager) {
+        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
 
-        return new StoryTextEditorPresenter(serviceManager);
+        return new StoryTextEditorPresenter(storyServiceManager);
     }
 }

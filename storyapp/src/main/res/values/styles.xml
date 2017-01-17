@@ -11,10 +11,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.FullScreen" parent="AppTheme.NoActionBar">
-        <item name="android:navigationBarColor">?colorPrimary</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-    </style>
+    <style name="AppTheme.NoActionBar.FullScreen" parent="AppTheme.NoActionBar"/>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 

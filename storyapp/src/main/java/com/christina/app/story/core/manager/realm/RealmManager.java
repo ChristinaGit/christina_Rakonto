@@ -1,4 +1,4 @@
-package com.christina.app.story.core.manager.data;
+package com.christina.app.story.core.manager.realm;
 
 import android.support.annotation.NonNull;
 

@@ -46,4 +46,6 @@ dependencies {
 
     compile 'com.trello:rxlifecycle:1.0'
     compile 'com.trello:rxlifecycle-android:1.0'
+
+    compile 'commons-io:commons-io:2.4'
 }

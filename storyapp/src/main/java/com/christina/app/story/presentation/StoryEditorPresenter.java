@@ -14,7 +14,7 @@ import io.realm.RealmObject;
 import com.christina.app.story.R;
 import com.christina.app.story.core.RealmChangesObserver;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.data.model.Story;
 import com.christina.app.story.view.StoryEditorScreen;
 import com.christina.common.contract.Contracts;
@@ -23,8 +23,8 @@ import com.christina.common.event.notice.NoticeEventHandler;
 
 @Accessors(prefix = "_")
 public final class StoryEditorPresenter extends BaseStoryPresenter<StoryEditorScreen> {
-    public StoryEditorPresenter(@NonNull final ServiceManager serviceManager) {
-        super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
+    public StoryEditorPresenter(@NonNull final StoryServiceManager storyServiceManager) {
+        super(Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null"));
     }
 
     protected final void displayStory(@Nullable final Story story) {

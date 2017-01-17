@@ -15,17 +15,19 @@ import com.christina.app.story.core.RealmChangesObserver;
 import com.christina.app.story.core.StoryChangedEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.StoryTextUtils;
-import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.data.model.Story;
 import com.christina.app.story.data.model.StoryFrame;
 import com.christina.app.story.view.StoryTextEditorScreen;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.generic.EventHandler;
 
+import java.util.ArrayList;
+
 @Accessors(prefix = "_")
 public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryTextEditorScreen> {
-    public StoryTextEditorPresenter(@NonNull final ServiceManager serviceManager) {
-        super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
+    public StoryTextEditorPresenter(@NonNull final StoryServiceManager storyServiceManager) {
+        super(Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null"));
     }
 
     protected final void displayStory(@Nullable final Story story) {
@@ -128,6 +130,7 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
             @Override
             public void execute(final Realm realm) {
                 final val realmManager = getRealmManager();
+                final val fileManager = getStoryFileManager();
 
                 final val story =
                     realm.where(Story.class).equalTo(Story.ID, eventArgs.getStoryId()).findFirst();
@@ -135,7 +138,17 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
                 if (story != null) {
                     story.setText(eventArgs.getStoryText());
 
-                    story.getStoryFrames().deleteAllFromRealm();
+                    final val storyFrames = story.getStoryFrames();
+
+                    final val deleteFilesTasks = new ArrayList<Runnable>(storyFrames.size());
+                    for (final val storyFrame : storyFrames) {
+                        final val task = fileManager.getDeleteAssociatedFilesTask(storyFrame, true);
+                        deleteFilesTasks.add(task);
+                    }
+                    storyFrames.deleteAllFromRealm();
+                    for (final val deleteFilesTask : deleteFilesTasks) {
+                        deleteFilesTask.run();
+                    }
 
                     final val storyText = story.getText();
 
@@ -154,7 +167,7 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
                             storyFrame.setTextStartPosition(startPosition);
                             storyFrame.setTextEndPosition(endPosition);
 
-                            story.getStoryFrames().add(storyFrame);
+                            storyFrames.add(storyFrame);
                         }
                     }
                 }

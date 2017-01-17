@@ -2,6 +2,7 @@ package com.christina.app.story.debug;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,28 +10,30 @@ import lombok.experimental.Accessors;
 import lombok.val;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
-import com.christina.app.story.core.RealmIdGenerator;
 import com.christina.app.story.core.StoryTextUtils;
+import com.christina.app.story.core.manager.file.StoryFileManager;
 import com.christina.app.story.data.model.Story;
 import com.christina.app.story.data.model.StoryFrame;
 import com.christina.common.ConstantBuilder;
-import com.christina.common.UriScheme;
 import com.christina.common.contract.Contracts;
-import com.christina.common.utility.UriUtils;
+import com.christina.common.data.realm.RealmIdGenerator;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 @Accessors(prefix = "_")
-public final class FakeDatabase {
-    private static final String _LOG_TAG = ConstantBuilder.logTag(FakeDatabase.class);
+public final class FakeStoryDatabase {
+    private static final String _LOG_TAG = ConstantBuilder.logTag(FakeStoryDatabase.class);
 
-    public static final int STORY_COUNT = 155;
+    public static final int STORY_COUNT = 25;
 
     public static final int RANDOM_SEED = 121;
 
@@ -95,69 +98,68 @@ public final class FakeDatabase {
             .replaceAll("[^a-zA-Z]+", " ")
             .split(" ");
 
-    public FakeDatabase(
-        @NonNull final Realm realm,
+    public FakeStoryDatabase(
+        @NonNull final RealmConfiguration realmConfiguration,
         @NonNull final RealmIdGenerator realmIdGenerator,
+        @NonNull final StoryFileManager storyFileManager,
         final boolean networkAvailable) {
-        Contracts.requireNonNull(realm, "realm == null");
+        Contracts.requireNonNull(realmConfiguration, "realmConfiguration == null");
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
+        Contracts.requireNonNull(storyFileManager, "storyFileManager == null");
 
-        _realm = realm;
+        _realmConfiguration = realmConfiguration;
         _realmIdGenerator = realmIdGenerator;
-
+        _storyFileManager = storyFileManager;
         if (networkAvailable) {
             _images = Arrays.asList(NET_IMAGES);
         } else {
             final val picturesDirectory =
                 new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_PICTURES);
-            final val pictures = picturesDirectory.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(final File pathname) {
-                    return pathname.isFile();
-                }
-            });
+            final val pictures = FileUtils.listFiles(picturesDirectory,
+                                                     new String[]{"png", "jpg", "bmp", "jpeg"},
+                                                     true);
 
-            _images = new ArrayList<>(pictures.length);
+            _images = new ArrayList<>(pictures.size());
 
             for (final val picture : pictures) {
-                _images.add(UriScheme.FILE.getSchemeName() +
-                            UriUtils.SCHEMA_SEPARATOR +
-                            picture.getAbsolutePath());
+                _images.add(picture.getAbsolutePath());
             }
         }
     }
 
     public void create() {
-        final val realm = getRealm();
-
-        if (realm.isEmpty()) {
-            realm.beginTransaction();
-            createStories(new Random(RANDOM_SEED));
-            realm.commitTransaction();
+        try (final val realm = Realm.getInstance(getRealmConfiguration())) {
+            if (realm.isEmpty()) {
+                realm.beginTransaction();
+                createStories(realm, new Random(RANDOM_SEED));
+                realm.commitTransaction();
+            }
         }
     }
+
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final StoryFileManager _storyFileManager;
 
     @Getter(AccessLevel.PRIVATE)
     private final List<String> _images;
 
-    @Getter(AccessLevel.PRIVATE)
+    @Getter(AccessLevel.PROTECTED)
     @NonNull
-    private final Realm _realm;
+    private final RealmConfiguration _realmConfiguration;
 
-    @Getter(AccessLevel.PRIVATE)
+    @Getter(AccessLevel.PROTECTED)
     @NonNull
     private final RealmIdGenerator _realmIdGenerator;
 
-    private void createStories(@NonNull final Random random) {
+    private void createStories(@NonNull final Realm realm, @NonNull final Random random) {
+        Contracts.requireNonNull(realm, "realm == null");
         Contracts.requireNonNull(random, "random == null");
-
-        final val realm = getRealm();
-        final val idGenerator = getRealmIdGenerator();
 
         final long createDate = System.currentTimeMillis();
 
         for (int i = 0; i < STORY_COUNT; i++) {
-            final long id = idGenerator.generateNextId(Story.class);
+            final long id = getRealmIdGenerator().generateNextId(Story.class);
             final val story = realm.createObject(Story.class, id);
             story.setCreateDate(createDate);
             story.setModifyDate(createDate);
@@ -169,18 +171,27 @@ public final class FakeDatabase {
                                       STORY_NAME_MIN_TEXT_COUNT,
                                       STORY_NAME_MAX_TEXT_COUNT,
                                       true));
-            story.setPreviewUri(getImage(random));
 
-            createStoryFrames(random, story);
+            final val originalImageFile = new File(getImage(random));
+            final val imageFile =
+                this.getStoryFileManager().getAssociatedFile(Story.class, story.getId(), Story.FILE_PREVIEW);
+            try {
+                FileUtils.copyFile(originalImageFile, imageFile);
+            } catch (IOException e) {
+                Log.e(_LOG_TAG, "createStories: " + e.getMessage(), e);
+            }
+
+            story.setPreviewUri(imageFile.getPath());
+
+            createStoryFrames(realm, random, story);
         }
     }
 
-    private void createStoryFrames(@NonNull final Random random, @NonNull final Story story) {
+    private void createStoryFrames(
+        @NonNull final Realm realm, @NonNull final Random random, @NonNull final Story story) {
+        Contracts.requireNonNull(realm, "realm == null");
         Contracts.requireNonNull(random, "random == null");
         Contracts.requireNonNull(story, "story == null");
-
-        final val realm = getRealm();
-        final val idGenerator = getRealmIdGenerator();
 
         final val storyText = story.getText();
 
@@ -193,9 +204,20 @@ public final class FakeDatabase {
                 startPosition += endPosition;
                 endPosition += textFrame.length();
 
-                final long id = idGenerator.generateNextId(StoryFrame.class);
+                final long id = getRealmIdGenerator().generateNextId(StoryFrame.class);
                 final val storyFrame = realm.createObject(StoryFrame.class, id);
-                storyFrame.setImageUri(getImage(random));
+
+                final val originalImageFile = new File(getImage(random));
+                final val imageFile = this.getStoryFileManager().getAssociatedFile(StoryFrame.class,
+                                                                                   storyFrame.getId(),
+                                                                                   StoryFrame.FILE_IMAGE);
+                try {
+                    FileUtils.copyFile(originalImageFile, imageFile);
+                } catch (IOException e) {
+                    Log.e(_LOG_TAG, "createStories: " + e.getMessage(), e);
+                }
+
+                story.setPreviewUri(imageFile.getPath());
 
                 storyFrame.setTextStartPosition(startPosition);
                 storyFrame.setTextEndPosition(endPosition);

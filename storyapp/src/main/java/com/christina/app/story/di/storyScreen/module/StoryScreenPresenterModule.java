@@ -2,7 +2,7 @@ package com.christina.app.story.di.storyScreen.module;
 
 import android.support.annotation.NonNull;
 
-import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyScreen.StoryScreenScope;
@@ -26,10 +26,10 @@ public final class StoryScreenPresenterModule {
     @StoryScreenScope
     @NonNull
     public final Presenter<StoriesViewerScreen> provideStoriesViewerPresenter(
-        @NonNull @Named(ScopeNames.SCREEN) final ServiceManager serviceManager) {
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
+        @NonNull @Named(ScopeNames.SCREEN) final StoryServiceManager storyServiceManager) {
+        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
 
-        return new StoriesViewerPresenter(serviceManager);
+        return new StoriesViewerPresenter(storyServiceManager);
     }
 
     @Named(PresenterNames.STORY_EDITOR)
@@ -37,9 +37,9 @@ public final class StoryScreenPresenterModule {
     @StoryScreenScope
     @NonNull
     public final Presenter<StoryEditorScreen> provideStoryEditorPresenter(
-        @NonNull @Named(ScopeNames.SCREEN) final ServiceManager serviceManager) {
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
+        @NonNull @Named(ScopeNames.SCREEN) final StoryServiceManager storyServiceManager) {
+        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
 
-        return new StoryEditorPresenter(serviceManager);
+        return new StoryEditorPresenter(storyServiceManager);
     }
 }

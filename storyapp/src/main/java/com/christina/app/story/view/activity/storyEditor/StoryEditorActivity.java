@@ -385,6 +385,12 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
 
             setSupportActionBar(_toolbarView);
 
+            final val actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(false);
+            }
+
             if (_stepPagerView != null) {
                 final val screensAdapter = getStoryEditorPagesAdapter();
                 screensAdapter.setPageFactory(getStoryEditorPages());

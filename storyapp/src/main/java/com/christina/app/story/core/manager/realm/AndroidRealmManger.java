@@ -1,4 +1,4 @@
-package com.christina.app.story.core.manager.data;
+package com.christina.app.story.core.manager.realm;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,20 +11,23 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmModel;
 
-import com.christina.app.story.core.RealmIdGenerator;
-import com.christina.app.story.core.manager.ReleasableManager;
-import com.christina.app.story.core.manager.resource.ResourceManager;
+import com.christina.app.story.core.manager.common.ReleasableManager;
+import com.christina.common.aware.ResourceAware;
 import com.christina.common.contract.Contracts;
+import com.christina.common.data.realm.RealmIdGenerator;
 import com.christina.common.utility.ResourceUtils;
 
 @Accessors(prefix = "_")
 public final class AndroidRealmManger extends ReleasableManager implements RealmManager {
     public AndroidRealmManger(
-        @NonNull final ResourceManager resourceManager,
+        @NonNull final ResourceAware resourceAware,
+        @NonNull final RealmConfiguration realmConfiguration,
         @NonNull final RealmIdGenerator realmIdGenerator) {
-        super(Contracts.requireNonNull(resourceManager, "resourceManager == null"));
+        super(Contracts.requireNonNull(resourceAware, "resourceAware == null"));
+        Contracts.requireNonNull(realmConfiguration, "realmConfiguration == null");
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
 
+        _realmConfiguration = realmConfiguration;
         _realmIdGenerator = realmIdGenerator;
     }
 
@@ -68,8 +71,7 @@ public final class AndroidRealmManger extends ReleasableManager implements Realm
 
     @Getter(onMethod = @__(@Override))
     @NonNull
-    private final RealmConfiguration _realmConfiguration =
-        new RealmConfiguration.Builder().name("stories.realm").schemaVersion(1).build();
+    private final RealmConfiguration _realmConfiguration;
 
     @Getter(AccessLevel.PROTECTED)
     private final RealmIdGenerator _realmIdGenerator;

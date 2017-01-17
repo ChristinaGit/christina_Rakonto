@@ -4,11 +4,12 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 
 import lombok.experimental.Accessors;
+import lombok.val;
 
 import io.realm.Realm;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.core.manager.navigation.NavigationCallback;
 import com.christina.app.story.core.manager.navigation.NavigationResult;
 import com.christina.app.story.view.StoriesViewerScreen;
@@ -17,8 +18,8 @@ import com.christina.common.event.notice.NoticeEventHandler;
 
 @Accessors(prefix = "_")
 public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesViewerScreen> {
-    public StoriesViewerPresenter(@NonNull final ServiceManager serviceManager) {
-        super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
+    public StoriesViewerPresenter(@NonNull final StoryServiceManager storyServiceManager) {
+        super(Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null"));
     }
 
     @CallSuper
@@ -46,7 +47,11 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
             getRealmManager().getRealm().executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(final Realm realm) {
+                    final val deleteFilesTask =
+                        getStoryFileManager().getDeleteAllAssociatedFilesTask();
+
                     realm.deleteAll();
+                    deleteFilesTask.run();
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override
@@ -66,7 +71,7 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
     private final NoticeEventHandler _requestInsertStoryHandler = new NoticeEventHandler() {
         @Override
         public void onEvent() {
-            getStoryNavigator().navigateToInsertStory(new NavigationCallback() {
+            getStoryNavigationManager().navigateToInsertStory(new NavigationCallback() {
                 @Override
                 public void onNavigationResult(@NonNull final NavigationResult result) {
                     Contracts.requireNonNull(result, "result == null");

@@ -25,6 +25,8 @@ public class StoryFrame implements RealmModel, UIStoryFrame {
 
     public static final String TEXT_START_POSITION = "_textStartPosition";
 
+    public static final String FILE_IMAGE = "image";
+
     @Getter(onMethod = @__(@Override))
     @Setter
     @PrimaryKey

@@ -10,24 +10,25 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
-import com.christina.app.story.core.manager.ReleasableManager;
-import com.christina.app.story.core.manager.resource.ResourceManager;
+import com.christina.app.story.core.manager.common.ReleasableManager;
 import com.christina.app.story.view.activity.storyEditor.StoryEditorActivity;
+import com.christina.common.aware.ResourceAware;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.generic.EventHandler;
 import com.christina.common.view.observerable.ObservableActivity;
 import com.christina.common.view.observerable.eventArgs.ActivityResultEventArgs;
 
 @Accessors(prefix = "_")
-public final class ActivityNavigator extends ReleasableManager implements StoryNavigator {
+public final class ActivityStoryNavigationManager extends ReleasableManager
+    implements StoryNavigationManager {
     protected static int requestCodeIndexer = 0;
 
     protected static final int REQUEST_CODE_INSERT_STORY = requestCodeIndexer++;
 
-    public ActivityNavigator(
-        @NonNull final ResourceManager resourceManager,
+    public ActivityStoryNavigationManager(
+        @NonNull final ResourceAware resourceAware,
         @NonNull final ObservableActivity observableActivity) {
-        super(Contracts.requireNonNull(resourceManager, "resourceManager == null"));
+        super(Contracts.requireNonNull(resourceAware, "resourceAware == null"));
         Contracts.requireNonNull(observableActivity, "observableActivity == null");
 
         _observableActivity = observableActivity;
@@ -55,15 +56,13 @@ public final class ActivityNavigator extends ReleasableManager implements StoryN
 
     @Override
     protected void onAcquireResources() {
-        getObservableActivity()
-            .getActivityResultIntoActivityEvent()
-            .addHandler(_activityReulstHandler);
+        getObservableActivity().getActivityActivityResultEvent().addHandler(_activityReulstHandler);
     }
 
     @Override
     protected void onReleaseResources() {
         getObservableActivity()
-            .getActivityResultIntoActivityEvent()
+            .getActivityActivityResultEvent()
             .removeHandler(_activityReulstHandler);
     }
 

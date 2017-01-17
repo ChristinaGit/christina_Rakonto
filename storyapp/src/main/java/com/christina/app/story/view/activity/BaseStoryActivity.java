@@ -2,39 +2,24 @@ package com.christina.app.story.view.activity;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
-import com.christina.app.story.core.manager.resource.ResourceManager;
 import com.christina.app.story.di.StoryApplicationComponentProvider;
 import com.christina.app.story.di.StoryScreenComponentProvider;
 import com.christina.app.story.di.storyApplication.StoryApplicationComponent;
 import com.christina.app.story.di.storyScreen.StoryScreenComponent;
+import com.christina.app.story.di.storyScreen.module.StoryScreenAwareModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenManagerModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenPresenterModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenRxModule;
-import com.christina.common.event.Events;
-import com.christina.common.event.notice.ManagedNoticeEvent;
-import com.christina.common.event.notice.NoticeEvent;
 import com.christina.common.view.activity.ScreenActivity;
 
 @Accessors(prefix = "_")
 public abstract class BaseStoryActivity extends ScreenActivity
-    implements StoryScreenComponentProvider, ResourceManager {
-
-    @NonNull
-    @Override
-    public final NoticeEvent getAcquireResourcesEvent() {
-        return _acquireResourcesEvent;
-    }
-
-    @NonNull
-    @Override
-    public final NoticeEvent getReleaseResourcesEvent() {
-        return _releaseResourcesEvent;
-    }
+    implements StoryScreenComponentProvider {
 
     @NonNull
     public final StoryApplicationComponent getStoryApplicationComponent() {
@@ -47,35 +32,28 @@ public abstract class BaseStoryActivity extends ScreenActivity
         }
     }
 
-    @CallSuper
+    @NonNull
     @Override
-    protected void onAcquireResources() {
-        super.onAcquireResources();
+    public final StoryScreenComponent getStoryScreenComponent() {
+        if (_storyScreenComponent == null) {
+            throw new IllegalStateException("The activity has not yet been created.");
+        }
 
-        _acquireResourcesEvent.rise();
+        return _storyScreenComponent;
     }
 
     @CallSuper
     @Override
-    protected void onReleaseResources() {
-        super.onReleaseResources();
+    protected void onInjectMembers() {
+        super.onInjectMembers();
 
-        _releaseResourcesEvent.rise();
-    }
-
-    @NonNull
-    private final ManagedNoticeEvent _acquireResourcesEvent = Events.createNoticeEvent();
-
-    @NonNull
-    private final ManagedNoticeEvent _releaseResourcesEvent = Events.createNoticeEvent();
-
-    //@formatter:off
-    @NonNull
-    @Getter(onMethod = @__(@Override), lazy = true)
-    private final StoryScreenComponent _storyScreenComponent =
-        getStoryApplicationComponent().addStoryScreenComponent(
+        _storyScreenComponent = getStoryApplicationComponent().addStoryScreenComponent(
+            new StoryScreenAwareModule(this),
             new StoryScreenPresenterModule(),
-            new StoryScreenManagerModule(/*ObservableActivity*/ this, /*ResourceManager*/ this),
+            new StoryScreenManagerModule(/*ObservableActivity*/ this),
             new StoryScreenRxModule(/*LifecycleProvider*/ this));
-    //@formatter:on
+    }
+
+    @Nullable
+    private StoryScreenComponent _storyScreenComponent;
 }

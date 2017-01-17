@@ -1,4 +1,4 @@
-package com.christina.app.story.core.manager;
+package com.christina.app.story.core.manager.common;
 
 import android.support.annotation.NonNull;
 
@@ -7,19 +7,19 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
-import com.christina.app.story.core.manager.resource.ResourceManager;
+import com.christina.common.aware.ResourceAware;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.notice.NoticeEventHandler;
 
 @Accessors(prefix = "_")
 public abstract class ReleasableManager {
-    protected ReleasableManager(@NonNull final ResourceManager resourceManager) {
-        Contracts.requireNonNull(resourceManager, "resourceManager == null");
+    protected ReleasableManager(@NonNull final ResourceAware resourceAware) {
+        Contracts.requireNonNull(resourceAware, "resourceAware == null");
 
-        _resourceManager = resourceManager;
+        _resourceAware = resourceAware;
 
-        resourceManager.getAcquireResourcesEvent().addHandler(_acquireResourcesHandler);
-        resourceManager.getReleaseResourcesEvent().addHandler(_releaseResourcesHandler);
+        resourceAware.getAcquireResourcesEvent().addHandler(_acquireResourcesHandler);
+        resourceAware.getReleaseResourcesEvent().addHandler(_releaseResourcesHandler);
     }
 
     protected abstract void onAcquireResources();
@@ -40,14 +40,14 @@ public abstract class ReleasableManager {
         public void onEvent() {
             onReleaseResources();
 
-            final val resourceManager = getResourceManager();
+            final val resourceAware = getResourceAware();
 
-            resourceManager.getAcquireResourcesEvent().removeHandler(_acquireResourcesHandler);
-            resourceManager.getReleaseResourcesEvent().removeHandler(_releaseResourcesHandler);
+            resourceAware.getAcquireResourcesEvent().removeHandler(_acquireResourcesHandler);
+            resourceAware.getReleaseResourcesEvent().removeHandler(_releaseResourcesHandler);
         }
     };
 
     @Getter(AccessLevel.PROTECTED)
     @NonNull
-    private final ResourceManager _resourceManager;
+    private final ResourceAware _resourceAware;
 }

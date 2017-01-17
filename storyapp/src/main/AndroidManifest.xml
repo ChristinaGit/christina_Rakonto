@@ -34,7 +34,7 @@
         <activity
             android:name=".view.activity.storiesViewer.StoriesViewerActivity"
             android:label="@string/story_application_name"
-            android:theme="@style/AppTheme.NoActionBar.FullScreen">
+            android:theme="@style/AppTheme.NoActionBar">
 
             <intent-filter>
 

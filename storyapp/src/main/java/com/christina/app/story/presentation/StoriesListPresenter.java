@@ -17,17 +17,20 @@ import io.realm.Sort;
 
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.core.manager.ServiceManager;
+import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.data.model.Story;
+import com.christina.app.story.data.model.ui.UIStory;
 import com.christina.app.story.view.StoriesListScreen;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.generic.EventHandler;
 import com.christina.common.event.notice.NoticeEventHandler;
 
+import java.util.List;
+
 @Accessors(prefix = "_")
 public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListScreen> {
-    public StoriesListPresenter(@NonNull final ServiceManager serviceManager) {
-        super(Contracts.requireNonNull(serviceManager, "serviceManager == null"));
+    public StoriesListPresenter(@NonNull final StoryServiceManager storyServiceManager) {
+        super(Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null"));
     }
 
     protected final void displayStories() {
@@ -56,7 +59,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListSc
         final val screen = getScreen();
         if (screen != null) {
             if (stories == null || stories.isValid()) {
-                screen.displayStories(stories);
+                screen.displayStories((List<UIStory>) (List<? extends UIStory>) stories);
             } else {
                 screen.displayStories(null);
             }
@@ -77,7 +80,11 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListSc
             @Override
             public void execute(final Realm realm) {
                 final val story = realm.where(Story.class).equalTo(Story.ID, storyId).findFirst();
+                final val deleteFilesTask =
+                    getStoryFileManager().getDeleteAssociatedFilesTask(story, true);
+
                 RealmObject.deleteFromRealm(story);
+                deleteFilesTask.run();
             }
         }, new Realm.Transaction.OnSuccess() {
             @Override
@@ -94,7 +101,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListSc
 
     @CallSuper
     protected void editStory(final long storyId) {
-        getStoryNavigator().navigateToEditStory(storyId);
+        getStoryNavigationManager().navigateToEditStory(storyId);
     }
 
     @CallSuper

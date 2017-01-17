@@ -12,7 +12,7 @@ import com.christina.common.presentation.Screen;
 import java.util.List;
 
 public interface StoriesListScreen extends Screen {
-    void displayStories(@Nullable List<? extends UIStory> stories);
+    void displayStories(@Nullable List<UIStory> stories);
 
     void displayStoriesLoading();
 

@@ -7,8 +7,8 @@ import com.christina.common.presentation.Screen;
 
 public interface StoriesViewerScreen extends Screen {
     @NonNull
-    NoticeEvent getRequestInsertStoryEvent();
+    NoticeEvent getRemoveAllEvent();
 
     @NonNull
-    NoticeEvent getRemoveAllEvent();
+    NoticeEvent getRequestInsertStoryEvent();
 }

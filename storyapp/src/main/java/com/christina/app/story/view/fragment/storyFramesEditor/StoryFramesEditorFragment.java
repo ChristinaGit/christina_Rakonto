@@ -21,7 +21,6 @@ import butterknife.BindView;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.adpter.storyFrames.StoryFramesAdapter;
-import com.christina.app.story.core.delegate.LoadingViewDelegate;
 import com.christina.app.story.data.model.ui.UIStory;
 import com.christina.app.story.data.model.ui.UIStoryFrame;
 import com.christina.app.story.di.qualifier.PresenterNames;
@@ -35,6 +34,7 @@ import com.christina.common.event.notice.NoticeEvent;
 import com.christina.common.presentation.Presenter;
 import com.christina.common.view.ContentLoaderProgressBar;
 import com.christina.common.view.ItemSpacingDecorator;
+import com.christina.common.view.delegate.LoadingViewDelegate;
 
 import java.util.List;
 

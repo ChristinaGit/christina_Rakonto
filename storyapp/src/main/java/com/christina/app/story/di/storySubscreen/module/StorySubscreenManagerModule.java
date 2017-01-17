@@ -2,19 +2,21 @@ package com.christina.app.story.di.storySubscreen.module;
 
 import android.support.annotation.NonNull;
 
+import io.realm.RealmConfiguration;
+
 import com.trello.rxlifecycle.LifecycleProvider;
 import com.trello.rxlifecycle.android.FragmentEvent;
 
-import com.christina.app.story.core.RealmIdGenerator;
-import com.christina.app.story.core.manager.ServiceManager;
-import com.christina.app.story.core.manager.data.AndroidRealmManger;
-import com.christina.app.story.core.manager.data.RealmManager;
-import com.christina.app.story.core.manager.resource.ResourceManager;
+import com.christina.app.story.core.manager.StoryServiceManager;
+import com.christina.app.story.core.manager.realm.AndroidRealmManger;
+import com.christina.app.story.core.manager.realm.RealmManager;
 import com.christina.app.story.core.manager.rx.AndroidRxManager;
 import com.christina.app.story.core.manager.rx.RxManager;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storySubscreen.StorySubscreenScope;
+import com.christina.common.aware.ResourceAware;
 import com.christina.common.contract.Contracts;
+import com.christina.common.data.realm.RealmIdGenerator;
 
 import javax.inject.Named;
 
@@ -24,31 +26,20 @@ import dagger.Provides;
 @Module
 @StorySubscreenScope
 public final class StorySubscreenManagerModule {
-    public StorySubscreenManagerModule(@NonNull final ResourceManager resourceManager) {
-        Contracts.requireNonNull(resourceManager, "resourceManager == null");
-
-        _resourceManager = resourceManager;
-    }
 
     @Named(ScopeNames.SUBSCREEN)
     @Provides
     @StorySubscreenScope
     @NonNull
-    public final RealmManager provideRealmManager(
-        @NonNull @Named(ScopeNames.SUBSCREEN) final ResourceManager resourceManager,
+    public final RealmManager provideDataManager(
+        @NonNull @Named(ScopeNames.SUBSCREEN) final ResourceAware resourceAware,
+        @NonNull final RealmConfiguration realmConfiguration,
         @NonNull final RealmIdGenerator realmIdGenerator) {
-        Contracts.requireNonNull(resourceManager, "resourceManager == null");
+        Contracts.requireNonNull(resourceAware, "resourceAware == null");
+        Contracts.requireNonNull(realmConfiguration, "realmConfiguration == null");
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
 
-        return new AndroidRealmManger(resourceManager, realmIdGenerator);
-    }
-
-    @Named(ScopeNames.SUBSCREEN)
-    @Provides
-    @StorySubscreenScope
-    @NonNull
-    public final ResourceManager provideResourceManager() {
-        return _resourceManager;
+        return new AndroidRealmManger(resourceAware, realmConfiguration, realmIdGenerator);
     }
 
     @Named(ScopeNames.SUBSCREEN)
@@ -67,24 +58,19 @@ public final class StorySubscreenManagerModule {
     @Provides
     @StorySubscreenScope
     @NonNull
-    public final ServiceManager provideServiceManager(
-        @NonNull @Named(ScopeNames.SCREEN) final ServiceManager serviceManager,
-        @NonNull @Named(ScopeNames.SUBSCREEN) final ResourceManager resourceManager,
+    public final StoryServiceManager provideStoryServiceManager(
+        @NonNull @Named(ScopeNames.SCREEN) final StoryServiceManager storyServiceManager,
         @NonNull @Named(ScopeNames.SUBSCREEN) final RealmManager realmManager,
         @NonNull @Named(ScopeNames.SUBSCREEN) final RxManager rxManager) {
-        Contracts.requireNonNull(serviceManager, "serviceManager == null");
-        Contracts.requireNonNull(resourceManager, "resourceManager == null");
+        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
         Contracts.requireNonNull(realmManager, "realmManager == null");
         Contracts.requireNonNull(rxManager, "rxManager == null");
 
-        return new ServiceManager(
-            resourceManager,
-            serviceManager.getStoryNavigator(),
+        return new StoryServiceManager(
+            storyServiceManager.getStoryFileManager(),
+            storyServiceManager.getStoryNavigationManager(),
             realmManager,
             rxManager,
-            serviceManager.getMessageManager());
+            storyServiceManager.getMessageManager());
     }
-
-    @NonNull
-    private final ResourceManager _resourceManager;
 }

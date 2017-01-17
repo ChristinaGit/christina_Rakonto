@@ -21,7 +21,6 @@ import butterknife.BindView;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
-import com.christina.app.story.core.delegate.LoadingViewDelegate;
 import com.christina.app.story.data.model.ui.UIStory;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoriesListScreen;
@@ -35,6 +34,7 @@ import com.christina.common.event.notice.NoticeEvent;
 import com.christina.common.presentation.Presenter;
 import com.christina.common.view.ContentLoaderProgressBar;
 import com.christina.common.view.ItemSpacingDecorator;
+import com.christina.common.view.delegate.LoadingViewDelegate;
 
 import java.util.List;
 
@@ -48,11 +48,11 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
 
     @CallSuper
     @Override
-    public void displayStories(@Nullable List<? extends UIStory> stories) {
+    public void displayStories(@Nullable final List<UIStory> stories) {
         getLoadingViewDelegate().showContent(stories != null && !stories.isEmpty());
 
         final val storiesListAdapter = getStoriesListAdapter();
-        storiesListAdapter.setItems((List<UIStory>) stories);
+        storiesListAdapter.setItems(stories);
         storiesListAdapter.notifyDataSetChanged();
 
         if (_state != null && !_state.isScrollPositionRestored()) {

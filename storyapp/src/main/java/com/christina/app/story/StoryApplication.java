@@ -3,24 +3,18 @@ package com.christina.app.story;
 import android.app.Application;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.experimental.Accessors;
-import lombok.val;
 
 import io.realm.Realm;
 
-import com.christina.app.story.core.RealmIdGenerator;
-import com.christina.app.story.core.manager.data.AndroidRealmManger;
-import com.christina.app.story.core.manager.resource.ResourceManager;
-import com.christina.app.story.debug.FakeDatabase;
+import com.christina.app.story.core.manager.file.AndroidStoryFileManager;
 import com.christina.app.story.di.StoryApplicationComponentProvider;
 import com.christina.app.story.di.storyApplication.DaggerStoryApplicationComponent;
 import com.christina.app.story.di.storyApplication.StoryApplicationComponent;
+import com.christina.app.story.di.storyApplication.module.StoryApplicationManagerModule;
 import com.christina.app.story.di.storyApplication.module.StoryApplicationRealmModule;
-import com.christina.common.event.Events;
-import com.christina.common.event.notice.NoticeEvent;
 
 /**
  * TODO:
@@ -35,11 +29,22 @@ import com.christina.common.event.notice.NoticeEvent;
  * <li>Add custom provider permissions;</li>
  * <li>Convert layouts to ConstraintLayout;</li>
  * <li>Implement Leave-behinds;</li>
+ * <li>Fix landscape nav bar;</li>
  * </ul>
  */
 @Accessors(prefix = "_")
 public final class StoryApplication extends Application
     implements StoryApplicationComponentProvider {
+    @NonNull
+    @Override
+    public final StoryApplicationComponent getStoryApplicationComponent() {
+        if (_storyApplicationComponent == null) {
+            throw new IllegalStateException("The application has not yet been created.");
+        }
+
+        return _storyApplicationComponent;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -48,45 +53,18 @@ public final class StoryApplication extends Application
 
         Realm.init(getApplicationContext());
 
-        // TODO: 1/11/2017 Remove debug database.
-        createDebugDatabase();
-    }
-
-    @NonNull
-    @Getter(value = AccessLevel.PRIVATE)
-    private final RealmIdGenerator _realmIdGenerator = new RealmIdGenerator();
-
-    @NonNull
-    @Getter(onMethod = @__(@Override))
-    private final StoryApplicationComponent _storyApplicationComponent =
-        DaggerStoryApplicationComponent
+        _storyApplicationComponent = DaggerStoryApplicationComponent
             .builder()
-            .storyApplicationRealmModule(new StoryApplicationRealmModule(getRealmIdGenerator()))
+            .storyApplicationRealmModule(new StoryApplicationRealmModule())
+            .storyApplicationManagerModule(new StoryApplicationManagerModule(new AndroidStoryFileManager(
+                getFilesDir())))
             .build();
 
-    private void createDebugDatabase() {
-        final val realmConfiguration = new AndroidRealmManger(new ResourceManager() {
-            @NonNull
-            @Override
-            public NoticeEvent getAcquireResourcesEvent() {
-                return Events.createNoticeEvent();
-            }
-
-            @NonNull
-            @Override
-            public NoticeEvent getReleaseResourcesEvent() {
-                return Events.createNoticeEvent();
-            }
-        }, getRealmIdGenerator()).getRealmConfiguration();
-
-        try (final val realm = Realm.getInstance(realmConfiguration)) {
-            getRealmIdGenerator().initialize(realm);
-        }
-
-        new FakeDatabase(Realm.getInstance(realmConfiguration),
-                         getRealmIdGenerator(),
-                         false).create();
+        getStoryApplicationComponent().getFakeStoryDatabase().create();
     }
+
+    @Nullable
+    private StoryApplicationComponent _storyApplicationComponent;
 
     private void enableStrictMode(final boolean enable) {
         if (enable) {

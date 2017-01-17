@@ -33,6 +33,8 @@ public class Story implements RealmModel, UIStory {
 
     public static final String TEXT = "_text";
 
+    public static final String FILE_PREVIEW = "preview";
+
     @Getter(onMethod = @__(@Override))
     @Setter
     private long _createDate;

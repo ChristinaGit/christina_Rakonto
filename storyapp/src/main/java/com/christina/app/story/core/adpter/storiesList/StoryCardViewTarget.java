@@ -1,8 +1,12 @@
 package com.christina.app.story.core.adpter.storiesList;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.CardView;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,7 +37,12 @@ import com.christina.common.contract.Contracts;
 
             final val holder = getHolder();
 
-            holder.cardView.setCardBackgroundColor(backgroundColor);
+            final int animationDuration = holder
+                .getContext()
+                .getResources()
+                .getInteger(android.R.integer.config_longAnimTime);
+
+            _animateCardBackgroundColor(holder.cardView, backgroundColor, animationDuration);
 
             holder.storyNameView.setTextColor(titleColor);
             holder.storyNameView.setHintTextColor(bodyColor);
@@ -58,4 +67,18 @@ import com.christina.common.contract.Contracts;
     @Getter(AccessLevel.PRIVATE)
     @NonNull
     private final StoryViewHolder _holder;
+
+    private void _animateCardBackgroundColor(
+        @NonNull final CardView cardView, @ColorInt final int colorTo, final long duration) {
+        final int colorFrom = cardView.getCardBackgroundColor().getDefaultColor();
+        final val animation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+        animation.setDuration(duration);
+        animation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(final ValueAnimator a) {
+                cardView.setCardBackgroundColor((int) a.getAnimatedValue());
+            }
+        });
+        animation.start();
+    }
 }
