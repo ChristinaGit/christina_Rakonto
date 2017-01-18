@@ -12,7 +12,7 @@ import io.realm.RealmConfiguration;
 import io.realm.RealmModel;
 
 import com.christina.app.story.core.manager.common.ReleasableManager;
-import com.christina.common.aware.ResourceAware;
+import com.christina.common.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.realm.RealmIdGenerator;
 import com.christina.common.utility.ResourceUtils;
@@ -20,10 +20,10 @@ import com.christina.common.utility.ResourceUtils;
 @Accessors(prefix = "_")
 public final class AndroidRealmManger extends ReleasableManager implements RealmManager {
     public AndroidRealmManger(
-        @NonNull final ResourceAware resourceAware,
+        @NonNull final ResourceAdviser resourceAdviser,
         @NonNull final RealmConfiguration realmConfiguration,
         @NonNull final RealmIdGenerator realmIdGenerator) {
-        super(Contracts.requireNonNull(resourceAware, "resourceAware == null"));
+        super(Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null"));
         Contracts.requireNonNull(realmConfiguration, "realmConfiguration == null");
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
 

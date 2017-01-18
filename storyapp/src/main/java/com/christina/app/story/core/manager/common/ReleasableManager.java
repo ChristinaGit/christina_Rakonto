@@ -7,19 +7,19 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
-import com.christina.common.aware.ResourceAware;
+import com.christina.common.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.notice.NoticeEventHandler;
 
 @Accessors(prefix = "_")
 public abstract class ReleasableManager {
-    protected ReleasableManager(@NonNull final ResourceAware resourceAware) {
-        Contracts.requireNonNull(resourceAware, "resourceAware == null");
+    protected ReleasableManager(@NonNull final ResourceAdviser resourceAdviser) {
+        Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null");
 
-        _resourceAware = resourceAware;
+        _resourceAdviser = resourceAdviser;
 
-        resourceAware.getAcquireResourcesEvent().addHandler(_acquireResourcesHandler);
-        resourceAware.getReleaseResourcesEvent().addHandler(_releaseResourcesHandler);
+        resourceAdviser.getAcquireResourcesEvent().addHandler(_acquireResourcesHandler);
+        resourceAdviser.getReleaseResourcesEvent().addHandler(_releaseResourcesHandler);
     }
 
     protected abstract void onAcquireResources();
@@ -40,14 +40,14 @@ public abstract class ReleasableManager {
         public void onEvent() {
             onReleaseResources();
 
-            final val resourceAware = getResourceAware();
+            final val resourceAdviser = getResourceAdviser();
 
-            resourceAware.getAcquireResourcesEvent().removeHandler(_acquireResourcesHandler);
-            resourceAware.getReleaseResourcesEvent().removeHandler(_releaseResourcesHandler);
+            resourceAdviser.getAcquireResourcesEvent().removeHandler(_acquireResourcesHandler);
+            resourceAdviser.getReleaseResourcesEvent().removeHandler(_releaseResourcesHandler);
         }
     };
 
     @Getter(AccessLevel.PROTECTED)
     @NonNull
-    private final ResourceAware _resourceAware;
+    private final ResourceAdviser _resourceAdviser;
 }

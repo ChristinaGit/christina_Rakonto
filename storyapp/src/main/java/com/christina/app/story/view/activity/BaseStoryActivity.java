@@ -11,7 +11,7 @@ import com.christina.app.story.di.StoryApplicationComponentProvider;
 import com.christina.app.story.di.StoryScreenComponentProvider;
 import com.christina.app.story.di.storyApplication.StoryApplicationComponent;
 import com.christina.app.story.di.storyScreen.StoryScreenComponent;
-import com.christina.app.story.di.storyScreen.module.StoryScreenAwareModule;
+import com.christina.app.story.di.storyScreen.module.StoryScreenAdviserModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenManagerModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenPresenterModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenRxModule;
@@ -48,7 +48,7 @@ public abstract class BaseStoryActivity extends ScreenActivity
         super.onInjectMembers();
 
         _storyScreenComponent = getStoryApplicationComponent().addStoryScreenComponent(
-            new StoryScreenAwareModule(this),
+            new StoryScreenAdviserModule(this),
             new StoryScreenPresenterModule(),
             new StoryScreenManagerModule(/*ObservableActivity*/ this),
             new StoryScreenRxModule(/*LifecycleProvider*/ this));

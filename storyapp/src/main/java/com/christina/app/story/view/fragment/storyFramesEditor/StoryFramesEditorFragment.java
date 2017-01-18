@@ -116,19 +116,6 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
         return view;
     }
 
-    @CallSuper
-    @Override
-    protected void onInjectMembers() {
-        super.onInjectMembers();
-
-        getStorySubscreenComponent().inject(this);
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.bindScreen(this);
-        }
-    }
-
     @Override
     protected void onReleaseInjectedMembers() {
         super.onReleaseInjectedMembers();
@@ -198,6 +185,19 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
 
             _storyFramesView.setLayoutManager(getStoryFramesLayoutManager());
             _storyFramesView.setAdapter(getStoryFramesAdapter());
+        }
+    }
+
+    @CallSuper
+    @Override
+    protected void onInjectMembers() {
+        super.onInjectMembers();
+
+        getStorySubscreenComponent().inject(this);
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.bindScreen(this);
         }
     }
 

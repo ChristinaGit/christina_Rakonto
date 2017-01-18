@@ -135,19 +135,6 @@ public final class StoryTextEditorFragment extends BaseStoryEditorFragment
         return view;
     }
 
-    @CallSuper
-    @Override
-    protected void onInjectMembers() {
-        super.onInjectMembers();
-
-        getStorySubscreenComponent().inject(this);
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.bindScreen(this);
-        }
-    }
-
     @Override
     protected void onReleaseInjectedMembers() {
         super.onReleaseInjectedMembers();
@@ -172,6 +159,19 @@ public final class StoryTextEditorFragment extends BaseStoryEditorFragment
         onStoryChanged();
 
         _contentChangedEvent.rise();
+    }
+
+    @CallSuper
+    @Override
+    protected void onInjectMembers() {
+        super.onInjectMembers();
+
+        getStorySubscreenComponent().inject(this);
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.bindScreen(this);
+        }
     }
 
     @CallSuper

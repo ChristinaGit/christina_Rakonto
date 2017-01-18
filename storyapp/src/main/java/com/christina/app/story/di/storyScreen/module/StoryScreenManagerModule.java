@@ -19,7 +19,7 @@ import com.christina.app.story.core.manager.rx.AndroidRxManager;
 import com.christina.app.story.core.manager.rx.RxManager;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyScreen.StoryScreenScope;
-import com.christina.common.aware.ResourceAware;
+import com.christina.common.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.realm.RealmIdGenerator;
 import com.christina.common.view.observerable.ObservableActivity;
@@ -61,14 +61,14 @@ public final class StoryScreenManagerModule {
     @StoryScreenScope
     @NonNull
     public final RealmManager provideRealmManager(
-        @NonNull @Named(ScopeNames.SCREEN) final ResourceAware resourceAware,
+        @NonNull @Named(ScopeNames.SCREEN) final ResourceAdviser resourceAdviser,
         @NonNull final RealmConfiguration realmConfiguration,
         @NonNull final RealmIdGenerator realmIdGenerator) {
-        Contracts.requireNonNull(resourceAware, "resourceAware == null");
+        Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null");
         Contracts.requireNonNull(realmConfiguration, "realmConfiguration == null");
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
 
-        return new AndroidRealmManger(resourceAware, realmConfiguration, realmIdGenerator);
+        return new AndroidRealmManger(resourceAdviser, realmConfiguration, realmIdGenerator);
     }
 
     @Named(ScopeNames.SCREEN)
@@ -81,6 +81,18 @@ public final class StoryScreenManagerModule {
         Contracts.requireNonNull(lifecycleProvider, "lifecycleProvider == null");
 
         return new AndroidRxManager<>(lifecycleProvider);
+    }
+
+    @Provides
+    @StoryScreenScope
+    @NonNull
+    public final StoryNavigationManager provideStoryNavigationManager(
+        @NonNull @Named(ScopeNames.SCREEN) final ResourceAdviser resourceAdviser,
+        @NonNull final ObservableActivity observableActivity) {
+        Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null");
+        Contracts.requireNonNull(observableActivity, "observableActivity == null");
+
+        return new ActivityStoryNavigationManager(resourceAdviser, observableActivity);
     }
 
     @Named(ScopeNames.SCREEN)
@@ -99,23 +111,11 @@ public final class StoryScreenManagerModule {
         Contracts.requireNonNull(rxManager, "rxManager == null");
         Contracts.requireNonNull(messageManager, "messageManager == null");
 
-        return new StoryServiceManager(
-            storyFileManager, storyNavigationManager,
-            realmManager,
-            rxManager,
-            messageManager);
-    }
-
-    @Provides
-    @StoryScreenScope
-    @NonNull
-    public final StoryNavigationManager provideStoryNavigationManager(
-        @NonNull @Named(ScopeNames.SCREEN) final ResourceAware resourceAware,
-        @NonNull final ObservableActivity observableActivity) {
-        Contracts.requireNonNull(resourceAware, "resourceAware == null");
-        Contracts.requireNonNull(observableActivity, "observableActivity == null");
-
-        return new ActivityStoryNavigationManager(resourceAware, observableActivity);
+        return new StoryServiceManager(storyFileManager,
+                                       storyNavigationManager,
+                                       realmManager,
+                                       rxManager,
+                                       messageManager);
     }
 
     @NonNull

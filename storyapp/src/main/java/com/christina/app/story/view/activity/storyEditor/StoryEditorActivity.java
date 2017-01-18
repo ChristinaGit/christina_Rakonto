@@ -324,6 +324,19 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     }
 
     @CallSuper
+    @Override
+    protected void onInjectMembers() {
+        super.onInjectMembers();
+
+        getStoryScreenComponent().inject(this);
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.bindScreen(this);
+        }
+    }
+
+    @CallSuper
     protected void onLeaveStep(final int position) {
         final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
         if (editorFragment != null) {
@@ -440,19 +453,6 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
                 _state.setActivePage(0);
             }
             outState.putParcelable(_KEY_SAVED_STATE, _state);
-        }
-    }
-
-    @CallSuper
-    @Override
-    protected void onInjectMembers() {
-        super.onInjectMembers();
-
-        getStoryScreenComponent().inject(this);
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.bindScreen(this);
         }
     }
 

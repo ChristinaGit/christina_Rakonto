@@ -138,19 +138,6 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
         }
     }
 
-    @CallSuper
-    @Override
-    protected void onInjectMembers() {
-        super.onInjectMembers();
-
-        getStorySubscreenComponent().inject(this);
-
-        final val presenter = getPresenter();
-        if (presenter != null) {
-            presenter.bindScreen(this);
-        }
-    }
-
     @Override
     protected void onReleaseInjectedMembers() {
         super.onReleaseInjectedMembers();
@@ -201,6 +188,19 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
 
             _storiesView.setLayoutManager(getStoriesLayoutManager());
             _storiesView.setAdapter(getStoriesListAdapter());
+        }
+    }
+
+    @CallSuper
+    @Override
+    protected void onInjectMembers() {
+        super.onInjectMembers();
+
+        getStorySubscreenComponent().inject(this);
+
+        final val presenter = getPresenter();
+        if (presenter != null) {
+            presenter.bindScreen(this);
         }
     }
 

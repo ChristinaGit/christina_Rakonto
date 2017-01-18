@@ -12,7 +12,7 @@ import lombok.val;
 
 import com.christina.app.story.core.manager.common.ReleasableManager;
 import com.christina.app.story.view.activity.storyEditor.StoryEditorActivity;
-import com.christina.common.aware.ResourceAware;
+import com.christina.common.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.generic.EventHandler;
 import com.christina.common.view.observerable.ObservableActivity;
@@ -26,9 +26,9 @@ public final class ActivityStoryNavigationManager extends ReleasableManager
     protected static final int REQUEST_CODE_INSERT_STORY = requestCodeIndexer++;
 
     public ActivityStoryNavigationManager(
-        @NonNull final ResourceAware resourceAware,
+        @NonNull final ResourceAdviser resourceAdviser,
         @NonNull final ObservableActivity observableActivity) {
-        super(Contracts.requireNonNull(resourceAware, "resourceAware == null"));
+        super(Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null"));
         Contracts.requireNonNull(observableActivity, "observableActivity == null");
 
         _observableActivity = observableActivity;
@@ -56,14 +56,12 @@ public final class ActivityStoryNavigationManager extends ReleasableManager
 
     @Override
     protected void onAcquireResources() {
-        getObservableActivity().getActivityActivityResultEvent().addHandler(_activityReulstHandler);
+        getObservableActivity().getActivityResultEvent().addHandler(_activityReulstHandler);
     }
 
     @Override
     protected void onReleaseResources() {
-        getObservableActivity()
-            .getActivityActivityResultEvent()
-            .removeHandler(_activityReulstHandler);
+        getObservableActivity().getActivityResultEvent().removeHandler(_activityReulstHandler);
     }
 
     @NonNull

@@ -14,7 +14,7 @@ import com.christina.app.story.core.manager.rx.AndroidRxManager;
 import com.christina.app.story.core.manager.rx.RxManager;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storySubscreen.StorySubscreenScope;
-import com.christina.common.aware.ResourceAware;
+import com.christina.common.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.realm.RealmIdGenerator;
 
@@ -32,14 +32,14 @@ public final class StorySubscreenManagerModule {
     @StorySubscreenScope
     @NonNull
     public final RealmManager provideDataManager(
-        @NonNull @Named(ScopeNames.SUBSCREEN) final ResourceAware resourceAware,
+        @NonNull @Named(ScopeNames.SUBSCREEN) final ResourceAdviser resourceAdviser,
         @NonNull final RealmConfiguration realmConfiguration,
         @NonNull final RealmIdGenerator realmIdGenerator) {
-        Contracts.requireNonNull(resourceAware, "resourceAware == null");
+        Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null");
         Contracts.requireNonNull(realmConfiguration, "realmConfiguration == null");
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
 
-        return new AndroidRealmManger(resourceAware, realmConfiguration, realmIdGenerator);
+        return new AndroidRealmManger(resourceAdviser, realmConfiguration, realmIdGenerator);
     }
 
     @Named(ScopeNames.SUBSCREEN)

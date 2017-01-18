@@ -1,6 +1,6 @@
 package com.christina.app.story.di.storySubscreen;
 
-import com.christina.app.story.di.storySubscreen.module.StorySubscreenAwareModule;
+import com.christina.app.story.di.storySubscreen.module.StorySubscreenAdviserModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenManagerModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenPresenterModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenRxModule;
@@ -14,7 +14,7 @@ import dagger.Subcomponent;
     StorySubscreenManagerModule.class,
     StorySubscreenPresenterModule.class,
     StorySubscreenRxModule.class,
-    StorySubscreenAwareModule.class})
+    StorySubscreenAdviserModule.class})
 @StorySubscreenScope
 public interface StorySubscreenComponent {
     void inject(StoriesListFragment fragment);

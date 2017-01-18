@@ -137,10 +137,6 @@ public final class FakeStoryDatabase {
         }
     }
 
-    @Getter(AccessLevel.PROTECTED)
-    @NonNull
-    private final StoryFileManager _storyFileManager;
-
     @Getter(AccessLevel.PRIVATE)
     private final List<String> _images;
 
@@ -151,6 +147,10 @@ public final class FakeStoryDatabase {
     @Getter(AccessLevel.PROTECTED)
     @NonNull
     private final RealmIdGenerator _realmIdGenerator;
+
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final StoryFileManager _storyFileManager;
 
     private void createStories(@NonNull final Realm realm, @NonNull final Random random) {
         Contracts.requireNonNull(realm, "realm == null");
@@ -173,12 +173,13 @@ public final class FakeStoryDatabase {
                                       true));
 
             final val originalImageFile = new File(getImage(random));
-            final val imageFile =
-                this.getStoryFileManager().getAssociatedFile(Story.class, story.getId(), Story.FILE_PREVIEW);
+            final val imageFile = getStoryFileManager().getAssociatedFile(Story.class,
+                                                                          story.getId(),
+                                                                          Story.FILE_PREVIEW);
             try {
                 FileUtils.copyFile(originalImageFile, imageFile);
             } catch (IOException e) {
-                Log.e(_LOG_TAG, "createStories: " + e.getMessage(), e);
+                Log.e(_LOG_TAG, "Filed to copy file: " + originalImageFile + " to " + imageFile, e);
             }
 
             story.setPreviewUri(imageFile.getPath());
@@ -208,9 +209,10 @@ public final class FakeStoryDatabase {
                 final val storyFrame = realm.createObject(StoryFrame.class, id);
 
                 final val originalImageFile = new File(getImage(random));
-                final val imageFile = this.getStoryFileManager().getAssociatedFile(StoryFrame.class,
-                                                                                   storyFrame.getId(),
-                                                                                   StoryFrame.FILE_IMAGE);
+                final val imageFile = getStoryFileManager().getAssociatedFile(StoryFrame.class,
+                                                                              storyFrame.getId(),
+                                                                              StoryFrame
+                                                                                  .FILE_IMAGE);
                 try {
                     FileUtils.copyFile(originalImageFile, imageFile);
                 } catch (IOException e) {

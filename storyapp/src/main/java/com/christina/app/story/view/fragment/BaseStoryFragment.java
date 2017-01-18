@@ -11,7 +11,7 @@ import com.christina.app.story.di.StoryScreenComponentProvider;
 import com.christina.app.story.di.StorySubscreenComponentProvider;
 import com.christina.app.story.di.storyScreen.StoryScreenComponent;
 import com.christina.app.story.di.storySubscreen.StorySubscreenComponent;
-import com.christina.app.story.di.storySubscreen.module.StorySubscreenAwareModule;
+import com.christina.app.story.di.storySubscreen.module.StorySubscreenAdviserModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenManagerModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenPresenterModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenRxModule;
@@ -48,7 +48,7 @@ public abstract class BaseStoryFragment extends ScreenFragment
         super.onInjectMembers();
 
         _storySubscreenComponent = getStoryViewComponent().addStorySubscreenComponent(
-            new StorySubscreenAwareModule(this),
+            new StorySubscreenAdviserModule(this),
             new StorySubscreenManagerModule(),
             new StorySubscreenPresenterModule(),
             new StorySubscreenRxModule(this));
