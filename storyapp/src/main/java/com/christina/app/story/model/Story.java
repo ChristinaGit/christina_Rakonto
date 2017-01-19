@@ -1,4 +1,4 @@
-package com.christina.app.story.data.model;
+package com.christina.app.story.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +13,7 @@ import io.realm.RealmModel;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 
-import com.christina.app.story.data.model.ui.UIStory;
+import com.christina.app.story.model.ui.UIStory;
 
 @RealmClass
 @ToString(doNotUseGetters = true)

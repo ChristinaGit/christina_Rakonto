@@ -11,7 +11,7 @@ import com.christina.app.story.presentation.StoryEditorPresenter;
 import com.christina.app.story.view.StoriesViewerScreen;
 import com.christina.app.story.view.StoryEditorScreen;
 import com.christina.common.contract.Contracts;
-import com.christina.common.presentation.Presenter;
+import com.christina.common.mvp.presenter.Presenter;
 
 import javax.inject.Named;
 

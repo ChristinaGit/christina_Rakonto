@@ -11,7 +11,7 @@ import butterknife.BindView;
 
 import com.christina.app.story.R;
 import com.christina.common.contract.Contracts;
-import com.christina.common.view.recyclerView.viewHolder.ExtendedRecyclerViewHolder;
+import com.christina.common.extension.view.recyclerView.viewHolder.ExtendedRecyclerViewHolder;
 
 /*package-private*/ final class StoryViewHolder extends ExtendedRecyclerViewHolder {
     @BindView(R.id.story_card)

@@ -1,6 +1,6 @@
 package com.christina.app.story.di.storyApplication;
 
-import com.christina.app.story.debug.FakeStoryDatabase;
+import com.christina.app.story.core.debug.FakeStoryDatabase;
 import com.christina.app.story.di.storyApplication.module.StoryApplicationDebugModule;
 import com.christina.app.story.di.storyApplication.module.StoryApplicationManagerModule;
 import com.christina.app.story.di.storyApplication.module.StoryApplicationRealmModule;

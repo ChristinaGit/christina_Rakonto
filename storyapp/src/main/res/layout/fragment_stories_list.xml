@@ -13,7 +13,7 @@
         tools:context=".story.storiesViewer.StoriesViewerFragment"
         tools:listitem="@layout/fragment_stories_list_item"/>
 
-    <com.christina.common.view.ContentLoaderProgressBar
+    <com.christina.common.extension.view.ContentLoaderProgressBar
         android:id="@+id/stories_loading"
         style="?android:progressBarStyleLarge"
         android:layout_width="wrap_content"

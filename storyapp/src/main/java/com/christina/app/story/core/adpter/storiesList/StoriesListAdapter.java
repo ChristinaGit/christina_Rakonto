@@ -16,12 +16,12 @@ import com.bumptech.glide.Glide;
 
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.data.model.ui.UIStory;
+import com.christina.app.story.model.ui.UIStory;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.Events;
 import com.christina.common.event.generic.Event;
 import com.christina.common.event.generic.ManagedEvent;
-import com.christina.common.view.recyclerView.adapter.RecyclerViewListAdapter;
+import com.christina.common.extension.view.recyclerView.adapter.RecyclerViewListAdapter;
 
 import java.util.List;
 

@@ -8,17 +8,17 @@ import lombok.experimental.Accessors;
 
 import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.core.manager.file.StoryFileManager;
-import com.christina.app.story.core.manager.message.MessageManager;
+import com.christina.common.control.manager.message.MessageManager;
 import com.christina.app.story.core.manager.navigation.StoryNavigationManager;
-import com.christina.app.story.core.manager.realm.RealmManager;
-import com.christina.app.story.core.manager.rx.RxManager;
+import com.christina.common.control.manager.realm.RealmManager;
+import com.christina.common.control.manager.rx.RxManager;
 import com.christina.common.contract.Contracts;
-import com.christina.common.presentation.AbstractPresenter;
-import com.christina.common.presentation.Screen;
+import com.christina.common.mvp.presenter.BasePresenter;
+import com.christina.common.mvp.screen.Screen;
 
 @Accessors(prefix = "_")
 public abstract class BaseStoryPresenter<TScreen extends Screen>
-    extends AbstractPresenter<TScreen> {
+    extends BasePresenter<TScreen> {
     public BaseStoryPresenter(
         @NonNull final StoryServiceManager storyServiceManager) {
         Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");

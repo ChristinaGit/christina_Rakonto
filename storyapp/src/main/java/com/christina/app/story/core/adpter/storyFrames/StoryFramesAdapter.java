@@ -14,9 +14,9 @@ import lombok.val;
 import com.bumptech.glide.Glide;
 
 import com.christina.app.story.R;
-import com.christina.app.story.data.model.ui.UIStoryFrame;
+import com.christina.app.story.model.ui.UIStoryFrame;
 import com.christina.common.contract.Contracts;
-import com.christina.common.view.recyclerView.adapter.RecyclerViewListAdapter;
+import com.christina.common.extension.view.recyclerView.adapter.RecyclerViewListAdapter;
 
 import java.util.List;
 import java.util.Objects;

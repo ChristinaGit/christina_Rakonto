@@ -15,7 +15,7 @@ import com.christina.app.story.di.storySubscreen.module.StorySubscreenAdviserMod
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenManagerModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenPresenterModule;
 import com.christina.app.story.di.storySubscreen.module.StorySubscreenRxModule;
-import com.christina.common.view.fragment.ScreenFragment;
+import com.christina.common.extension.fragment.ScreenFragment;
 
 @Accessors(prefix = "_")
 public abstract class BaseStoryFragment extends ScreenFragment

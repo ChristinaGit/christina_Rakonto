@@ -1,25 +1,22 @@
 package com.christina.app.story.core.manager.navigation;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.util.SparseArray;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.val;
 
-import com.christina.app.story.core.manager.common.ReleasableManager;
 import com.christina.app.story.view.activity.storyEditor.StoryEditorActivity;
-import com.christina.common.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
-import com.christina.common.event.generic.EventHandler;
-import com.christina.common.view.observerable.ObservableActivity;
-import com.christina.common.view.observerable.eventArgs.ActivityResultEventArgs;
+import com.christina.common.control.adviser.ResourceAdviser;
+import com.christina.common.control.manager.navigation.ActivityNavigationManager;
+import com.christina.common.control.manager.navigation.NavigationCallback;
+import com.christina.common.control.manager.navigation.NavigationResult;
+import com.christina.common.extension.activity.ObservableActivity;
 
 @Accessors(prefix = "_")
-public final class ActivityStoryNavigationManager extends ReleasableManager
+public final class ActivityStoryNavigationManager extends ActivityNavigationManager
     implements StoryNavigationManager {
     protected static int requestCodeIndexer = 0;
 
@@ -28,10 +25,11 @@ public final class ActivityStoryNavigationManager extends ReleasableManager
     public ActivityStoryNavigationManager(
         @NonNull final ResourceAdviser resourceAdviser,
         @NonNull final ObservableActivity observableActivity) {
-        super(Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null"));
-        Contracts.requireNonNull(observableActivity, "observableActivity == null");
+        super(
+            Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null"),
+            Contracts.requireNonNull(observableActivity, "observableActivity == null"));
 
-        _observableActivity = observableActivity;
+        setAutoReleaseCallbacks(true);
     }
 
     @Override
@@ -43,62 +41,28 @@ public final class ActivityStoryNavigationManager extends ReleasableManager
     public void navigateToInsertStory(
         @Nullable final NavigationCallback navigationCallback) {
         if (navigationCallback != null) {
-            getCallbacks().append(REQUEST_CODE_INSERT_STORY, navigationCallback);
+            registerNavigationCallback(REQUEST_CODE_INSERT_STORY, navigationCallback);
         }
 
         StoryEditorActivity.startInsertForResult(getActivity(), REQUEST_CODE_INSERT_STORY);
     }
 
-    @NonNull
-    protected final AppCompatActivity getActivity() {
-        return getObservableActivity().asActivity();
-    }
-
     @Override
-    protected void onAcquireResources() {
-        getObservableActivity().getActivityResultEvent().addHandler(_activityReulstHandler);
-    }
-
-    @Override
-    protected void onReleaseResources() {
-        getObservableActivity().getActivityResultEvent().removeHandler(_activityReulstHandler);
-    }
-
-    @NonNull
-    private final EventHandler<ActivityResultEventArgs> _activityReulstHandler =
-        new EventHandler<ActivityResultEventArgs>() {
-            @Override
-            public void onEvent(@NonNull final ActivityResultEventArgs eventArgs) {
-                final int requestCode = eventArgs.getRequestCode();
-                final int resultCode = eventArgs.getResultCode();
-
-                final val callbacks = getCallbacks();
-                final val callback = callbacks.get(requestCode);
-
-                if (REQUEST_CODE_INSERT_STORY == requestCode) {
-                    if (callback instanceof NavigationCallback) {
-                        final val navigationCallback = (NavigationCallback) callback;
-
-                        final val result = getNavigationResult(requestCode, resultCode);
-                        navigationCallback.onNavigationResult(result);
-                    }
-
-                    callbacks.remove(REQUEST_CODE_INSERT_STORY);
-                }
+    protected final void onActivityResult(
+        final int requestCode,
+        final int resultCode,
+        @Nullable final Intent data,
+        @Nullable final NavigationCallback callback) {
+        if (REQUEST_CODE_INSERT_STORY == requestCode) {
+            if (callback != null) {
+                final val result = getNavigationResult(requestCode, resultCode);
+                callback.onNavigationResult(result);
             }
-        };
-
-    @Getter(value = AccessLevel.PRIVATE)
-    @NonNull
-    private final SparseArray<Object> _callbacks = new SparseArray<>();
-
-    @Getter(value = AccessLevel.PROTECTED)
-    @NonNull
-    private final ObservableActivity _observableActivity;
+        }
+    }
 
     @NonNull
-    private NavigationResult getNavigationResult(
-        final int requestCode, final int resultCode) {
+    private NavigationResult getNavigationResult(final int requestCode, final int resultCode) {
         final NavigationResult navigationResult;
 
         if (requestCode == REQUEST_CODE_INSERT_STORY) {

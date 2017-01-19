@@ -15,7 +15,7 @@ import com.christina.app.story.di.storyScreen.module.StoryScreenAdviserModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenManagerModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenPresenterModule;
 import com.christina.app.story.di.storyScreen.module.StoryScreenRxModule;
-import com.christina.common.view.activity.ScreenActivity;
+import com.christina.common.extension.activity.ScreenActivity;
 
 @Accessors(prefix = "_")
 public abstract class BaseStoryActivity extends ScreenActivity

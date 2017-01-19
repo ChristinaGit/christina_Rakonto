@@ -1,4 +1,4 @@
-package com.christina.app.story.debug;
+package com.christina.app.story.core.debug;
 
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -14,8 +14,8 @@ import io.realm.RealmConfiguration;
 
 import com.christina.app.story.core.StoryTextUtils;
 import com.christina.app.story.core.manager.file.StoryFileManager;
-import com.christina.app.story.data.model.Story;
-import com.christina.app.story.data.model.StoryFrame;
+import com.christina.app.story.model.Story;
+import com.christina.app.story.model.StoryFrame;
 import com.christina.common.ConstantBuilder;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.realm.RealmIdGenerator;

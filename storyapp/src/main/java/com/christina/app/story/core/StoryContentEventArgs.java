@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
-import com.christina.app.story.data.model.ui.UIStory;
+import com.christina.app.story.model.ui.UIStory;
 import com.christina.common.event.eventArgs.EventArgs;
 
 @Accessors(prefix = "_")

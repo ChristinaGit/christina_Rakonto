@@ -1,4 +1,4 @@
-package com.christina.app.story.data.model.ui;
+package com.christina.app.story.model.ui;
 
 import android.support.annotation.Nullable;
 

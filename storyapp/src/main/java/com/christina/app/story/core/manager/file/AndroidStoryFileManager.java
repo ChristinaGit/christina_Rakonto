@@ -9,8 +9,8 @@ import lombok.val;
 
 import io.realm.RealmModel;
 
-import com.christina.app.story.data.model.Story;
-import com.christina.app.story.data.model.StoryFrame;
+import com.christina.app.story.model.Story;
+import com.christina.app.story.model.StoryFrame;
 import com.christina.common.contract.Contracts;
 
 import org.apache.commons.io.FileUtils;

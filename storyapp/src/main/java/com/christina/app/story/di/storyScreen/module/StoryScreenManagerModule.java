@@ -7,22 +7,23 @@ import io.realm.RealmConfiguration;
 import com.trello.rxlifecycle.LifecycleProvider;
 import com.trello.rxlifecycle.android.ActivityEvent;
 
+import com.christina.app.story.R;
 import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.core.manager.file.StoryFileManager;
-import com.christina.app.story.core.manager.message.ActivityMessageManager;
-import com.christina.app.story.core.manager.message.MessageManager;
 import com.christina.app.story.core.manager.navigation.ActivityStoryNavigationManager;
 import com.christina.app.story.core.manager.navigation.StoryNavigationManager;
-import com.christina.app.story.core.manager.realm.AndroidRealmManger;
-import com.christina.app.story.core.manager.realm.RealmManager;
-import com.christina.app.story.core.manager.rx.AndroidRxManager;
-import com.christina.app.story.core.manager.rx.RxManager;
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyScreen.StoryScreenScope;
-import com.christina.common.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
+import com.christina.common.control.adviser.ResourceAdviser;
+import com.christina.common.control.manager.message.ActivityMessageManager;
+import com.christina.common.control.manager.message.MessageManager;
+import com.christina.common.control.manager.realm.AndroidRealmManger;
+import com.christina.common.control.manager.realm.RealmManager;
+import com.christina.common.control.manager.rx.AndroidRxManager;
+import com.christina.common.control.manager.rx.RxManager;
 import com.christina.common.data.realm.RealmIdGenerator;
-import com.christina.common.view.observerable.ObservableActivity;
+import com.christina.common.extension.activity.ObservableActivity;
 
 import javax.inject.Named;
 
@@ -46,7 +47,7 @@ public final class StoryScreenManagerModule {
         @NonNull final ObservableActivity observableActivity) {
         Contracts.requireNonNull(observableActivity, "observableActivity == null");
 
-        return new ActivityMessageManager(observableActivity);
+        return new ActivityMessageManager(observableActivity, R.id.coordinator);
     }
 
     @Provides

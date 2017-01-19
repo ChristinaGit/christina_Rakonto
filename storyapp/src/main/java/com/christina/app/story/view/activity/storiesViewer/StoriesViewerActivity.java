@@ -28,7 +28,7 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.event.Events;
 import com.christina.common.event.notice.ManagedNoticeEvent;
 import com.christina.common.event.notice.NoticeEvent;
-import com.christina.common.presentation.Presenter;
+import com.christina.common.mvp.presenter.Presenter;
 
 import javax.inject.Inject;
 import javax.inject.Named;

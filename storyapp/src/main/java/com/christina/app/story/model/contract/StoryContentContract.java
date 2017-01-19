@@ -1,4 +1,4 @@
-package com.christina.app.story.data.contract;
+package com.christina.app.story.model.contract;
 
 import android.net.Uri;
 

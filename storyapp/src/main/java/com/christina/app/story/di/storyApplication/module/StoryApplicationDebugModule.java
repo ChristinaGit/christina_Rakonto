@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import io.realm.RealmConfiguration;
 
 import com.christina.app.story.core.manager.file.StoryFileManager;
-import com.christina.app.story.debug.FakeStoryDatabase;
+import com.christina.app.story.core.debug.FakeStoryDatabase;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
 import com.christina.common.contract.Contracts;
 import com.christina.common.data.realm.RealmIdGenerator;

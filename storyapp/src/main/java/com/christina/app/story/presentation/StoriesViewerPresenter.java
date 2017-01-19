@@ -10,8 +10,8 @@ import io.realm.Realm;
 
 import com.christina.app.story.R;
 import com.christina.app.story.core.manager.StoryServiceManager;
-import com.christina.app.story.core.manager.navigation.NavigationCallback;
-import com.christina.app.story.core.manager.navigation.NavigationResult;
+import com.christina.common.control.manager.navigation.NavigationCallback;
+import com.christina.common.control.manager.navigation.NavigationResult;
 import com.christina.app.story.view.StoriesViewerScreen;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.notice.NoticeEventHandler;

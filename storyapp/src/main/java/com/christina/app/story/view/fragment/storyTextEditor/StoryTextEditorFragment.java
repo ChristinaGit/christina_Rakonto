@@ -22,7 +22,7 @@ import butterknife.OnTextChanged.Callback;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryChangedEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.data.model.ui.UIStory;
+import com.christina.app.story.model.ui.UIStory;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryTextEditorScreen;
 import com.christina.app.story.view.fragment.BaseStoryEditorFragment;
@@ -31,10 +31,10 @@ import com.christina.common.event.generic.Event;
 import com.christina.common.event.generic.ManagedEvent;
 import com.christina.common.event.notice.ManagedNoticeEvent;
 import com.christina.common.event.notice.NoticeEvent;
-import com.christina.common.presentation.Presenter;
+import com.christina.common.mvp.presenter.Presenter;
 import com.christina.common.utility.ImeUtils;
-import com.christina.common.view.ContentLoaderProgressBar;
-import com.christina.common.view.delegate.LoadingViewDelegate;
+import com.christina.common.extension.view.ContentLoaderProgressBar;
+import com.christina.common.extension.delegate.LoadingViewDelegate;
 
 import java.util.Objects;
 

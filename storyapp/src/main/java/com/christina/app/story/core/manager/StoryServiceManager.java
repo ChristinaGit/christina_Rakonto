@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 import com.christina.app.story.core.manager.file.StoryFileManager;
-import com.christina.app.story.core.manager.message.MessageManager;
+import com.christina.common.control.manager.message.MessageManager;
 import com.christina.app.story.core.manager.navigation.StoryNavigationManager;
-import com.christina.app.story.core.manager.realm.RealmManager;
-import com.christina.app.story.core.manager.rx.RxManager;
+import com.christina.common.control.manager.realm.RealmManager;
+import com.christina.common.control.manager.rx.RxManager;
 import com.christina.common.contract.Contracts;
 
 @Accessors(prefix = "_")

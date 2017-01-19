@@ -5,9 +5,9 @@ import android.support.annotation.Nullable;
 
 import com.christina.app.story.core.StoryChangedEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.data.model.ui.UIStory;
+import com.christina.app.story.model.ui.UIStory;
 import com.christina.common.event.generic.Event;
-import com.christina.common.presentation.Screen;
+import com.christina.common.mvp.screen.Screen;
 
 public interface StoryTextEditorScreen extends Screen {
     void displayStory(@Nullable UIStory story);

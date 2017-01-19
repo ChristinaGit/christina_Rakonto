@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 
 import io.realm.RealmModel;
 
-import com.christina.app.story.data.model.Story;
-import com.christina.app.story.data.model.StoryFrame;
+import com.christina.app.story.model.Story;
+import com.christina.app.story.model.StoryFrame;
 
 import java.io.File;
 
