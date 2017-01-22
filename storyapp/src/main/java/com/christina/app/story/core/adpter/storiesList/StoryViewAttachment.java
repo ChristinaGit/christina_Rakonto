@@ -13,7 +13,7 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.extension.delegate.LoadingViewDelegate;
 
 @Accessors(prefix = "_")
-public class StoryViewAttachment {
+/*package-private*/ final class StoryViewAttachment {
     public StoryViewAttachment(
         @NonNull final BitmapImageViewTarget viewTarget,
         @NonNull final LoadingViewDelegate loadingViewDelegate,
