@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="holder_story_id" type="id"/>
+    <item name="holder_adapter_position" type="id"/>
+    <item name="holder_view_attachment" type="id"/>
 </resources>

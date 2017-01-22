@@ -8,17 +8,18 @@ import lombok.experimental.Accessors;
 
 import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.core.manager.file.StoryFileManager;
-import com.christina.common.control.manager.message.MessageManager;
 import com.christina.app.story.core.manager.navigation.StoryNavigationManager;
+import com.christina.app.story.core.manager.search.StorySearchManager;
+import com.christina.common.contract.Contracts;
+import com.christina.common.control.manager.message.MessageManager;
 import com.christina.common.control.manager.realm.RealmManager;
 import com.christina.common.control.manager.rx.RxManager;
-import com.christina.common.contract.Contracts;
+import com.christina.common.control.manager.task.TaskManager;
 import com.christina.common.mvp.presenter.BasePresenter;
 import com.christina.common.mvp.screen.Screen;
 
 @Accessors(prefix = "_")
-public abstract class BaseStoryPresenter<TScreen extends Screen>
-    extends BasePresenter<TScreen> {
+public abstract class BaseStoryPresenter<TScreen extends Screen> extends BasePresenter<TScreen> {
     public BaseStoryPresenter(
         @NonNull final StoryServiceManager storyServiceManager) {
         Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
@@ -39,6 +40,16 @@ public abstract class BaseStoryPresenter<TScreen extends Screen>
     @NonNull
     public final StoryFileManager getStoryFileManager() {
         return getStoryServiceManager().getStoryFileManager();
+    }
+
+    @NonNull
+    public final StorySearchManager getStorySearchManager() {
+        return getStoryServiceManager().getStorySearchManager();
+    }
+
+    @NonNull
+    public final TaskManager getTaskManager() {
+        return getStoryServiceManager().getTaskManager();
     }
 
     @NonNull

@@ -3,8 +3,12 @@ package com.christina.app.story.di.storyApplication.module;
 import android.support.annotation.NonNull;
 
 import com.christina.app.story.core.manager.file.StoryFileManager;
+import com.christina.app.story.core.manager.search.GoogleStorySearchManager;
+import com.christina.app.story.core.manager.search.StorySearchManager;
 import com.christina.app.story.di.storyApplication.StoryApplicationScope;
 import com.christina.common.contract.Contracts;
+import com.christina.common.control.manager.task.AndroidTaskManager;
+import com.christina.common.control.manager.task.TaskManager;
 
 import dagger.Module;
 import dagger.Provides;
@@ -23,6 +27,23 @@ public final class StoryApplicationManagerModule {
     @NonNull
     public final StoryFileManager provideStoryFileManager() {
         return _storyFileManager;
+    }
+
+    @Provides
+    @StoryApplicationScope
+    @NonNull
+    public final StorySearchManager provideStorySearchManager(
+        @NonNull final TaskManager taskManager) {
+        Contracts.requireNonNull(taskManager, "taskManager == null");
+
+        return new GoogleStorySearchManager(taskManager);
+    }
+
+    @Provides
+    @StoryApplicationScope
+    @NonNull
+    public final TaskManager provideTaskManager() {
+        return new AndroidTaskManager();
     }
 
     @NonNull

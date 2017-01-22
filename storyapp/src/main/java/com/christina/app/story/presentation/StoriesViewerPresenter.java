@@ -10,10 +10,10 @@ import io.realm.Realm;
 
 import com.christina.app.story.R;
 import com.christina.app.story.core.manager.StoryServiceManager;
-import com.christina.common.control.manager.navigation.NavigationCallback;
-import com.christina.common.control.manager.navigation.NavigationResult;
 import com.christina.app.story.view.StoriesViewerScreen;
 import com.christina.common.contract.Contracts;
+import com.christina.common.control.manager.navigation.NavigationCallback;
+import com.christina.common.control.manager.navigation.NavigationResult;
 import com.christina.common.event.notice.NoticeEventHandler;
 
 @Accessors(prefix = "_")
@@ -51,7 +51,8 @@ public final class StoriesViewerPresenter extends BaseStoryPresenter<StoriesView
                         getStoryFileManager().getDeleteAllAssociatedFilesTask();
 
                     realm.deleteAll();
-                    deleteFilesTask.run();
+
+                    getTaskManager().executeAsync(deleteFilesTask);
                 }
             }, new Realm.Transaction.OnSuccess() {
                 @Override

@@ -11,7 +11,6 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmObject;
 
-import com.christina.common.data.realm.RealmChangesObserver;
 import com.christina.app.story.core.StoryChangedEventArgs;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.StoryTextUtils;
@@ -20,6 +19,7 @@ import com.christina.app.story.model.Story;
 import com.christina.app.story.model.StoryFrame;
 import com.christina.app.story.view.StoryTextEditorScreen;
 import com.christina.common.contract.Contracts;
+import com.christina.common.data.realm.RealmChangesObserver;
 import com.christina.common.event.generic.EventHandler;
 
 import java.util.ArrayList;
@@ -146,8 +146,9 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
                         deleteFilesTasks.add(task);
                     }
                     storyFrames.deleteAllFromRealm();
+                    final val taskManager = getTaskManager();
                     for (final val deleteFilesTask : deleteFilesTasks) {
-                        deleteFilesTask.run();
+                        taskManager.executeAsync(deleteFilesTask);
                     }
 
                     final val storyText = story.getText();

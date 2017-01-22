@@ -84,7 +84,8 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListSc
                     getStoryFileManager().getDeleteAssociatedFilesTask(story, true);
 
                 RealmObject.deleteFromRealm(story);
-                deleteFilesTask.run();
+
+                getTaskManager().executeAsync(deleteFilesTask);
             }
         }, new Realm.Transaction.OnSuccess() {
             @Override

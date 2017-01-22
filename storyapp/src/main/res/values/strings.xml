@@ -21,9 +21,9 @@
     <string name="message_story_load_fail">Failed to load story</string>
 
     <string name="caption_no_content">Nothing to show</string>
+    <string name="caption_retry">Retry</string>
 
-    <string name="caption_stories_viewer_no_story_title_hint">&lt;unnamed&gt;</string>
-    <string name="caption_stories_viewer_no_story_text_hint">&lt;empty story&gt;</string>
+    <string name="caption_load_story_preview_fail">Failed to load story preview</string>
 
     <string name="caption_story_editor_next_step">Next</string>
     <string name="caption_story_editor_previous_step">Previous</string>

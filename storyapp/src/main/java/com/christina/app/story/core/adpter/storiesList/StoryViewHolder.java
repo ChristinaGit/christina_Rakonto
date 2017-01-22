@@ -11,6 +11,7 @@ import butterknife.BindView;
 
 import com.christina.app.story.R;
 import com.christina.common.contract.Contracts;
+import com.christina.common.extension.view.ContentLoaderProgressBar;
 import com.christina.common.extension.view.recyclerView.viewHolder.ExtendedRecyclerViewHolder;
 
 /*package-private*/ final class StoryViewHolder extends ExtendedRecyclerViewHolder {
@@ -26,9 +27,21 @@ import com.christina.common.extension.view.recyclerView.viewHolder.ExtendedRecyc
     @NonNull
     public Button shareStoryView;
 
+    @BindView(R.id.story_load_fail)
+    @NonNull
+    public View storyLoadFailView;
+
+    @BindView(R.id.story_load_retry)
+    @NonNull
+    public Button storyLoadRetryView;
+
     @BindView(R.id.story_name)
     @NonNull
     public TextView storyNameView;
+
+    @BindView(R.id.story_preview_loading)
+    @NonNull
+    public ContentLoaderProgressBar storyPreviewLoadingView;
 
     @BindView(R.id.story_preview)
     @NonNull
@@ -42,12 +55,5 @@ import com.christina.common.extension.view.recyclerView.viewHolder.ExtendedRecyc
         super(Contracts.requireNonNull(itemView, "itemView == null"));
 
         bindViews();
-
-        Contracts.requireNonNull(cardView);
-        Contracts.requireNonNull(editStoryView);
-        Contracts.requireNonNull(shareStoryView);
-        Contracts.requireNonNull(storyPreviewView);
-        Contracts.requireNonNull(storyNameView);
-        Contracts.requireNonNull(storyTextView);
     }
 }
