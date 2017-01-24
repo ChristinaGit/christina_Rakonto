@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -133,7 +133,9 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
                 _state = new StoriesListState();
             }
 
-            _state.setScrollPosition(getStoriesLayoutManager().findFirstVisibleItemPosition());
+            final int scrollPosition =
+                getStoriesLayoutManager().findFirstCompletelyVisibleItemPositions(null)[0];
+            _state.setScrollPosition(scrollPosition);
             outState.putParcelable(_KEY_SAVED_STATE, _state);
         }
     }
@@ -253,7 +255,7 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
 
     @Getter(value = AccessLevel.PROTECTED, lazy = true)
     @NonNull
-    private final GridLayoutManager _storiesLayoutManager = createStoriesLayoutManager();
+    private final StaggeredGridLayoutManager _storiesLayoutManager = createStoriesLayoutManager();
 
     @Getter(value = AccessLevel.PROTECTED)
     @NonNull
@@ -266,8 +268,8 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
     private StoriesListState _state;
 
     @NonNull
-    private GridLayoutManager createStoriesLayoutManager() {
+    private StaggeredGridLayoutManager createStoriesLayoutManager() {
         final int columnCount = getResources().getInteger(R.integer.stories_viewer_column_count);
-        return new GridLayoutManager(getContext(), columnCount);
+        return new StaggeredGridLayoutManager(columnCount, StaggeredGridLayoutManager.VERTICAL);
     }
 }
