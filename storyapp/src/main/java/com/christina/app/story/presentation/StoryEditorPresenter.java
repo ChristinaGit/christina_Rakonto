@@ -12,12 +12,12 @@ import io.realm.RealmChangeListener;
 import io.realm.RealmObject;
 
 import com.christina.app.story.R;
-import com.christina.common.data.realm.RealmChangesObserver;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.model.Story;
 import com.christina.app.story.view.StoryEditorScreen;
 import com.christina.common.contract.Contracts;
+import com.christina.common.data.realm.RealmChangesObserver;
 import com.christina.common.event.generic.EventHandler;
 import com.christina.common.event.notice.NoticeEventHandler;
 

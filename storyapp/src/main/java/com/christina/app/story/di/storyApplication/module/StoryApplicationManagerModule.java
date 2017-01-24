@@ -32,11 +32,9 @@ public final class StoryApplicationManagerModule {
     @Provides
     @StoryApplicationScope
     @NonNull
-    public final StorySearchManager provideStorySearchManager(
-        @NonNull final TaskManager taskManager) {
-        Contracts.requireNonNull(taskManager, "taskManager == null");
+    public final StorySearchManager provideStorySearchManager() {
 
-        return new GoogleStorySearchManager(taskManager);
+        return new GoogleStorySearchManager();
     }
 
     @Provides

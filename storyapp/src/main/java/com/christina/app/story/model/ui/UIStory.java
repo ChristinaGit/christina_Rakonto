@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
+// TODO: 1/24/2017 Rename.
 public interface UIStory {
     long getCreateDate();
 

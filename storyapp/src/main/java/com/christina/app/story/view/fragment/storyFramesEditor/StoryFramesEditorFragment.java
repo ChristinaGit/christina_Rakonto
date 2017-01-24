@@ -21,9 +21,9 @@ import butterknife.BindView;
 import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.adpter.storyFrames.StoryFramesAdapter;
+import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.model.ui.UIStory;
 import com.christina.app.story.model.ui.UIStoryFrame;
-import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryFramesEditorScreen;
 import com.christina.app.story.view.fragment.BaseStoryEditorFragment;
 import com.christina.common.event.Events;
@@ -31,10 +31,10 @@ import com.christina.common.event.generic.Event;
 import com.christina.common.event.generic.ManagedEvent;
 import com.christina.common.event.notice.ManagedNoticeEvent;
 import com.christina.common.event.notice.NoticeEvent;
-import com.christina.common.mvp.presenter.Presenter;
-import com.christina.common.extension.view.ContentLoaderProgressBar;
 import com.christina.common.extension.ItemSpacingDecorator;
 import com.christina.common.extension.delegate.LoadingViewDelegate;
+import com.christina.common.extension.view.ContentLoaderProgressBar;
+import com.christina.common.mvp.presenter.Presenter;
 
 import java.util.List;
 
@@ -44,6 +44,32 @@ import javax.inject.Named;
 @Accessors(prefix = "_")
 public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
     implements StoryFramesEditorScreen {
+
+    @Override
+    public final void displayStoreFrameCandidates(
+        final long storyFrameId, @Nullable final List<String> candidatesUris) {
+        // FIXME: 1/25/2017
+    }
+
+    @CallSuper
+    @Override
+    public void displayStory(@Nullable final UIStory story) {
+        getLoadingViewDelegate().showContent();
+
+        setStory(story);
+
+        notifyEditedStoryChanged();
+    }
+
+    @Override
+    public final void displayStoryLoading() {
+        getLoadingViewDelegate().showLoading();
+    }
+
+    @NonNull
+    public final Event<StoryEventArgs> getStartEditStoryEvent() {
+        return _startEditStoryEvent;
+    }
 
     @NonNull
     @Override
@@ -71,26 +97,6 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
     @Override
     public void notifyStopEditing() {
         onSaveStoryChanges();
-    }
-
-    @CallSuper
-    @Override
-    public void displayStory(@Nullable final UIStory story) {
-        getLoadingViewDelegate().showContent();
-
-        setStory(story);
-
-        notifyEditedStoryChanged();
-    }
-
-    @Override
-    public final void displayStoryLoading() {
-        getLoadingViewDelegate().showLoading();
-    }
-
-    @NonNull
-    public final Event<StoryEventArgs> getStartEditStoryEvent() {
-        return _startEditStoryEvent;
     }
 
     @Nullable

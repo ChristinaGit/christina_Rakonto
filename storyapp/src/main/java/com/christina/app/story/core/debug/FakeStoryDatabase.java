@@ -33,9 +33,15 @@ import java.util.Random;
 public final class FakeStoryDatabase {
     private static final String _LOG_TAG = ConstantBuilder.logTag(FakeStoryDatabase.class);
 
-    public static final int STORY_COUNT = 25;
+    public static final int STORY_COUNT = 125;
 
     public static final int RANDOM_SEED = 121;
+
+    public static final int CHANCE_BAD_STORY_PREVIEW = 15;
+
+    public static final int CHANCE_EMPTY_STORY_NAME = 25;
+
+    public static final int CHANCE_EMPTY_STORY_TEXT = 15;
 
     public static final int STORY_NAME_MIN_WORD_COUNT = 2;
 
@@ -163,23 +169,36 @@ public final class FakeStoryDatabase {
             final val story = realm.createObject(Story.class, id);
             story.setCreateDate(createDate);
             story.setModifyDate(createDate);
-            story.setName(getSentence(random,
-                                      STORY_NAME_MIN_WORD_COUNT,
-                                      STORY_NAME_MAX_WORD_COUNT,
-                                      false));
-            story.setText(getSentence(random,
-                                      STORY_NAME_MIN_TEXT_COUNT,
-                                      STORY_NAME_MAX_TEXT_COUNT,
-                                      true));
+
+            final boolean emptyStoryName = random.nextInt(100) <= CHANCE_EMPTY_STORY_NAME;
+            if (!emptyStoryName) {
+                story.setName(getSentence(random,
+                                          STORY_NAME_MIN_WORD_COUNT,
+                                          STORY_NAME_MAX_WORD_COUNT,
+                                          false));
+            }
+            final boolean emptyStoryText = random.nextInt(100) <= CHANCE_EMPTY_STORY_TEXT;
+            if (!emptyStoryText) {
+                story.setText(getSentence(random,
+                                          STORY_NAME_MIN_TEXT_COUNT,
+                                          STORY_NAME_MAX_TEXT_COUNT,
+                                          true));
+            }
 
             final val originalImageFile = new File(getImage(random));
             final val imageFile = getStoryFileManager().getAssociatedFile(Story.class,
                                                                           story.getId(),
                                                                           Story.FILE_PREVIEW);
-            try {
-                FileUtils.copyFile(originalImageFile, imageFile);
-            } catch (IOException e) {
-                Log.e(_LOG_TAG, "Filed to copy file: " + originalImageFile + " to " + imageFile, e);
+
+            final boolean badStoryPreview = random.nextInt(100) <= CHANCE_BAD_STORY_PREVIEW;
+            if (!badStoryPreview) {
+                try {
+                    FileUtils.copyFile(originalImageFile, imageFile);
+                } catch (final IOException exception) {
+                    Log.e(_LOG_TAG,
+                          "Filed to copy file: " + originalImageFile + " to " + imageFile,
+                          exception);
+                }
             }
 
             story.setPreviewUri(imageFile.getPath());
@@ -196,6 +215,9 @@ public final class FakeStoryDatabase {
 
         final val storyText = story.getText();
 
+        final val idGenerator = getRealmIdGenerator();
+        final val fileManager = getStoryFileManager();
+
         if (storyText != null) {
             final val defaultSplit = StoryTextUtils.defaultSplit(storyText);
 
@@ -205,18 +227,19 @@ public final class FakeStoryDatabase {
                 startPosition += endPosition;
                 endPosition += textFrame.length();
 
-                final long id = getRealmIdGenerator().generateNextId(StoryFrame.class);
+                final long id = idGenerator.generateNextId(StoryFrame.class);
                 final val storyFrame = realm.createObject(StoryFrame.class, id);
 
                 final val originalImageFile = new File(getImage(random));
-                final val imageFile = getStoryFileManager().getAssociatedFile(StoryFrame.class,
-                                                                              storyFrame.getId(),
-                                                                              StoryFrame
-                                                                                  .FILE_IMAGE);
+                final val imageFile = fileManager.getAssociatedFile(StoryFrame.class,
+                                                                    storyFrame.getId(),
+                                                                    StoryFrame.FILE_IMAGE);
                 try {
                     FileUtils.copyFile(originalImageFile, imageFile);
-                } catch (IOException e) {
-                    Log.e(_LOG_TAG, "createStories: " + e.getMessage(), e);
+                } catch (final IOException exception) {
+                    Log.e(_LOG_TAG,
+                          "Filed to copy file: " + originalImageFile + " to " + imageFile,
+                          exception);
                 }
 
                 story.setPreviewUri(imageFile.getPath());

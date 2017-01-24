@@ -26,10 +26,10 @@ import com.christina.app.story.R;
 import com.christina.app.story.core.StoryEventArgs;
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageChangedEventArgs;
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPagesAdapter;
+import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.model.contract.StoryContentCode;
 import com.christina.app.story.model.contract.StoryContract;
 import com.christina.app.story.model.ui.UIStory;
-import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.view.StoryEditorScreen;
 import com.christina.app.story.view.activity.BaseStoryActivity;
 import com.christina.common.ConstantBuilder;
@@ -529,20 +529,6 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     }
 
     @NonNull
-    private final EventHandler<StoryEditorPageChangedEventArgs> _editFragmentContentChangedHandler =
-        new EventHandler<StoryEditorPageChangedEventArgs>() {
-            @Override
-            public void onEvent(@NonNull final StoryEditorPageChangedEventArgs eventArgs) {
-                Contracts.requireNonNull(eventArgs, "eventArgs == null");
-
-                if (_stepPagerView != null &&
-                    _stepPagerView.getCurrentItem() == eventArgs.getPage()) {
-                    invalidateNavigationButtons();
-                }
-            }
-        };
-
-    @NonNull
     private final ManagedEvent<StoryEventArgs> _editStoryEvent = Events.createEvent();
 
     @NonNull
@@ -556,6 +542,20 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     @NonNull
     private final StoryEditorPagesAdapter _storyEditorPagesAdapter =
         new StoryEditorPagesAdapter(getSupportFragmentManager());
+
+    @NonNull
+    private final EventHandler<StoryEditorPageChangedEventArgs> _editFragmentContentChangedHandler =
+        new EventHandler<StoryEditorPageChangedEventArgs>() {
+            @Override
+            public void onEvent(@NonNull final StoryEditorPageChangedEventArgs eventArgs) {
+                Contracts.requireNonNull(eventArgs, "eventArgs == null");
+
+                if (_stepPagerView != null &&
+                    _stepPagerView.getCurrentItem() == eventArgs.getPage()) {
+                    invalidateNavigationButtons();
+                }
+            }
+        };
 
     @Getter(AccessLevel.PROTECTED)
     @Nullable

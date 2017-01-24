@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.christina.app.story.di.qualifier.ScopeNames;
 import com.christina.app.story.di.storyScreen.StoryScreenScope;
-import com.christina.common.control.adviser.ResourceAdviser;
 import com.christina.common.contract.Contracts;
+import com.christina.common.control.adviser.ResourceAdviser;
 
 import javax.inject.Named;
 

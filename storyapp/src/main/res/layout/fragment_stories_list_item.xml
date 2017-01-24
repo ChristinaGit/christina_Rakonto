@@ -95,6 +95,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/story_name"
+            app:layout_goneMarginTop="@dimen/card_large_primary_text_padding_top"
             tools:layout_editor_absoluteX="0dp"/>
 
         <LinearLayout
