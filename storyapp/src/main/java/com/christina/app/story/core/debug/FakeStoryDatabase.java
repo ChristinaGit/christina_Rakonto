@@ -33,15 +33,15 @@ import java.util.Random;
 public final class FakeStoryDatabase {
     private static final String _LOG_TAG = ConstantBuilder.logTag(FakeStoryDatabase.class);
 
-    public static final int STORY_COUNT = 125;
+    public static final int STORY_COUNT = 75;
 
-    public static final int RANDOM_SEED = 121;
+    public static final int RANDOM_SEED = 1231;
 
-    public static final int CHANCE_BAD_STORY_PREVIEW = 15;
+    public static final int CHANCE_BAD_STORY_PREVIEW = 25;
 
-    public static final int CHANCE_EMPTY_STORY_NAME = 25;
+    public static final int CHANCE_EMPTY_STORY_NAME = 35;
 
-    public static final int CHANCE_EMPTY_STORY_TEXT = 15;
+    public static final int CHANCE_EMPTY_STORY_TEXT = 25;
 
     public static final int STORY_NAME_MIN_WORD_COUNT = 2;
 

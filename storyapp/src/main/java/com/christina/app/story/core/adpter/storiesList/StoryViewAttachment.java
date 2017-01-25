@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
 
 import com.christina.common.contract.Contracts;
 import com.christina.common.extension.delegate.LoadingViewDelegate;
@@ -15,7 +14,7 @@ import com.christina.common.extension.delegate.LoadingViewDelegate;
 @Accessors(prefix = "_")
 /*package-private*/ final class StoryViewAttachment {
     public StoryViewAttachment(
-        @NonNull final BitmapImageViewTarget viewTarget,
+        @NonNull final StoryCardViewTarget viewTarget,
         @NonNull final LoadingViewDelegate loadingViewDelegate,
         @NonNull final RequestListener<String, Bitmap> loadingListener) {
         Contracts.requireNonNull(viewTarget, "viewTarget == null");
@@ -37,5 +36,5 @@ import com.christina.common.extension.delegate.LoadingViewDelegate;
 
     @Getter
     @NonNull
-    private final BitmapImageViewTarget _viewTarget;
+    private final StoryCardViewTarget _viewTarget;
 }

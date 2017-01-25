@@ -1,9 +1,12 @@
 package com.christina.app.story.core.adpter.storiesList;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
@@ -36,13 +39,13 @@ import com.christina.common.contract.Contracts;
 
     @Override
     public void onGenerated(final Palette palette) {
-        final Palette.Swatch swatch = palette.getMutedSwatch();
+        final val holder = getHolder();
+
+        final val swatch = palette.getMutedSwatch();
         if (swatch != null) {
             final int backgroundColor = swatch.getRgb();
             final int titleColor = swatch.getTitleTextColor();
             final int bodyColor = swatch.getBodyTextColor();
-
-            final val holder = getHolder();
 
             final int animationDuration = holder
                 .getContext()
@@ -55,6 +58,8 @@ import com.christina.common.contract.Contracts;
             holder.storyTextView.setTextColor(bodyColor);
             holder.editStoryView.setTextColor(titleColor);
             holder.shareStoryView.setTextColor(titleColor);
+        } else {
+            resetStoryCardView();
         }
     }
 
@@ -62,14 +67,7 @@ import com.christina.common.contract.Contracts;
     public void onLoadFailed(final Exception e, final Drawable errorDrawable) {
         super.onLoadFailed(e, errorDrawable);
 
-        final val holder = getHolder();
-
-        holder.cardView.setCardBackgroundColor(_originalCardBackgroundColor);
-
-        holder.storyNameView.setTextColor(_originalStoryNameTextColor);
-        holder.storyTextView.setTextColor(_originalStoryTextTextColor);
-        holder.editStoryView.setTextColor(_originalEditStoryTextColor);
-        holder.shareStoryView.setTextColor(_originalShareStoryTextColor);
+        resetStoryCardView();
     }
 
     @Override
@@ -78,6 +76,18 @@ import com.christina.common.contract.Contracts;
         super.onResourceReady(resource, glideAnimation);
 
         Palette.from(resource).generate(/*Listener*/ this);
+    }
+
+    @CallSuper
+    public void resetStoryCardView() {
+        final val holder = getHolder();
+
+        holder.cardView.setCardBackgroundColor(getOriginalCardBackgroundColor());
+
+        holder.storyNameView.setTextColor(getOriginalStoryNameTextColor());
+        holder.storyTextView.setTextColor(getOriginalStoryTextTextColor());
+        holder.editStoryView.setTextColor(getOriginalEditStoryTextColor());
+        holder.shareStoryView.setTextColor(getOriginalShareStoryTextColor());
     }
 
     @Getter(AccessLevel.PROTECTED)
@@ -106,6 +116,10 @@ import com.christina.common.contract.Contracts;
 
     private void animateCardBackgroundColor(
         @NonNull final CardView cardView, @ColorInt final int colorTo, final long duration) {
+        Contracts.requireNonNull(cardView, "cardView == null");
+
+        cardView.setHasTransientState(true);
+
         final int colorFrom = cardView.getCardBackgroundColor().getDefaultColor();
         final val animation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
         animation.setDuration(duration);
@@ -113,6 +127,12 @@ import com.christina.common.contract.Contracts;
             @Override
             public void onAnimationUpdate(final ValueAnimator a) {
                 cardView.setCardBackgroundColor((int) a.getAnimatedValue());
+            }
+        });
+        animation.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(final Animator animation) {
+                cardView.setHasTransientState(false);
             }
         });
         animation.start();
