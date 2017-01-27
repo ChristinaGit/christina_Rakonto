@@ -1,5 +1,5 @@
-include ':StoryApp'
+include ':RakontoApplication'
 include ':CommonLibrary'
 
-project(':StoryApp').projectDir = new File('storyapp')
+project(':RakontoApplication').projectDir = new File('rakontoapp')
 project(':CommonLibrary').projectDir = new File('../christina_CommonLibrary/commonlibrary')

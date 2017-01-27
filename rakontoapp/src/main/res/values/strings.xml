@@ -1,0 +1,34 @@
+<resources>
+    <string name="rakonto_application_name">Rakonto</string>
+
+    <string name="story_permission_group_description">story_permission_group_description</string>
+    <string name="story_permission_group_label">story_permission_group_label</string>
+    <string name="story_permission_read_description">story_permission_read_description</string>
+    <string name="story_permission_read_label">story_permission_read_label</string>
+    <string name="story_permission_write_description">story_permission_write_description</string>
+    <string name="story_permission_write_label">story_permission_write_label</string>
+
+    <string name="action_remove_all">Remove all</string>
+    <string name="action_share_story">Share</string>
+    <string name="action_edit_story">Edit</string>
+
+    <string name="message_database_cleared">All data is removed</string>
+    <string name="message_database_clear_fail">Failed to remove data</string>
+    <string name="message_story_inserted">Story created</string>
+    <string name="message_story_insert_fail">Failed to create a story</string>
+    <string name="message_story_deleted">Story deleted</string>
+    <string name="message_story_delete_fail">Failed to delete a story</string>
+    <string name="message_story_load_fail">Failed to load story</string>
+
+    <string name="caption_no_content">Nothing to show</string>
+    <string name="caption_retry">Retry</string>
+
+    <string name="caption_load_story_preview_fail">Failed to load story preview</string>
+
+    <string name="caption_story_editor_next_step">Next</string>
+    <string name="caption_story_editor_previous_step">Previous</string>
+    <string name="caption_story_editor_input_hint">Your beautiful story…</string>
+
+    <string name="content_description_story_image_preview">A story image preview</string>
+    <string name="content_description_story_frame_image_preview">A story frame image preview</string>
+</resources>
