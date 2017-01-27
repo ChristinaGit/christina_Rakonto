@@ -1,4 +1,4 @@
-package com.christina.app.story.presentation;
+package com.christina.app.story.presenter;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
@@ -11,9 +11,9 @@ import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmObject;
 
-import com.christina.app.story.core.StoryChangedEventArgs;
-import com.christina.app.story.core.StoryEventArgs;
-import com.christina.app.story.core.StoryTextUtils;
+import com.christina.app.story.core.eventArgs.StoryChangedEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
+import com.christina.app.story.core.utility.StoryTextUtils;
 import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.model.Story;
 import com.christina.app.story.model.StoryFrame;
@@ -23,6 +23,7 @@ import com.christina.common.data.realm.RealmChangesObserver;
 import com.christina.common.event.generic.EventHandler;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 @Accessors(prefix = "_")
 public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryTextEditorScreen> {
@@ -126,50 +127,61 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
     private void saveStoryChanged(@NonNull final StoryChangedEventArgs eventArgs) {
         Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
+        final Long storyId = eventArgs.getStoryId();
+        final String storyText = eventArgs.getStoryText();
+
         getRealmManager().getRealm().executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(final Realm realm) {
-                final val realmManager = getRealmManager();
-                final val fileManager = getStoryFileManager();
-
-                final val story =
-                    realm.where(Story.class).equalTo(Story.ID, eventArgs.getStoryId()).findFirst();
+                final val story = realm.where(Story.class).equalTo(Story.ID, storyId).findFirst();
 
                 if (story != null) {
-                    story.setText(eventArgs.getStoryText());
+                    deleteStoryFrames(story);
 
-                    final val storyFrames = story.getStoryFrames();
+                    story.setText(storyText);
 
-                    final val deleteFilesTasks = new ArrayList<Runnable>(storyFrames.size());
-                    for (final val storyFrame : storyFrames) {
-                        final val task = fileManager.getDeleteAssociatedFilesTask(storyFrame, true);
-                        deleteFilesTasks.add(task);
-                    }
-                    storyFrames.deleteAllFromRealm();
-                    final val taskManager = getTaskManager();
-                    for (final val deleteFilesTask : deleteFilesTasks) {
-                        taskManager.executeAsync(deleteFilesTask);
-                    }
+                    generateStoryFrames(story);
+                }
+            }
 
-                    final val storyText = story.getText();
+            private void deleteStoryFrames(@NonNull final Story story) {
+                Contracts.requireNonNull(story, "story == null");
 
-                    if (storyText != null) {
-                        final val storyDefaultSplit = StoryTextUtils.defaultSplit(storyText);
+                final val fileManager = getStoryFileManager();
 
-                        int startPosition = 0;
-                        int endPosition = 0;
-                        for (final val textFrame : storyDefaultSplit) {
-                            startPosition += endPosition;
-                            endPosition += textFrame.length();
+                final val storyFrames = story.getStoryFrames();
 
-                            final val storyFrame = new StoryFrame();
+                final val deleteFilesTasks = new ArrayList<Runnable>(storyFrames.size());
+                for (final val storyFrame : storyFrames) {
+                    final val task = fileManager.getDeleteAssociatedFilesTask(storyFrame, true);
+                    deleteFilesTasks.add(task);
+                }
+                storyFrames.deleteAllFromRealm();
+                final val taskManager = getTaskManager();
+                for (final val deleteFilesTask : deleteFilesTasks) {
+                    taskManager.executeAsync(deleteFilesTask);
+                }
+            }
 
-                            storyFrame.setId(realmManager.generateNextId(StoryFrame.class));
-                            storyFrame.setTextStartPosition(startPosition);
-                            storyFrame.setTextEndPosition(endPosition);
+            private void generateStoryFrames(@NonNull final Story story) {
+                Contracts.requireNonNull(story, "story == null");
 
-                            storyFrames.add(storyFrame);
-                        }
+                final val realmManager = getRealmManager();
+                final val storyFrames = story.getStoryFrames();
+                final val storyText = story.getText();
+
+                if (storyText != null) {
+                    final val frameBoundaries =
+                        StoryTextUtils.getStoryFramesBoundaries(storyText, Locale.getDefault());
+
+                    for (final val frameBoundary : frameBoundaries) {
+                        final val storyFrame = new StoryFrame();
+
+                        storyFrame.setId(realmManager.generateNextId(StoryFrame.class));
+                        storyFrame.setTextStartPosition(frameBoundary.getStart());
+                        storyFrame.setTextEndPosition(frameBoundary.getEnd());
+
+                        storyFrames.add(storyFrame);
                     }
                 }
             }

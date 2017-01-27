@@ -19,7 +19,7 @@ import lombok.val;
 import butterknife.BindView;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.core.adpter.storiesList.StoriesListAdapter;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.model.ui.UIStory;

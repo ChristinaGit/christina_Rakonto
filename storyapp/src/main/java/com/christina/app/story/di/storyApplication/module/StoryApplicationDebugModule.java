@@ -27,6 +27,10 @@ public final class StoryApplicationDebugModule {
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
         Contracts.requireNonNull(storyFileManager, "storyFileManager == null");
 
-        return new FakeStoryDatabase(realmConfiguration, realmIdGenerator, storyFileManager, false);
+        return new FakeStoryDatabase(realmConfiguration,
+                                     realmIdGenerator,
+                                     storyFileManager,
+                                     false,
+                                     false);
     }
 }

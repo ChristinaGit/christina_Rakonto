@@ -3,8 +3,8 @@ package com.christina.app.story.view;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.christina.app.story.core.StoryChangedEventArgs;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryChangedEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.model.ui.UIStory;
 import com.christina.common.event.generic.Event;
 import com.christina.common.mvp.screen.Screen;

@@ -12,8 +12,8 @@ import com.christina.common.contract.Contracts;
 import com.christina.common.extension.delegate.LoadingViewDelegate;
 
 @Accessors(prefix = "_")
-/*package-private*/ final class StoryViewAttachment {
-    public StoryViewAttachment(
+/*package-private*/ final class StoryViewCache {
+    public StoryViewCache(
         @NonNull final StoryCardViewTarget viewTarget,
         @NonNull final LoadingViewDelegate loadingViewDelegate,
         @NonNull final RequestListener<String, Bitmap> loadingListener) {

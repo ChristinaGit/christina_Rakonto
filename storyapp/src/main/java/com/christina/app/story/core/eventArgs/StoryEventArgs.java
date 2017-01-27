@@ -1,4 +1,4 @@
-package com.christina.app.story.core;
+package com.christina.app.story.core.eventArgs;
 
 import android.support.annotation.Nullable;
 

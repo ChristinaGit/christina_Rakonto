@@ -20,8 +20,8 @@ import butterknife.OnTextChanged;
 import butterknife.OnTextChanged.Callback;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryChangedEventArgs;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryChangedEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.model.ui.UIStory;
 import com.christina.app.story.view.StoryTextEditorScreen;

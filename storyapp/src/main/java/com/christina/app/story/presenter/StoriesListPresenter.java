@@ -1,4 +1,4 @@
-package com.christina.app.story.presentation;
+package com.christina.app.story.presenter;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
@@ -16,7 +16,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.model.Story;
 import com.christina.app.story.model.ui.UIStory;
@@ -40,7 +40,7 @@ public final class StoriesListPresenter extends BaseStoryPresenter<StoriesListSc
         final val realm = getRealmManager().getRealm();
 
         final val requestResult =
-            realm.where(Story.class).findAllSortedAsync(Story.ID, Sort.ASCENDING).asObservable();
+            realm.where(Story.class).findAllSortedAsync(Story.ID, Sort.DESCENDING).asObservable();
         rxManager
             .autoManage(requestResult)
             .observeOn(rxManager.getUIScheduler())

@@ -33,8 +33,11 @@ public final class GoogleStorySearchManager implements StorySearchManager {
 
         final List<String> results;
 
+        // TODO: 1/25/2017 Use real app name.
         final val customsearch =
-            new Customsearch(new NetHttpTransport(), new JacksonFactory(), null);
+            new Customsearch.Builder(new NetHttpTransport(), new JacksonFactory(), null)
+                .setApplicationName("Short Story Maker")
+                .build();
 
         final val list = customsearch.cse().list(query);
 

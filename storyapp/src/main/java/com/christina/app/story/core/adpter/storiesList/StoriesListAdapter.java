@@ -19,7 +19,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.model.ui.UIStory;
 import com.christina.common.contract.Contracts;
 import com.christina.common.event.Events;
@@ -72,10 +72,9 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
             .build();
         final val storyPreviewLoadingListener = getStoryPreviewLoadingListener(loadingViewDelegate);
 
-        final val storyViewAttachment = new StoryViewAttachment(cardViewTarget,
-                                                                loadingViewDelegate,
-                                                                storyPreviewLoadingListener);
-        holder.itemView.setTag(R.id.tag_attachment, storyViewAttachment);
+        final val storyViewAttachment =
+            new StoryViewCache(cardViewTarget, loadingViewDelegate, storyPreviewLoadingListener);
+        holder.itemView.setTag(R.id.tag_recycler_cache, storyViewAttachment);
 
         return holder;
     }
@@ -97,10 +96,12 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
                                                         getItemCount() - 1,
                                                         new IndexOutOfBoundsException()));
 
-        final val storyViewAttachment =
-            (StoryViewAttachment) holder.itemView.getTag(R.id.tag_attachment);
+        final val storyViewCache = (StoryViewCache) holder.itemView.getTag(R.id.tag_recycler_cache);
 
-        storyViewAttachment.getLoadingViewDelegate().showLoading();
+        final val loadingViewDelegate = storyViewCache.getLoadingViewDelegate();
+        loadingViewDelegate.setLoadingVisible(false);
+        loadingViewDelegate.resetLoading();
+        loadingViewDelegate.showLoading();
 
         holder.itemView.setTag(R.id.tag_story_id, item.getId());
 
@@ -132,10 +133,10 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
             .with(holder.getContext())
             .load(item.getPreviewUri())
             .asBitmap()
-            .listener(storyViewAttachment.getLoadingListener())
+            .listener(storyViewCache.getLoadingListener())
             .animate(R.anim.fade_in_long)
             .centerCrop()
-            .into(storyViewAttachment.getViewTarget());
+            .into(storyViewCache.getViewTarget());
     }
 
     @NonNull

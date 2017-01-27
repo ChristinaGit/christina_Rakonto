@@ -1,4 +1,4 @@
-package com.christina.app.story.presentation;
+package com.christina.app.story.presenter;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;

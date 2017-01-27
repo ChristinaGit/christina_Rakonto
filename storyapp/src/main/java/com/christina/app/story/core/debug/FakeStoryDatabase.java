@@ -1,5 +1,7 @@
 package com.christina.app.story.core.debug;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -12,7 +14,7 @@ import lombok.val;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-import com.christina.app.story.core.StoryTextUtils;
+import com.christina.app.story.core.utility.StoryTextUtils;
 import com.christina.app.story.core.manager.file.StoryFileManager;
 import com.christina.app.story.model.Story;
 import com.christina.app.story.model.StoryFrame;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 @Accessors(prefix = "_")
@@ -35,7 +38,7 @@ public final class FakeStoryDatabase {
 
     public static final int STORY_COUNT = 75;
 
-    public static final int RANDOM_SEED = 1231;
+    public static final int RANDOM_SEED = 231;
 
     public static final int CHANCE_BAD_STORY_PREVIEW = 25;
 
@@ -49,7 +52,7 @@ public final class FakeStoryDatabase {
 
     public static final int STORY_NAME_MIN_TEXT_COUNT = 5;
 
-    public static final int STORY_NAME_MAX_TEXT_COUNT = 20;
+    public static final int STORY_NAME_MAX_TEXT_COUNT = 10;
 
     private static final String[] NET_IMAGES = {
         "http://orig04.deviantart.net/da1d/f/2016/142/b/4/untitled_by_lerastyajkina-da3ckp4.png",
@@ -108,7 +111,8 @@ public final class FakeStoryDatabase {
         @NonNull final RealmConfiguration realmConfiguration,
         @NonNull final RealmIdGenerator realmIdGenerator,
         @NonNull final StoryFileManager storyFileManager,
-        final boolean networkAvailable) {
+        final boolean networkAvailable,
+        final boolean allowImageFilesCompression) {
         Contracts.requireNonNull(realmConfiguration, "realmConfiguration == null");
         Contracts.requireNonNull(realmIdGenerator, "realmIdGenerator == null");
         Contracts.requireNonNull(storyFileManager, "storyFileManager == null");
@@ -116,6 +120,7 @@ public final class FakeStoryDatabase {
         _realmConfiguration = realmConfiguration;
         _realmIdGenerator = realmIdGenerator;
         _storyFileManager = storyFileManager;
+        _allowImageFilesCompression = allowImageFilesCompression;
         if (networkAvailable) {
             _images = Arrays.asList(NET_IMAGES);
         } else {
@@ -143,6 +148,8 @@ public final class FakeStoryDatabase {
         }
     }
 
+    private final boolean _allowImageFilesCompression;
+
     @Getter(AccessLevel.PRIVATE)
     private final List<String> _images;
 
@@ -157,6 +164,26 @@ public final class FakeStoryDatabase {
     @Getter(AccessLevel.PROTECTED)
     @NonNull
     private final StoryFileManager _storyFileManager;
+
+    private void copyImageFile(
+        @NonNull final File originalImageFile, @NonNull final File imageFile)
+        throws IOException {
+        Contracts.requireNonNull(originalImageFile, "originalImageFile == null");
+        Contracts.requireNonNull(imageFile, "imageFile == null");
+
+        if (_allowImageFilesCompression) {
+            final val imageBitmap = BitmapFactory.decodeFile(originalImageFile.getAbsolutePath());
+            try (final val imageFileStream = FileUtils.openOutputStream(imageFile)) {
+                imageBitmap.compress(Bitmap.CompressFormat.JPEG, 55, imageFileStream);
+            } finally {
+                if (imageBitmap != null && !imageBitmap.isRecycled()) {
+                    imageBitmap.recycle();
+                }
+            }
+        } else {
+            FileUtils.copyFile(originalImageFile, imageFile);
+        }
+    }
 
     private void createStories(@NonNull final Realm realm, @NonNull final Random random) {
         Contracts.requireNonNull(realm, "realm == null");
@@ -193,7 +220,7 @@ public final class FakeStoryDatabase {
             final boolean badStoryPreview = random.nextInt(100) <= CHANCE_BAD_STORY_PREVIEW;
             if (!badStoryPreview) {
                 try {
-                    FileUtils.copyFile(originalImageFile, imageFile);
+                    copyImageFile(originalImageFile, imageFile);
                 } catch (final IOException exception) {
                     Log.e(_LOG_TAG,
                           "Filed to copy file: " + originalImageFile + " to " + imageFile,
@@ -219,14 +246,10 @@ public final class FakeStoryDatabase {
         final val fileManager = getStoryFileManager();
 
         if (storyText != null) {
-            final val defaultSplit = StoryTextUtils.defaultSplit(storyText);
+            final val framesBoundaries =
+                StoryTextUtils.getStoryFramesBoundaries(storyText, Locale.getDefault());
 
-            int startPosition = 0;
-            int endPosition = 0;
-            for (final val textFrame : defaultSplit) {
-                startPosition += endPosition;
-                endPosition += textFrame.length();
-
+            for (final val frameBoundary : framesBoundaries) {
                 final long id = idGenerator.generateNextId(StoryFrame.class);
                 final val storyFrame = realm.createObject(StoryFrame.class, id);
 
@@ -234,18 +257,19 @@ public final class FakeStoryDatabase {
                 final val imageFile = fileManager.getAssociatedFile(StoryFrame.class,
                                                                     storyFrame.getId(),
                                                                     StoryFrame.FILE_IMAGE);
+
                 try {
-                    FileUtils.copyFile(originalImageFile, imageFile);
+                    copyImageFile(originalImageFile, imageFile);
                 } catch (final IOException exception) {
                     Log.e(_LOG_TAG,
                           "Filed to copy file: " + originalImageFile + " to " + imageFile,
                           exception);
                 }
 
-                story.setPreviewUri(imageFile.getPath());
+                storyFrame.setImageUri(imageFile.getPath());
 
-                storyFrame.setTextStartPosition(startPosition);
-                storyFrame.setTextEndPosition(endPosition);
+                storyFrame.setTextStartPosition(frameBoundary.getStart());
+                storyFrame.setTextEndPosition(frameBoundary.getEnd());
 
                 story.getStoryFrames().add(storyFrame);
             }

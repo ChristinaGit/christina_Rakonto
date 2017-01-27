@@ -30,6 +30,7 @@ import com.christina.app.story.di.storyApplication.module.StoryApplicationRealmM
  * <li>Convert layouts to ConstraintLayout;</li>
  * <li>Implement Leave-behinds;</li>
  * <li>Fix landscape nav bar;</li>
+ * <li>Add locale for stories;</li>
  * </ul>
  */
 @Accessors(prefix = "_")

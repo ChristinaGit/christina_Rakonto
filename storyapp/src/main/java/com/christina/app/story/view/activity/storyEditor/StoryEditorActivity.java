@@ -23,7 +23,7 @@ import butterknife.OnClick;
 import butterknife.OnPageChange;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPageChangedEventArgs;
 import com.christina.app.story.core.adpter.storyEditorPages.StoryEditorPagesAdapter;
 import com.christina.app.story.di.qualifier.PresenterNames;

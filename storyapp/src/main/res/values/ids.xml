@@ -2,5 +2,5 @@
 <resources>
     <item name="tag_story_id" type="id"/>
     <item name="tag_adapter_position" type="id"/>
-    <item name="tag_attachment" type="id"/>
+    <item name="tag_recycler_cache" type="id"/>
 </resources>

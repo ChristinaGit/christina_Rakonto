@@ -1,4 +1,4 @@
-package com.christina.app.story.presentation;
+package com.christina.app.story.presenter;
 
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
@@ -12,7 +12,7 @@ import io.realm.RealmChangeListener;
 import io.realm.RealmObject;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.core.manager.StoryServiceManager;
 import com.christina.app.story.model.Story;
 import com.christina.app.story.view.StoryEditorScreen;

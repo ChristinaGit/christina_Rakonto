@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 
 import com.christina.app.story.R;
 import com.christina.app.story.model.ui.UIStoryFrame;
+import com.christina.common.ConstantBuilder;
 import com.christina.common.contract.Contracts;
 import com.christina.common.extension.view.recyclerView.adapter.RecyclerViewListAdapter;
 
@@ -24,6 +25,8 @@ import java.util.Objects;
 @Accessors(prefix = "_")
 public final class StoryFramesAdapter
     extends RecyclerViewListAdapter<UIStoryFrame, StoryFrameViewHolder> {
+    private static final String _LOG_TAG = ConstantBuilder.logTag(StoryFramesAdapter.class);
+
     public StoryFramesAdapter() {
         setHasStableIds(true);
     }
@@ -85,7 +88,7 @@ public final class StoryFramesAdapter
         Glide
             .with(holder.getContext())
             .load(item.getImageUri())
-            .animate(android.R.anim.fade_in)
+            .animate(R.anim.fade_in_long)
             .centerCrop()
             .into(holder.storyFrameImageView);
     }

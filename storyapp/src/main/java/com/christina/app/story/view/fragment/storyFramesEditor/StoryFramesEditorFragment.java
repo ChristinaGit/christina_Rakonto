@@ -19,7 +19,7 @@ import lombok.val;
 import butterknife.BindView;
 
 import com.christina.app.story.R;
-import com.christina.app.story.core.StoryEventArgs;
+import com.christina.app.story.core.eventArgs.StoryEventArgs;
 import com.christina.app.story.core.adpter.storyFrames.StoryFramesAdapter;
 import com.christina.app.story.di.qualifier.PresenterNames;
 import com.christina.app.story.model.ui.UIStory;
@@ -46,7 +46,7 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
     implements StoryFramesEditorScreen {
 
     @Override
-    public final void displayStoreFrameCandidates(
+    public final void displayStoreFrameImageCandidates(
         final long storyFrameId, @Nullable final List<String> candidatesUris) {
         // FIXME: 1/25/2017
     }
