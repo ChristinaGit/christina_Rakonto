@@ -116,7 +116,7 @@ public final class AndroidStoryFileManager implements StoryFileManager {
 
     @NonNull
     protected String getAssociatedFileIdPrefix(final long id) {
-        return String.valueOf(id) + FILE_NAME_ID_SEPARATOR;
+        return id + FILE_NAME_ID_SEPARATOR;
     }
 
     @NonNull
@@ -146,7 +146,7 @@ public final class AndroidStoryFileManager implements StoryFileManager {
         if (files != null && files.length > 0) {
             associatedFiles = Arrays.asList(files);
         } else {
-            associatedFiles = Collections.EMPTY_LIST;
+            associatedFiles = Collections.emptyList();
         }
 
         return associatedFiles;

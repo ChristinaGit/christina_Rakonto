@@ -8,11 +8,20 @@ import moe.christina.app.rakonto.screen.fragment.storyFramesEditor.StoryFramesEd
 import moe.christina.app.rakonto.screen.fragment.storyTextEditor.StoryTextEditorFragment;
 
 /*package-private*/ final class StoryEditorPages implements StoryEditorPageFactory {
-    private static int _positionIndexer = 0;
+    public static final int POSITION_TEXT_EDITOR;
 
-    public static final int POSITION_TEXT_EDITOR = _positionIndexer++;
+    public static final int POSITION_FRAMES_EDITOR;
 
-    public static final int POSITION_FRAMES_EDITOR = _positionIndexer++;
+    protected static final int POSITION_LAST;
+
+    static {
+        int positionIndexer = 0;
+
+        POSITION_TEXT_EDITOR = positionIndexer++;
+        POSITION_FRAMES_EDITOR = positionIndexer++;
+
+        POSITION_LAST = positionIndexer;
+    }
 
     @NonNull
     @Override
@@ -32,6 +41,6 @@ import moe.christina.app.rakonto.screen.fragment.storyTextEditor.StoryTextEditor
 
     @Override
     public final int getPageCount() {
-        return _positionIndexer;
+        return POSITION_LAST;
     }
 }

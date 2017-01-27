@@ -21,6 +21,7 @@ import moe.christina.common.extension.fragment.ScreenFragment;
 public abstract class BaseStoryFragment extends ScreenFragment
     implements RakontoSubscreenComponentProvider {
 
+    @Override
     @NonNull
     public final RakontoSubscreenComponent getRakontoSubscreenComponent() {
         if (_rakontoSubscreenComponent == null) {

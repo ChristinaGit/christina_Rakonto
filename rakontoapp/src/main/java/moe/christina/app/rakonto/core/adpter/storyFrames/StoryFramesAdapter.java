@@ -13,6 +13,7 @@ import lombok.val;
 
 import com.bumptech.glide.Glide;
 
+import moe.christina.app.rakonto.R;
 import moe.christina.app.rakonto.model.ui.UIStoryFrame;
 import moe.christina.common.ConstantBuilder;
 import moe.christina.common.contract.Contracts;
@@ -42,9 +43,7 @@ public final class StoryFramesAdapter
     public StoryFrameViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final val inflater = LayoutInflater.from(parent.getContext());
         final val view =
-            inflater.inflate(moe.christina.app.rakonto.R.layout.fragment_story_frames_editor_item,
-                             parent,
-                             false);
+            inflater.inflate(R.layout.fragment_story_frames_editor_item, parent, false);
         return new StoryFrameViewHolder(view);
     }
 
@@ -89,7 +88,7 @@ public final class StoryFramesAdapter
         Glide
             .with(holder.getContext())
             .load(item.getImageUri())
-            .animate(moe.christina.app.rakonto.R.anim.fade_in_long)
+            .animate(R.anim.fade_in_long)
             .centerCrop()
             .into(holder.storyFrameImageView);
     }

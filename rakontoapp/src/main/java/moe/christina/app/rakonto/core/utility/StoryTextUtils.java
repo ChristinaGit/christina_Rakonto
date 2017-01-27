@@ -17,7 +17,7 @@ public final class StoryTextUtils {
 
     @NonNull
     public static List<StoryFrameBoundary> getStoryFramesBoundaries(
-        @NonNull final String rawStory, @NonNull Locale locale) {
+        @NonNull final String rawStory, @NonNull final Locale locale) {
         Contracts.requireNonNull(rawStory, "rawStory == null");
 
         final val storyFramesBoundaries = new ArrayList<StoryFrameBoundary>();

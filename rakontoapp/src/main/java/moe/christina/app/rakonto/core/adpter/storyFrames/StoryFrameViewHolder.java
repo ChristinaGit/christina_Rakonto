@@ -7,15 +7,16 @@ import android.widget.TextView;
 
 import butterknife.BindView;
 
+import moe.christina.app.rakonto.R;
 import moe.christina.common.contract.Contracts;
 import moe.christina.common.extension.view.recyclerView.viewHolder.ExtendedRecyclerViewHolder;
 
 public final class StoryFrameViewHolder extends ExtendedRecyclerViewHolder {
-    @BindView(moe.christina.app.rakonto.R.id.story_frame_image)
+    @BindView(R.id.story_frame_image)
     @NonNull
     public ImageView storyFrameImageView;
 
-    @BindView(moe.christina.app.rakonto.R.id.story_frame_text)
+    @BindView(R.id.story_frame_text)
     @NonNull
     public TextView storyFrameTextView;
 

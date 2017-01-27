@@ -53,17 +53,25 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     private static final String _KEY_SAVED_STATE =
         ConstantBuilder.savedStateKey(StoryEditorActivity.class, "saved_state");
 
-    protected static int resultCodeIndexer = 100;
+    public static final int RESULT_INSERT_STORY_FAILED;
 
-    public static final int RESULT_INSERT_STORY_FAILED = resultCodeIndexer++;
+    public static final int RESULT_INSERT_STORY_FRAMES_FAILED;
 
-    public static final int RESULT_INSERT_STORY_FRAMES_FAILED = resultCodeIndexer++;
+    public static final int RESULT_NOT_FOUND;
 
-    public static final int RESULT_NOT_FOUND = resultCodeIndexer++;
+    public static final int RESULT_NO_DATA;
 
-    public static final int RESULT_NO_DATA = resultCodeIndexer++;
+    public static final int RESULT_UNSUPPORTED_ACTION;
 
-    public static final int RESULT_UNSUPPORTED_ACTION = resultCodeIndexer++;
+    static {
+        int resultCodeIndexer = 100;
+
+        RESULT_INSERT_STORY_FAILED = resultCodeIndexer++;
+        RESULT_INSERT_STORY_FRAMES_FAILED = resultCodeIndexer++;
+        RESULT_NOT_FOUND = resultCodeIndexer++;
+        RESULT_NO_DATA = resultCodeIndexer++;
+        RESULT_UNSUPPORTED_ACTION = resultCodeIndexer++;
+    }
 
     @NonNull
     public static Intent getInsertIntent(@NonNull final Context context) {
@@ -249,7 +257,7 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
                 Long storyId;
                 try {
                     storyId = Long.parseLong(StoryContract.extractStoryId(data));
-                } catch (final NumberFormatException e) {
+                } catch (final NumberFormatException ignored) {
                     storyId = null;
                 }
                 if (storyId != null) {

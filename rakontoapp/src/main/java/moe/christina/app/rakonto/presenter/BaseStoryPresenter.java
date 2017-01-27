@@ -20,13 +20,6 @@ import moe.christina.common.mvp.screen.Screen;
 
 @Accessors(prefix = "_")
 public abstract class BaseStoryPresenter<TScreen extends Screen> extends BasePresenter<TScreen> {
-    public BaseStoryPresenter(
-        @NonNull final StoryServiceManager storyServiceManager) {
-        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
-
-        _storyServiceManager = storyServiceManager;
-    }
-
     @NonNull
     public final RealmManager getRealmManager() {
         return getStoryServiceManager().getRealmManager();
@@ -50,6 +43,13 @@ public abstract class BaseStoryPresenter<TScreen extends Screen> extends BasePre
     @NonNull
     public final TaskManager getTaskManager() {
         return getStoryServiceManager().getTaskManager();
+    }
+
+    protected BaseStoryPresenter(
+        @NonNull final StoryServiceManager storyServiceManager) {
+        Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null");
+
+        _storyServiceManager = storyServiceManager;
     }
 
     @NonNull

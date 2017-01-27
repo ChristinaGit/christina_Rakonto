@@ -10,11 +10,11 @@ import moe.christina.common.utility.MimeTypeUtils;
 import moe.christina.common.utility.UriUtils;
 
 public final class StoryContract {
-    public final static String TYPE;
+    public static final String TYPE;
 
-    public final static String ITEM_TYPE;
+    public static final String ITEM_TYPE;
 
-    public final static String DIR_TYPE;
+    public static final String DIR_TYPE;
 
     public static final String SEGMENT;
 

@@ -36,6 +36,7 @@ import moe.christina.app.rakonto.di.application.module.RakontoApplicationRealmMo
 @Accessors(prefix = "_")
 public final class RakontoApplication extends Application
     implements RakontoApplicationComponentProvider {
+    @Override
     @NonNull
     public final RakontoApplicationComponent getRakontoApplicationComponent() {
         if (_rakontoApplicationComponent == null) {

@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
+import moe.christina.app.rakonto.R;
 import moe.christina.app.rakonto.core.eventArgs.StoryEventArgs;
 import moe.christina.app.rakonto.model.ui.UIStory;
 import moe.christina.common.contract.Contracts;
@@ -34,7 +35,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
     public static long getStoryId(@NonNull final RecyclerView.ViewHolder holder) {
         Contracts.requireNonNull(holder, "holder == null");
 
-        return (long) holder.itemView.getTag(moe.christina.app.rakonto.R.id.tag_story_id);
+        return (long) holder.itemView.getTag(R.id.tag_story_id);
     }
 
     public StoriesListAdapter() {
@@ -59,10 +60,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
     @Override
     public StoryViewHolder onCreateViewHolder(final ViewGroup parent, final int viewType) {
         final val inflater = LayoutInflater.from(parent.getContext());
-        final val view =
-            inflater.inflate(moe.christina.app.rakonto.R.layout.fragment_stories_list_item,
-                             parent,
-                             false);
+        final val view = inflater.inflate(R.layout.fragment_stories_list_item, parent, false);
         final val holder = new StoryViewHolder(view);
 
         final val cardViewTarget = new StoryCardViewTarget(holder);
@@ -76,8 +74,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
 
         final val storyViewAttachment =
             new StoryViewCache(cardViewTarget, loadingViewDelegate, storyPreviewLoadingListener);
-        holder.itemView.setTag(moe.christina.app.rakonto.R.id.tag_recycler_cache,
-                               storyViewAttachment);
+        holder.itemView.setTag(R.id.tag_recycler_cache, storyViewAttachment);
 
         return holder;
     }
@@ -99,24 +96,22 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
                                                         getItemCount() - 1,
                                                         new IndexOutOfBoundsException()));
 
-        final val storyViewCache =
-            (StoryViewCache) holder.itemView.getTag(moe.christina.app.rakonto.R.id
-                                                        .tag_recycler_cache);
+        final val storyViewCache = (StoryViewCache) holder.itemView.getTag(R.id.tag_recycler_cache);
 
         final val loadingViewDelegate = storyViewCache.getLoadingViewDelegate();
         loadingViewDelegate.setLoadingVisible(false);
         loadingViewDelegate.resetLoading();
         loadingViewDelegate.showLoading();
 
-        holder.itemView.setTag(moe.christina.app.rakonto.R.id.tag_story_id, item.getId());
+        holder.itemView.setTag(R.id.tag_story_id, item.getId());
 
-        holder.cardView.setTag(moe.christina.app.rakonto.R.id.tag_story_id, item.getId());
+        holder.cardView.setTag(R.id.tag_story_id, item.getId());
         holder.cardView.setOnClickListener(_viewStoryOnClick);
 
-        holder.shareStoryView.setTag(moe.christina.app.rakonto.R.id.tag_story_id, item.getId());
+        holder.shareStoryView.setTag(R.id.tag_story_id, item.getId());
         holder.shareStoryView.setOnClickListener(_shareStoryOnClick);
 
-        holder.editStoryView.setTag(moe.christina.app.rakonto.R.id.tag_story_id, item.getId());
+        holder.editStoryView.setTag(R.id.tag_story_id, item.getId());
         holder.editStoryView.setOnClickListener(_editStoryOnClick);
 
         final val storyName = item.getName();
@@ -131,8 +126,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
                                            ? View.VISIBLE
                                            : View.GONE);
 
-        holder.storyLoadRetryView.setTag(moe.christina.app.rakonto.R.id.tag_adapter_position,
-                                         holder.getAdapterPosition());
+        holder.storyLoadRetryView.setTag(R.id.tag_adapter_position, holder.getAdapterPosition());
         holder.storyLoadRetryView.setOnClickListener(_retryLoadStoryPreviewOnClick);
 
         Glide
@@ -140,7 +134,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
             .load(item.getPreviewUri())
             .asBitmap()
             .listener(storyViewCache.getLoadingListener())
-            .animate(moe.christina.app.rakonto.R.anim.fade_in_long)
+            .animate(R.anim.fade_in_long)
             .centerCrop()
             .into(storyViewCache.getViewTarget());
     }
@@ -151,7 +145,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
     private final View.OnClickListener _editStoryOnClick = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            final long storyId = (long) v.getTag(moe.christina.app.rakonto.R.id.tag_story_id);
+            final long storyId = (long) v.getTag(R.id.tag_story_id);
             _editStoryEvent.rise(new StoryEventArgs(storyId));
         }
     };
@@ -160,8 +154,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
     private final View.OnClickListener _retryLoadStoryPreviewOnClick = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            final int adapterPosition =
-                (int) v.getTag(moe.christina.app.rakonto.R.id.tag_adapter_position);
+            final int adapterPosition = (int) v.getTag(R.id.tag_adapter_position);
             notifyItemChanged(adapterPosition);
         }
     };
@@ -173,7 +166,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
     private final View.OnClickListener _shareStoryOnClick = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            final long storyId = (long) v.getTag(moe.christina.app.rakonto.R.id.tag_story_id);
+            final long storyId = (long) v.getTag(R.id.tag_story_id);
             _shareStoryEvent.rise(new StoryEventArgs(storyId));
         }
     };
@@ -185,7 +178,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
     private final View.OnClickListener _viewStoryOnClick = new View.OnClickListener() {
         @Override
         public void onClick(final View v) {
-            final long storyId = (long) v.getTag(moe.christina.app.rakonto.R.id.tag_story_id);
+            final long storyId = (long) v.getTag(R.id.tag_story_id);
             _viewStoryEvent.rise(new StoryEventArgs(storyId));
         }
     };

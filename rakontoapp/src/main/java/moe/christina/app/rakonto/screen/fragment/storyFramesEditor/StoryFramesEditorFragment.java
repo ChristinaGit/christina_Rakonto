@@ -66,6 +66,7 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
         getLoadingViewDelegate().showLoading();
     }
 
+    @Override
     @NonNull
     public final Event<StoryEventArgs> getStartEditStoryEvent() {
         return _startEditStoryEvent;
@@ -216,6 +217,7 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
         }
     }
 
+    @Override
     @CallSuper
     protected void onStoryIdChanged() {
         setStory(null);

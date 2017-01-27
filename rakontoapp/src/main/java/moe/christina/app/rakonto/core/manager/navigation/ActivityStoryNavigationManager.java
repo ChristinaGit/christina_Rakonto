@@ -18,9 +18,7 @@ import moe.christina.common.extension.activity.ObservableActivity;
 @Accessors(prefix = "_")
 public final class ActivityStoryNavigationManager extends ActivityNavigationManager
     implements StoryNavigationManager {
-    protected static int requestCodeIndexer = 0;
-
-    protected static final int REQUEST_CODE_INSERT_STORY = requestCodeIndexer++;
+    protected static final int REQUEST_CODE_INSERT_STORY = 0;
 
     public ActivityStoryNavigationManager(
         @NonNull final ResourceAdviser resourceAdviser,

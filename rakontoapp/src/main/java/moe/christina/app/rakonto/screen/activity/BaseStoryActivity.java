@@ -21,6 +21,7 @@ import moe.christina.common.extension.activity.ScreenActivity;
 public abstract class BaseStoryActivity extends ScreenActivity
     implements RakontoScreenComponentProvider {
 
+    @Override
     @NonNull
     public final RakontoScreenComponent getRakontoScreenComponent() {
         if (_rakontoScreenComponent == null) {

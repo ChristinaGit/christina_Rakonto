@@ -104,11 +104,13 @@ public final class StoryTextEditorFragment extends BaseStoryEditorFragment
         getLoadingViewDelegate().showLoading();
     }
 
+    @Override
     @NonNull
     public final Event<StoryEventArgs> getStartEditStoryEvent() {
         return _startEditStoryEvent;
     }
 
+    @Override
     @NonNull
     public final Event<StoryChangedEventArgs> getStoryChangedEvent() {
         return _storyChangedEvent;

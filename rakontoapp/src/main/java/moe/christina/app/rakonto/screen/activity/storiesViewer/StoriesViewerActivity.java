@@ -35,9 +35,7 @@ import javax.inject.Named;
 
 @Accessors(prefix = "_")
 public final class StoriesViewerActivity extends BaseStoryActivity implements StoriesViewerScreen {
-    protected static int resultCodeIndexer = 100;
-
-    public static final int RESULT_UNSUPPORTED_ACTION = resultCodeIndexer++;
+    public static final int RESULT_UNSUPPORTED_ACTION = 100;
 
     @NonNull
     @Override
