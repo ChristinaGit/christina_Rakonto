@@ -1,4 +1,9 @@
 <resources>
+    <string name="contract_story_provider_host" translatable="false">moe.christina.provider.story</string>
+    <string name="contract_story_provider_scheme" translatable="false">content</string>
+    <string name="contract_story_provider_path_stories" translatable="false">/stories</string>
+    <string name="contract_story_provider_path_story" translatable="false">/stories/*</string>
+
     <string name="rakonto_application_name">Rakonto</string>
 
     <string name="story_permission_group_description">story_permission_group_description</string>

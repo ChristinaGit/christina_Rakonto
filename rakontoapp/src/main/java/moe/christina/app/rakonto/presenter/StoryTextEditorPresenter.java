@@ -31,6 +31,13 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
         super(Contracts.requireNonNull(storyServiceManager, "storyServiceManager == null"));
     }
 
+    protected final void displaySaveStoryChangedComplete() {
+        final val screen = getScreen();
+        if (screen != null) {
+            screen.displaySaveStoryChangedComplete();
+        }
+    }
+
     protected final void displayStory(@Nullable final Story story) {
         final val screen = getScreen();
         if (screen != null) {
@@ -39,13 +46,6 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
             } else {
                 screen.displayStory(null);
             }
-        }
-    }
-
-    protected final void displayStoryLoading() {
-        final val screen = getScreen();
-        if (screen != null) {
-            screen.displayStoryLoading();
         }
     }
 
@@ -79,8 +79,6 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
         if (storyId == null) {
             displayStory(null);
         } else {
-            displayStoryLoading();
-
             final val story = getRealmManager()
                 .getRealm()
                 .where(Story.class)
@@ -171,6 +169,7 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
                 final val storyText = story.getText();
 
                 if (storyText != null) {
+                    // TODO: 2/4/2017 Locale!
                     final val frameBoundaries =
                         StoryTextUtils.getStoryFramesBoundaries(storyText, Locale.getDefault());
 
@@ -184,6 +183,16 @@ public final class StoryTextEditorPresenter extends BaseStoryPresenter<StoryText
                         storyFrames.add(storyFrame);
                     }
                 }
+            }
+        }, new Realm.Transaction.OnSuccess() {
+            @Override
+            public void onSuccess() {
+                displaySaveStoryChangedComplete();
+            }
+        }, new Realm.Transaction.OnError() {
+            @Override
+            public void onError(final Throwable error) {
+                // TODO: 2/4/2017 Handle error
             }
         });
     }

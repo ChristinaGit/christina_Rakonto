@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -23,6 +25,7 @@ import butterknife.OnClick;
 import butterknife.OnPageChange;
 
 import moe.christina.app.rakonto.R;
+import moe.christina.app.rakonto.core.adpter.storyEditorPages.StoryEditorPage;
 import moe.christina.app.rakonto.core.adpter.storyEditorPages.StoryEditorPageChangedEventArgs;
 import moe.christina.app.rakonto.core.adpter.storyEditorPages.StoryEditorPagesAdapter;
 import moe.christina.app.rakonto.core.eventArgs.StoryEventArgs;
@@ -40,8 +43,14 @@ import moe.christina.common.event.generic.EventHandler;
 import moe.christina.common.event.generic.ManagedEvent;
 import moe.christina.common.event.notice.ManagedNoticeEvent;
 import moe.christina.common.event.notice.NoticeEvent;
+import moe.christina.common.extension.delegate.loading.LoadingViewDelegate;
+import moe.christina.common.extension.delegate.loading.ProgressVisibilityHandler;
+import moe.christina.common.extension.delegate.loading.VisibilityHandler;
+import moe.christina.common.extension.view.ContentLoaderProgressBar;
 import moe.christina.common.mvp.presenter.Presenter;
 import moe.christina.common.utility.AnimationViewUtils;
+
+import org.parceler.Parcels;
 
 import java.util.Objects;
 
@@ -164,15 +173,35 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
         return _insertStoryEvent;
     }
 
+    @CallSuper
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        final boolean handled;
+
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                NavUtils.navigateUpFromSameTask(this);
+
+                handled = true;
+                break;
+            }
+            default: {
+                handled = super.onOptionsItemSelected(item);
+                break;
+            }
+        }
+
+        return handled;
+    }
+
     protected final void nextStep() {
-        if (_stepPagerView != null) {
-            final int currentStep = _stepPagerView.getCurrentItem();
+        if (_storyEditorPagerView != null) {
+            final int currentStep = _storyEditorPagerView.getCurrentItem();
             final int nextStep = currentStep + 1;
             if (nextStep < getStoryEditorPagesAdapter().getCount()) {
-                onLeaveStep(currentStep);
-                onEnterStep(nextStep);
+                performChangePage(currentStep, nextStep);
 
-                _stepPagerView.setCurrentItem(nextStep, true);
+                _storyEditorPagerView.setCurrentItem(nextStep, true);
             }
         }
     }
@@ -182,15 +211,22 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     }
 
     protected final void previousStep() {
-        if (_stepPagerView != null) {
-            final int currentStep = _stepPagerView.getCurrentItem();
+        if (_storyEditorPagerView != null) {
+            final int currentStep = _storyEditorPagerView.getCurrentItem();
             final int previousStep = currentStep - 1;
             if (previousStep >= 0) {
-                onLeaveStep(currentStep);
-                onEnterStep(previousStep);
+                performChangePage(currentStep, previousStep);
 
-                _stepPagerView.setCurrentItem(previousStep, true);
+                _storyEditorPagerView.setCurrentItem(previousStep, true);
             }
+        }
+    }
+
+    protected final void setPageLoading(final boolean pageLoading) {
+        if (_pageLoading != pageLoading) {
+            _pageLoading = pageLoading;
+
+            onPageLoadingStateChanged();
         }
     }
 
@@ -198,7 +234,7 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
         if (!Objects.equals(_storyId, storyId)) {
             _storyId = storyId;
 
-            onSoryIdChanged();
+            onStoryIdChanged();
         }
     }
 
@@ -206,15 +242,17 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     protected boolean isNextStepAvailable() {
         boolean isNextStepAvailable = false;
 
-        if (_stepPagerView != null) {
-            final int position = _stepPagerView.getCurrentItem();
-            final boolean lastStep = getStoryEditorPagesAdapter().getCount() - 1 == position;
-            isNextStepAvailable = !lastStep;
+        if (!isPageLoading()) {
+            if (_storyEditorPagerView != null) {
+                final int position = _storyEditorPagerView.getCurrentItem();
+                final boolean lastStep = getStoryEditorPagesAdapter().getCount() - 1 == position;
+                isNextStepAvailable = !lastStep;
 
-            if (isNextStepAvailable) {
-                final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
-                if (editorFragment != null) {
-                    isNextStepAvailable = editorFragment.hasContent();
+                if (isNextStepAvailable) {
+                    final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
+                    if (editorFragment != null) {
+                        isNextStepAvailable = editorFragment.hasContent();
+                    }
                 }
             }
         }
@@ -226,21 +264,15 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     protected boolean isPreviousStepAvailable() {
         boolean isPreviousStepAvailable = false;
 
-        if (_stepPagerView != null) {
-            final int position = _stepPagerView.getCurrentItem();
-            final boolean firstStep = position == 0;
-            isPreviousStepAvailable = !firstStep;
+        if (!isPageLoading()) {
+            if (_storyEditorPagerView != null) {
+                final int position = _storyEditorPagerView.getCurrentItem();
+                final boolean firstStep = position == 0;
+                isPreviousStepAvailable = !firstStep;
+            }
         }
 
         return isPreviousStepAvailable;
-    }
-
-    @CallSuper
-    protected void onEnterStep(final int position) {
-        final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
-        if (editorFragment != null) {
-            editorFragment.notifyStartEditing();
-        }
     }
 
     @Nullable
@@ -252,7 +284,7 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
 
         final val data = intent.getData();
         if (data != null) {
-            final int code = StoryContentCode.Matcher.get(data);
+            final int code = StoryContentCode.Matcher.getCode(data);
             if (code == StoryContract.CODE_STORY) {
                 Long storyId;
                 try {
@@ -325,7 +357,7 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
         StoryEditorState state = null;
 
         if (savedInstanceState.containsKey(_KEY_SAVED_STATE)) {
-            state = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
+            state = Parcels.unwrap(savedInstanceState.getParcelable(_KEY_SAVED_STATE));
         }
 
         return state;
@@ -345,11 +377,21 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     }
 
     @CallSuper
-    protected void onLeaveStep(final int position) {
-        final val editorFragment = getStoryEditorPagesAdapter().getEditorPage(position);
-        if (editorFragment != null) {
-            editorFragment.notifyStopEditing();
+    protected void onPageLoadingStateChanged() {
+        final boolean pageLoading = isPageLoading();
+
+        final val loadingViewDelegate = getLoadingViewDelegate();
+        if (pageLoading) {
+            if (loadingViewDelegate != null) {
+                loadingViewDelegate.showLoading();
+            }
+        } else {
+            if (loadingViewDelegate != null) {
+                loadingViewDelegate.showContent();
+            }
         }
+
+        invalidateNavigationButtons();
     }
 
     @CallSuper
@@ -371,16 +413,14 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
             .getContentChangedEvent()
             .addHandler(_editFragmentContentChangedHandler);
 
-        if (_stepPagerView != null) {
-            _stepPagerView.post(new Runnable() {
+        if (_storyEditorPagerView != null) {
+            _storyEditorPagerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    onEnterStep(_stepPagerView.getCurrentItem());
+                    performChangePage(_storyEditorPagerView.getCurrentItem());
                 }
             });
         }
-
-        invalidateNavigationButtons();
     }
 
     @CallSuper
@@ -412,12 +452,22 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
                 actionBar.setDisplayShowTitleEnabled(false);
             }
 
-            if (_stepPagerView != null) {
+            _loadingViewDelegate = LoadingViewDelegate
+                .builder()
+                .setContentView(_storyEditorPagerView)
+                .setLoadingView(_storyEditorPageLoadingView)
+                .setContentVisibilityHandler(getStoryEditorPageVisibilityHandler())
+                .setLoadingVisibilityHandler(getStoryEditorPageLoadingVisibilityHandler())
+                .build();
+
+            _loadingViewDelegate.invalidateViews();
+
+            if (_storyEditorPagerView != null) {
                 final val screensAdapter = getStoryEditorPagesAdapter();
                 screensAdapter.setPageFactory(getStoryEditorPages());
-                _stepPagerView.setAdapter(screensAdapter);
+                _storyEditorPagerView.setAdapter(screensAdapter);
 
-                _stepPagerView.setCurrentItem(_state.getActivePage(), false);
+                _storyEditorPagerView.setCurrentItem(_state.getActivePage(), false);
             }
 
             final val mode = getMode();
@@ -455,12 +505,12 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
 
             _state.setMode(getMode());
             _state.setStoryId(getStoryId());
-            if (_stepPagerView != null) {
-                _state.setActivePage(_stepPagerView.getCurrentItem());
+            if (_storyEditorPagerView != null) {
+                _state.setActivePage(_storyEditorPagerView.getCurrentItem());
             } else {
                 _state.setActivePage(0);
             }
-            outState.putParcelable(_KEY_SAVED_STATE, _state);
+            outState.putParcelable(_KEY_SAVED_STATE, Parcels.wrap(_state));
         }
     }
 
@@ -478,22 +528,52 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     }
 
     @CallSuper
-    protected void onSoryIdChanged() {
-        getStoryEditorPagesAdapter().setStoryId(getStoryId());
-    }
-
-    @OnPageChange(R.id.creation_step_pager)
-    protected void onStepChanged(final int position) {
-        invalidateNavigationButtons();
-    }
-
-    @CallSuper
     protected void onStoryChanged() {
         final val story = getStory();
 
         final Long storyId = story != null ? story.getId() : null;
 
         getStoryEditorPagesAdapter().setStoryId(storyId);
+    }
+
+    @OnPageChange(R.id.story_editor_pager)
+    protected void onStoryEditorPageChanged(final int position) {
+        invalidateNavigationButtons();
+    }
+
+    @CallSuper
+    protected void onStoryIdChanged() {
+        getStoryEditorPagesAdapter().setStoryId(getStoryId());
+    }
+
+    @CallSuper
+    protected void performChangePage(final int oldStep, final int newStep) {
+        setPageLoading(true);
+
+        final val oldPage = getStoryEditorPagesAdapter().getEditorPage(oldStep);
+        if (oldPage != null) {
+            oldPage.notifyStopEditing(new StoryEditorPage.ReadyCallback() {
+                @Override
+                public void onPageReady() {
+                    performChangePage(newStep);
+                }
+            });
+        }
+    }
+
+    @CallSuper
+    protected void performChangePage(final int newStep) {
+        setPageLoading(true);
+
+        final val newPage = getStoryEditorPagesAdapter().getEditorPage(newStep);
+        if (newPage != null) {
+            newPage.notifyStartEditing(new StoryEditorPage.ReadyCallback() {
+                @Override
+                public void onPageReady() {
+                    setPageLoading(false);
+                }
+            });
+        }
     }
 
     @BindView(R.id.content_container)
@@ -518,9 +598,13 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     @Nullable
     /*package-private*/ View _previousStepView;
 
-    @BindView(R.id.creation_step_pager)
+    @BindView(R.id.story_editor_page_loading)
     @Nullable
-    /*package-private*/ ViewPager _stepPagerView;
+    /*package-private*/ ContentLoaderProgressBar _storyEditorPageLoadingView;
+
+    @BindView(R.id.story_editor_pager)
+    @Nullable
+    /*package-private*/ ViewPager _storyEditorPagerView;
 
     @BindView(R.id.toolbar)
     @Nullable
@@ -542,6 +626,24 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     @NonNull
     private final ManagedNoticeEvent _insertStoryEvent = Events.createNoticeEvent();
 
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final ProgressVisibilityHandler _storyEditorPageLoadingVisibilityHandler =
+        new ProgressVisibilityHandler();
+
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final VisibilityHandler _storyEditorPageVisibilityHandler = new VisibilityHandler() {
+        @Override
+        public void changeVisibility(@NonNull final View view, final boolean visible) {
+            if (visible) {
+                AnimationViewUtils.animateSetVisibility(view, View.VISIBLE, R.anim.fade_in_long);
+            } else {
+                view.setVisibility(View.INVISIBLE);
+            }
+        }
+    };
+
     @Getter(value = AccessLevel.PROTECTED)
     @NonNull
     private final StoryEditorPages _storyEditorPages = new StoryEditorPages();
@@ -551,6 +653,17 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     private final StoryEditorPagesAdapter _storyEditorPagesAdapter =
         new StoryEditorPagesAdapter(getSupportFragmentManager());
 
+    @Getter(value = AccessLevel.PROTECTED)
+    @Nullable
+    private LoadingViewDelegate _loadingViewDelegate;
+
+    @Getter(AccessLevel.PROTECTED)
+    @Nullable
+    private StoryEditorMode _mode;
+
+    @Getter(AccessLevel.PROTECTED)
+    private boolean _pageLoading;
+
     @NonNull
     private final EventHandler<StoryEditorPageChangedEventArgs> _editFragmentContentChangedHandler =
         new EventHandler<StoryEditorPageChangedEventArgs>() {
@@ -558,16 +671,12 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
             public void onEvent(@NonNull final StoryEditorPageChangedEventArgs eventArgs) {
                 Contracts.requireNonNull(eventArgs, "eventArgs == null");
 
-                if (_stepPagerView != null &&
-                    _stepPagerView.getCurrentItem() == eventArgs.getPage()) {
+                if (_storyEditorPagerView != null &&
+                    _storyEditorPagerView.getCurrentItem() == eventArgs.getPage()) {
                     invalidateNavigationButtons();
                 }
             }
         };
-
-    @Getter(AccessLevel.PROTECTED)
-    @Nullable
-    private StoryEditorMode _mode;
 
     @Nullable
     private StoryEditorState _state;
@@ -577,12 +686,12 @@ public final class StoryEditorActivity extends BaseStoryActivity implements Stor
     @Nullable
     private UIStory _story;
 
-    @Getter
+    @Getter(AccessLevel.PROTECTED)
     @Nullable
     private Long _storyId;
 
     private void invalidateNavigationButtons() {
-        if (_stepPagerView != null) {
+        if (_storyEditorPagerView != null) {
             final boolean nextStepAvailable = isNextStepAvailable();
             final boolean previousStepAvailable = isPreviousStepAvailable();
 

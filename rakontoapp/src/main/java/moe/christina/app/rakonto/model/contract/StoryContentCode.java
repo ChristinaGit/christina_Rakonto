@@ -39,11 +39,11 @@ public final class StoryContentCode {
         private static final UriMatcher _URI_MATCHER;
 
         static {
-            _URI_MATCHER = _createUriMatcher();
+            _URI_MATCHER = createUriMatcher();
         }
 
         @NonNull
-        private static UriMatcher _createUriMatcher() {
+        private static UriMatcher createUriMatcher() {
             final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
             uriMatcher.addURI(
@@ -71,7 +71,7 @@ public final class StoryContentCode {
             return uriMatcher;
         }
 
-        public static int get(@NonNull final Uri uri) {
+        public static int getCode(@NonNull final Uri uri) {
             Contracts.requireNonNull(uri, "uri == null");
 
             return _URI_MATCHER.match(uri);

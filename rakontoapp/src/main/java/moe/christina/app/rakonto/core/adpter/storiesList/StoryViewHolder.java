@@ -14,6 +14,7 @@ import moe.christina.common.contract.Contracts;
 import moe.christina.common.extension.view.ContentLoaderProgressBar;
 import moe.christina.common.extension.view.recyclerView.viewHolder.ExtendedRecyclerViewHolder;
 
+@SuppressWarnings({"InstanceVariableNamingConvention", "NullableProblems"})
 /*package-private*/ final class StoryViewHolder extends ExtendedRecyclerViewHolder {
     @BindView(R.id.story_card)
     @NonNull

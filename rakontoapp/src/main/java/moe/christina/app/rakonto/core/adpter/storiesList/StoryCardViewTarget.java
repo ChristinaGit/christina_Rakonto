@@ -50,7 +50,7 @@ import moe.christina.common.contract.Contracts;
             final int animationDuration = holder
                 .getContext()
                 .getResources()
-                .getInteger(android.R.integer.config_longAnimTime);
+                .getInteger(android.R.integer.config_shortAnimTime);
 
             animateCardBackgroundColor(holder.cardView, backgroundColor, animationDuration);
 

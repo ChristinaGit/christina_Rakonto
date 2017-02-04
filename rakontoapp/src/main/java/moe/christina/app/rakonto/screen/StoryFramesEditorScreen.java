@@ -15,8 +15,6 @@ public interface StoryFramesEditorScreen extends Screen {
 
     void displayStory(@Nullable UIStory story);
 
-    void displayStoryLoading();
-
     @NonNull
     Event<StoryEventArgs> getStartEditStoryEvent();
 }

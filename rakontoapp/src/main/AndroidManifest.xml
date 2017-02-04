@@ -32,7 +32,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="moe.christina.app.rakonto.screen.activity.storiesViewer.StoriesViewerActivity"
+            android:name=".screen.activity.storiesViewer.StoriesViewerActivity"
             android:label="@string/rakonto_application_name"
             android:theme="@style/AppTheme.NoActionBar">
 
@@ -48,14 +48,15 @@
                 <action android:name="android.intent.action.VIEW"/>
 
                 <data
-                    android:host="moe.christina.provider.story"
-                    android:path="/stories"
-                    android:scheme="content"/>
+                    android:host="@string/contract_story_provider_host"
+                    android:path="@string/contract_story_provider_path_stories"
+                    android:scheme="@string/contract_story_provider_scheme"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name="moe.christina.app.rakonto.screen.activity.storyEditor.StoryEditorActivity"
+            android:name=".screen.activity.storyEditor.StoryEditorActivity"
+            android:parentActivityName=".screen.activity.storiesViewer.StoriesViewerActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize">
 
@@ -64,9 +65,9 @@
                 <action android:name="android.intent.action.INSERT"/>
 
                 <data
-                    android:host="moe.christina.provider.story"
-                    android:path="/stories"
-                    android:scheme="content"/>
+                    android:host="@string/contract_story_provider_host"
+                    android:path="@string/contract_story_provider_path_stories"
+                    android:scheme="@string/contract_story_provider_scheme"/>
             </intent-filter>
 
             <intent-filter>
@@ -74,9 +75,9 @@
                 <action android:name="android.intent.action.EDIT"/>
 
                 <data
-                    android:host="moe.christina.provider.story"
-                    android:path="/stories/*"
-                    android:scheme="content"/>
+                    android:host="@string/contract_story_provider_host"
+                    android:path="@string/contract_story_provider_path_story"
+                    android:scheme="@string/contract_story_provider_scheme"/>
             </intent-filter>
         </activity>
 

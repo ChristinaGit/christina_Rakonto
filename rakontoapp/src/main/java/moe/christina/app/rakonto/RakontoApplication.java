@@ -15,6 +15,7 @@ import moe.christina.app.rakonto.di.application.DaggerRakontoApplicationComponen
 import moe.christina.app.rakonto.di.application.RakontoApplicationComponent;
 import moe.christina.app.rakonto.di.application.module.RakontoApplicationManagerModule;
 import moe.christina.app.rakonto.di.application.module.RakontoApplicationRealmModule;
+import moe.christina.app.rakonto.di.application.module.RakontoApplicationRetrofitModule;
 
 /**
  * TODO:
@@ -57,6 +58,7 @@ public final class RakontoApplication extends Application
         _rakontoApplicationComponent = DaggerRakontoApplicationComponent
             .builder()
             .rakontoApplicationRealmModule(new RakontoApplicationRealmModule())
+            .rakontoApplicationRetrofitModule(new RakontoApplicationRetrofitModule())
             .rakontoApplicationManagerModule(new RakontoApplicationManagerModule(new AndroidStoryFileManager(
                 getFilesDir())))
             .build();

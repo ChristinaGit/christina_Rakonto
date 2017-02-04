@@ -3,11 +3,11 @@ package moe.christina.app.rakonto.screen.activity.storyEditor;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 
-import moe.christina.app.rakonto.core.adpter.storyEditorPages.StoryEditorPageFactory;
 import moe.christina.app.rakonto.screen.fragment.storyFramesEditor.StoryFramesEditorFragment;
 import moe.christina.app.rakonto.screen.fragment.storyTextEditor.StoryTextEditorFragment;
+import moe.christina.common.extension.pager.PageFactory;
 
-/*package-private*/ final class StoryEditorPages implements StoryEditorPageFactory {
+/*package-private*/ final class StoryEditorPages implements PageFactory {
     public static final int POSITION_TEXT_EDITOR;
 
     public static final int POSITION_FRAMES_EDITOR;

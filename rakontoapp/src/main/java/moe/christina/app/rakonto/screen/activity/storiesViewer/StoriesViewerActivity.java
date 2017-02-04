@@ -69,7 +69,7 @@ public final class StoriesViewerActivity extends BaseStoryActivity implements St
                 break;
             }
             case android.R.id.home: {
-                finishAffinity();
+                finish();
 
                 handled = true;
                 break;

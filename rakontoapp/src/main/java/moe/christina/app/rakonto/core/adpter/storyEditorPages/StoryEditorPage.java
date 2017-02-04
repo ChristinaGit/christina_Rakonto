@@ -16,7 +16,11 @@ public interface StoryEditorPage {
 
     boolean hasContent();
 
-    void notifyStartEditing();
+    void notifyStartEditing(@Nullable ReadyCallback callback);
 
-    void notifyStopEditing();
+    void notifyStopEditing(@Nullable ReadyCallback callback);
+
+    interface ReadyCallback {
+        void onPageReady();
+    }
 }

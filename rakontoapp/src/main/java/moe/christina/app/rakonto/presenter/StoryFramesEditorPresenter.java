@@ -57,13 +57,6 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
         }
     }
 
-    protected final void displayStoryLoading() {
-        final val screen = getScreen();
-        if (screen != null) {
-            screen.displayStoryLoading();
-        }
-    }
-
     @CallSuper
     @Override
     protected void onBindScreen(@NonNull final StoryFramesEditorScreen screen) {
@@ -92,8 +85,6 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
         if (storyId == null) {
             displayStory(null);
         } else {
-            displayStoryLoading();
-
             final val rxManager = getRxManager();
             final val realmManager = getRealmManager();
             final val realm = realmManager.getRealm();
@@ -110,6 +101,14 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
                     .autoManage(Observable.from(story.getStoryFrames()))
                     .subscribeOn(rxManager.getUIScheduler())
                     .observeOn(rxManager.getUIScheduler())
+                    .filter(new Func1<StoryFrame, Boolean>() {
+                        @Override
+                        public Boolean call(final StoryFrame storyFrame) {
+                            Contracts.requireMainThread();
+
+                            return RealmObject.isValid(storyFrame);
+                        }
+                    })
                     .map(new Func1<StoryFrame, Tuple2<StoryFrame, String>>() {
                         @Override
                         public Tuple2<StoryFrame, String> call(final StoryFrame storyFrame) {
@@ -137,8 +136,10 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
 
                             if (storyFrameText != null) {
                                 try {
-                                    storyFrameImageCandidates =
-                                        getStorySearchManager().search(storyFrameText);
+                                    //
+                                    // storyFrameImageCandidates =
+                                    //
+                                    // getStorySearchManager().searchFrameImages(storyFrameText);
                                 } catch (final Exception e) {
                                     // TODO: 1/26/2017 Add error dialog.
                                     Log.w(_LOG_TAG, "Error during web search.", e);
@@ -151,6 +152,16 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
                         }
                     })
                     .observeOn(rxManager.getUIScheduler())
+                    .filter(new Func1<Tuple2<StoryFrame, List<String>>, Boolean>() {
+                        @Override
+                        public Boolean call(final Tuple2<StoryFrame, List<String>> arg) {
+                            Contracts.requireMainThread();
+
+                            final val storyFrame = arg.getFirst();
+
+                            return RealmObject.isValid(storyFrame);
+                        }
+                    })
                     .doOnNext(new Action1<Tuple2<StoryFrame, List<String>>>() {
                         @Override
                         public void call(final Tuple2<StoryFrame, List<String>> arg) {
@@ -167,20 +178,19 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
                                 : storeFrameCandidates.get(0);
                             final long storyFrameId = storyFrame.getId();
 
-                            // FIXME: 1/26/2017 Handle deleted stories
-                            getRealmManager()
-                                .getRealm()
-                                .executeTransactionAsync(new Realm.Transaction() {
-                                    @Override
-                                    public void execute(final Realm realm) {
-                                        final val storyFrame = realm
-                                            .where(StoryFrame.class)
-                                            .equalTo(StoryFrame.ID, storyFrameId)
-                                            .findFirst();
+                            realm.executeTransactionAsync(new Realm.Transaction() {
+                                @Override
+                                public void execute(final Realm realm) {
+                                    final val storyFrame = realm
+                                        .where(StoryFrame.class)
+                                        .equalTo(StoryFrame.ID, storyFrameId)
+                                        .findFirst();
 
+                                    if (RealmObject.isValid(storyFrame)) {
                                         storyFrame.setImageUri(storyFrameImagePreferredCandidate);
                                     }
-                                });
+                                }
+                            });
                         }
                     })
                     .observeOn(rxManager.getUIScheduler())

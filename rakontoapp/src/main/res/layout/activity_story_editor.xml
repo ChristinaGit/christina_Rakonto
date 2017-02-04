@@ -68,8 +68,20 @@
                 android:textColor="?android:colorForegroundInverse"/>
         </LinearLayout>
 
+        <moe.christina.common.extension.view.ContentLoaderProgressBar
+            android:id="@+id/story_editor_page_loading"
+            style="?android:progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <android.support.v4.view.ViewPager
-            android:id="@+id/creation_step_pager"
+            android:id="@+id/story_editor_pager"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1"

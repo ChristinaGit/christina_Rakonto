@@ -1,23 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<android.support.v7.widget.RecyclerView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/story_frames"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <moe.christina.common.extension.view.ContentLoaderProgressBar
-        android:id="@+id/story_frames_loading"
-        style="?android:progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminate="true"/>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/story_frames"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        tools:context=".fragment.storyFramesEditor.StoryFramesEditorFragment"
-        tools:listitem="@layout/fragment_story_frames_editor_item"/>
-</FrameLayout>
+    android:layout_height="match_parent"
+    android:scrollbars="vertical"
+    tools:context=".fragment.storyFramesEditor.StoryFramesEditorFragment"
+    tools:listitem="@layout/fragment_story_frames_editor_item"/>

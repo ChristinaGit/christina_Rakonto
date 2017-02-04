@@ -46,7 +46,7 @@ public final class StoryContract {
         CODE_STORY = StoryContentCode.make(ENTITY_TYPE_CODE, codeIndexer++);
         CODE_STORIES = StoryContentCode.make(ENTITY_TYPE_CODE, codeIndexer++);
 
-        _CONTENT_TYPES_MAP = _createContentTypesMap(codeIndexer);
+        _CONTENT_TYPES_MAP = createContentTypesMap(codeIndexer);
     }
 
     @NonNull
@@ -86,7 +86,7 @@ public final class StoryContract {
     }
 
     @NonNull
-    private static String[] _createContentTypesMap(final int count) {
+    private static String[] createContentTypesMap(final int count) {
         final val contentTypesMap = new String[count];
 
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY)] = TYPE_STORY;

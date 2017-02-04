@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -25,7 +26,8 @@ import moe.christina.common.contract.Contracts;
 import moe.christina.common.event.Events;
 import moe.christina.common.event.generic.Event;
 import moe.christina.common.event.generic.ManagedEvent;
-import moe.christina.common.extension.delegate.LoadingViewDelegate;
+import moe.christina.common.extension.delegate.loading.LoadingViewDelegate;
+import moe.christina.common.extension.delegate.loading.ProgressVisibilityHandler;
 import moe.christina.common.extension.view.recyclerView.adapter.RecyclerViewListAdapter;
 
 import java.util.List;
@@ -69,38 +71,36 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
             .setContentView(holder.storyPreviewView)
             .setLoadingView(holder.storyPreviewLoadingView)
             .setErrorView(holder.storyLoadFailView)
+            .setLoadingVisibilityHandler(getStoryPreviewLoadingVisibilityHandler())
             .build();
-        final val storyPreviewLoadingListener = getStoryPreviewLoadingListener(loadingViewDelegate);
+        final val storyPreviewLoadingListener =
+            new StoryPreviewRequestListener(loadingViewDelegate);
 
-        final val storyViewAttachment =
+        final val storyViewCache =
             new StoryViewCache(cardViewTarget, loadingViewDelegate, storyPreviewLoadingListener);
-        holder.itemView.setTag(R.id.tag_recycler_cache, storyViewAttachment);
+        holder.itemView.setTag(R.id.tag_recycler_cache, storyViewCache);
 
         return holder;
     }
 
     @Override
     public final long getItemId(final int position) {
-        Contracts.requireInRange(position, 0, getItemCount() - 1, new IndexOutOfBoundsException());
-
         return getItem(position).getId();
     }
 
     @Override
     protected void onBindViewHolder(
         @NonNull final StoryViewHolder holder, @NonNull final UIStory item, final int position) {
-        super.onBindViewHolder(Contracts.requireNonNull(holder, "holder == null"),
-                               Contracts.requireNonNull(item, "item == null"),
-                               Contracts.requireInRange(position,
-                                                        0,
-                                                        getItemCount() - 1,
-                                                        new IndexOutOfBoundsException()));
+        super.onBindViewHolder(
+            Contracts.requireNonNull(holder, "holder == null"),
+            Contracts.requireNonNull(item, "item == null"),
+            position);
 
         final val storyViewCache = (StoryViewCache) holder.itemView.getTag(R.id.tag_recycler_cache);
 
         final val loadingViewDelegate = storyViewCache.getLoadingViewDelegate();
         loadingViewDelegate.setLoadingVisible(false);
-        loadingViewDelegate.resetLoading();
+        holder.storyPreviewLoadingView.reset(false);
         loadingViewDelegate.showLoading();
 
         holder.itemView.setTag(R.id.tag_story_id, item.getId());
@@ -134,7 +134,7 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
             .load(item.getPreviewUri())
             .asBitmap()
             .listener(storyViewCache.getLoadingListener())
-            .animate(R.anim.fade_in_long)
+            .animate(R.anim.fade_in_short)
             .centerCrop()
             .into(storyViewCache.getViewTarget());
     }
@@ -171,6 +171,11 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
         }
     };
 
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final ProgressVisibilityHandler _storyPreviewLoadingVisibilityHandler =
+        new ProgressVisibilityHandler();
+
     @NonNull
     private final ManagedEvent<StoryEventArgs> _viewStoryEvent = Events.createEvent();
 
@@ -188,36 +193,39 @@ public final class StoriesListAdapter extends RecyclerViewListAdapter<UIStory, S
     @Nullable
     private List<UIStory> _items;
 
-    @NonNull
-    private RequestListener<String, Bitmap> getStoryPreviewLoadingListener(
-        @NonNull final LoadingViewDelegate loadingViewDelegate) {
-        Contracts.requireNonNull(loadingViewDelegate, "loadingViewDelegate == null");
+    private static final class StoryPreviewRequestListener
+        implements RequestListener<String, Bitmap> {
+        public StoryPreviewRequestListener(
+            @NonNull final LoadingViewDelegate loadingViewDelegate) {
+            Contracts.requireNonNull(loadingViewDelegate, "loadingViewDelegate == null");
 
-        return new RequestListener<String, Bitmap>() {
-            @Override
-            public boolean onException(
-                final Exception e,
-                final String model,
-                final Target<Bitmap> target,
-                final boolean isFirstResource) {
+            _loadingViewDelegate = loadingViewDelegate;
+        }
 
-                loadingViewDelegate.showError();
+        @Override
+        public final boolean onException(
+            final Exception e,
+            final String model,
+            final Target<Bitmap> target,
+            final boolean isFirstResource) {
+            _loadingViewDelegate.showError();
 
-                return false;
-            }
+            return false;
+        }
 
-            @Override
-            public boolean onResourceReady(
-                final Bitmap resource,
-                final String model,
-                final Target<Bitmap> target,
-                final boolean isFromMemoryCache,
-                final boolean isFirstResource) {
+        @Override
+        public final boolean onResourceReady(
+            final Bitmap resource,
+            final String model,
+            final Target<Bitmap> target,
+            final boolean isFromMemoryCache,
+            final boolean isFirstResource) {
+            _loadingViewDelegate.showContent();
 
-                loadingViewDelegate.showContent();
+            return false;
+        }
 
-                return false;
-            }
-        };
+        @NonNull
+        private final LoadingViewDelegate _loadingViewDelegate;
     }
 }

@@ -10,9 +10,9 @@ import moe.christina.common.event.generic.Event;
 import moe.christina.common.mvp.screen.Screen;
 
 public interface StoryTextEditorScreen extends Screen {
-    void displayStory(@Nullable UIStory story);
+    void displaySaveStoryChangedComplete();
 
-    void displayStoryLoading();
+    void displayStory(@Nullable UIStory story);
 
     @NonNull
     Event<StoryEventArgs> getStartEditStoryEvent();

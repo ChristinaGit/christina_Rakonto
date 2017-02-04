@@ -32,8 +32,6 @@ import moe.christina.common.event.generic.ManagedEvent;
 import moe.christina.common.event.notice.ManagedNoticeEvent;
 import moe.christina.common.event.notice.NoticeEvent;
 import moe.christina.common.extension.ItemSpacingDecorator;
-import moe.christina.common.extension.delegate.LoadingViewDelegate;
-import moe.christina.common.extension.view.ContentLoaderProgressBar;
 import moe.christina.common.mvp.presenter.Presenter;
 
 import java.util.List;
@@ -54,16 +52,11 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
     @CallSuper
     @Override
     public void displayStory(@Nullable final UIStory story) {
-        getLoadingViewDelegate().showContent();
-
         setStory(story);
 
         notifyEditedStoryChanged();
-    }
 
-    @Override
-    public final void displayStoryLoading() {
-        getLoadingViewDelegate().showLoading();
+        onCompleteStartEditingPreparation();
     }
 
     @Override
@@ -87,7 +80,9 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
 
     @CallSuper
     @Override
-    public void notifyStartEditing() {
+    public void notifyStartEditing(@Nullable final ReadyCallback callback) {
+        super.notifyStartEditing(callback);
+
         final Long storyId = getStoryId();
         if (storyId != null) {
             _startEditStoryEvent.rise(new StoryEventArgs(storyId));
@@ -96,8 +91,22 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
 
     @CallSuper
     @Override
-    public void notifyStopEditing() {
+    public void notifyStopEditing(@Nullable final ReadyCallback callback) {
+        super.notifyStopEditing(callback);
+
         onSaveStoryChanges();
+    }
+
+    @Override
+    @CallSuper
+    protected void onStoryIdChanged() {
+        setStory(null);
+        notifyEditedStoryChanged();
+
+        final Long storyId = getStoryId();
+        if (storyId != null) {
+            _startEditStoryEvent.rise(new StoryEventArgs(storyId));
+        }
     }
 
     @Nullable
@@ -114,11 +123,6 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
         bindViews(view);
 
         onInitializeStoryFramesView();
-
-        final val loadingViewDelegate = getLoadingViewDelegate();
-        loadingViewDelegate.setLoadingView(_storyFramesLoadingView);
-        loadingViewDelegate.setContentView(_storyFramesView);
-        loadingViewDelegate.hideAll();
 
         return view;
     }
@@ -215,18 +219,8 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
             // FIXME: 12/24/2016
             // _onStoryChangedEvent.rise(new StoryContentEventArgs(editedStory));
         }
-    }
 
-    @Override
-    @CallSuper
-    protected void onStoryIdChanged() {
-        setStory(null);
-        notifyEditedStoryChanged();
-
-        final Long storyId = getStoryId();
-        if (storyId != null) {
-            _startEditStoryEvent.rise(new StoryEventArgs(storyId));
-        }
+        onCompleteStopEditingPreparation();
     }
 
     @Named(PresenterNames.STORY_FRAMES_EDITOR)
@@ -235,20 +229,12 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
     @Nullable
     /*package-private*/ Presenter<StoryFramesEditorScreen> _presenter;
 
-    @BindView(R.id.story_frames_loading)
-    @Nullable
-    /*package-private*/ ContentLoaderProgressBar _storyFramesLoadingView;
-
     @BindView(R.id.story_frames)
     @Nullable
     /*package-private*/ RecyclerView _storyFramesView;
 
     @NonNull
     private final ManagedNoticeEvent _contentChangedEvent = Events.createNoticeEvent();
-
-    @Getter(value = AccessLevel.PROTECTED)
-    @NonNull
-    private final LoadingViewDelegate _loadingViewDelegate = new LoadingViewDelegate();
 
     @NonNull
     private final ManagedEvent<StoryEventArgs> _startEditStoryEvent = Events.createEvent();

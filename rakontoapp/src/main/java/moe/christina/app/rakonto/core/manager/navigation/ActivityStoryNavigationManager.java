@@ -26,8 +26,6 @@ public final class ActivityStoryNavigationManager extends ActivityNavigationMana
         super(
             Contracts.requireNonNull(resourceAdviser, "resourceAdviser == null"),
             Contracts.requireNonNull(observableActivity, "observableActivity == null"));
-
-        setAutoReleaseCallbacks(true);
     }
 
     @Override
@@ -51,6 +49,8 @@ public final class ActivityStoryNavigationManager extends ActivityNavigationMana
         final int resultCode,
         @Nullable final Intent data,
         @Nullable final NavigationCallback callback) {
+        super.onActivityResult(requestCode, resultCode, data, callback);
+
         if (REQUEST_CODE_INSERT_STORY == requestCode) {
             if (callback != null) {
                 final val result = getNavigationResult(requestCode, resultCode);

@@ -32,9 +32,14 @@ import moe.christina.common.event.generic.ManagedEvent;
 import moe.christina.common.event.notice.ManagedNoticeEvent;
 import moe.christina.common.event.notice.NoticeEvent;
 import moe.christina.common.extension.ItemSpacingDecorator;
-import moe.christina.common.extension.delegate.LoadingViewDelegate;
+import moe.christina.common.extension.delegate.loading.LoadingViewDelegate;
+import moe.christina.common.extension.delegate.loading.ProgressVisibilityHandler;
+import moe.christina.common.extension.delegate.loading.VisibilityHandler;
 import moe.christina.common.extension.view.ContentLoaderProgressBar;
 import moe.christina.common.mvp.presenter.Presenter;
+import moe.christina.common.utility.AnimationViewUtils;
+
+import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -49,7 +54,10 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
     @CallSuper
     @Override
     public void displayStories(@Nullable final List<UIStory> stories) {
-        getLoadingViewDelegate().showContent(stories != null && !stories.isEmpty());
+        final val loadingViewDelegate = getLoadingViewDelegate();
+        if (loadingViewDelegate != null) {
+            loadingViewDelegate.showContent(stories != null && !stories.isEmpty());
+        }
 
         final val storiesListAdapter = getStoriesListAdapter();
         storiesListAdapter.setItems(stories);
@@ -64,7 +72,10 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
 
     @Override
     public final void displayStoriesLoading() {
-        getLoadingViewDelegate().showLoading();
+        final val loadingViewDelegate = getLoadingViewDelegate();
+        if (loadingViewDelegate != null) {
+            loadingViewDelegate.showLoading();
+        }
     }
 
     @NonNull
@@ -91,7 +102,7 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
         super.onActivityCreated(savedInstanceState);
 
         if (savedInstanceState != null) {
-            _state = savedInstanceState.getParcelable(_KEY_SAVED_STATE);
+            _state = Parcels.unwrap(savedInstanceState.getParcelable(_KEY_SAVED_STATE));
 
             if (_state != null) {
                 _state.setScrollPositionRestored(false);
@@ -114,11 +125,14 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
 
         onInitializeStoriesView();
 
-        final val loadingViewDelegate = getLoadingViewDelegate();
-        loadingViewDelegate.setContentView(_storiesView);
-        loadingViewDelegate.setNoContentView(_noStoriesView);
-        loadingViewDelegate.setLoadingView(_storiesLoadingView);
-        loadingViewDelegate.hideAll();
+        _loadingViewDelegate = LoadingViewDelegate
+            .builder()
+            .setContentView(_storiesView)
+            .setNoContentView(_noStoriesView)
+            .setLoadingView(_storiesLoadingView)
+            .setLoadingVisibilityHandler(getStoryListLoadingVisibilityHandler())
+            .setContentVisibilityHandler(getStoryListVisibilityHandler())
+            .build();
 
         return view;
     }
@@ -136,7 +150,7 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
             final int scrollPosition =
                 getStoriesLayoutManager().findFirstCompletelyVisibleItemPositions(null)[0];
             _state.setScrollPosition(scrollPosition);
-            outState.putParcelable(_KEY_SAVED_STATE, _state);
+            outState.putParcelable(_KEY_SAVED_STATE, Parcels.wrap(_state));
         }
     }
 
@@ -249,10 +263,6 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
             }
         };
 
-    @Getter(value = AccessLevel.PROTECTED)
-    @NonNull
-    private final LoadingViewDelegate _loadingViewDelegate = new LoadingViewDelegate();
-
     @Getter(value = AccessLevel.PROTECTED, lazy = true)
     @NonNull
     private final StaggeredGridLayoutManager _storiesLayoutManager = createStoriesLayoutManager();
@@ -261,8 +271,30 @@ public final class StoriesListFragment extends BaseStoryFragment implements Stor
     @NonNull
     private final StoriesListAdapter _storiesListAdapter = new StoriesListAdapter();
 
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final ProgressVisibilityHandler _storyListLoadingVisibilityHandler =
+        new ProgressVisibilityHandler();
+
+    @Getter(AccessLevel.PROTECTED)
+    @NonNull
+    private final VisibilityHandler _storyListVisibilityHandler = new VisibilityHandler() {
+        @Override
+        public void changeVisibility(@NonNull final View view, final boolean visible) {
+            if (visible) {
+                AnimationViewUtils.animateSetVisibility(view, View.VISIBLE, R.anim.fade_in_long);
+            } else {
+                view.setVisibility(View.GONE);
+            }
+        }
+    };
+
     @NonNull
     private final ManagedNoticeEvent _viewStoriesEvent = Events.createNoticeEvent();
+
+    @Getter(value = AccessLevel.PROTECTED)
+    @Nullable
+    private LoadingViewDelegate _loadingViewDelegate;
 
     @Nullable
     private StoriesListState _state;

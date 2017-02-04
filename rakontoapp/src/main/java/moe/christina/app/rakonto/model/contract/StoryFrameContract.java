@@ -49,7 +49,7 @@ public final class StoryFrameContract {
         CODE_STORY_FRAMES = StoryContentCode.make(ENTITY_TYPE_CODE, codeIndexer++);
         CODE_STORY_FRAMES_BY_STORY = StoryContentCode.make(ENTITY_TYPE_CODE, codeIndexer++);
 
-        _CONTENT_TYPES_MAP = _createContentTypesMap(codeIndexer);
+        _CONTENT_TYPES_MAP = createContentTypesMap(codeIndexer);
     }
 
     @NonNull
@@ -109,7 +109,7 @@ public final class StoryFrameContract {
     }
 
     @NonNull
-    private static String[] _createContentTypesMap(final int count) {
+    private static String[] createContentTypesMap(final int count) {
         final val contentTypesMap = new String[count];
 
         contentTypesMap[StoryContentCode.getQueryCode(CODE_STORY_FRAME)] = TYPE_STORY_FRAME;

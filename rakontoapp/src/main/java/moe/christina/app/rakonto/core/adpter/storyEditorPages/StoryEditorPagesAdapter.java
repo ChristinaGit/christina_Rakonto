@@ -4,14 +4,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.experimental.var;
 import lombok.val;
 
 import moe.christina.common.contract.Contracts;
@@ -19,13 +18,12 @@ import moe.christina.common.event.Events;
 import moe.christina.common.event.generic.Event;
 import moe.christina.common.event.generic.ManagedEvent;
 import moe.christina.common.event.notice.NoticeEventHandler;
+import moe.christina.common.extension.pager.WeakFragmentStatePagerAdapter;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Objects;
 
 @Accessors(prefix = "_")
-public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
+public final class StoryEditorPagesAdapter extends WeakFragmentStatePagerAdapter {
     public StoryEditorPagesAdapter(@NonNull final FragmentManager fragmentManager) {
         super(Contracts.requireNonNull(fragmentManager, "fragmentManager == null"));
     }
@@ -43,20 +41,6 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
         }
     }
 
-    @Override
-    public int getCount() {
-        final int count;
-
-        final val pageFactory = getPageFactory();
-        if (pageFactory != null) {
-            count = pageFactory.getPageCount();
-        } else {
-            count = 0;
-        }
-
-        return count;
-    }
-
     @Nullable
     public StoryEditorPage getEditorPage(final int position) {
         final StoryEditorPage editorPage;
@@ -72,39 +56,14 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
         return editorPage;
     }
 
-    @Nullable
-    public Fragment getFragment(final int position) {
-        final Fragment result;
-
-        final Reference<Fragment> fragmentRef = getFragments().get(position);
-
-        if (fragmentRef != null) {
-            result = fragmentRef.get();
-        } else {
-            result = null;
-        }
-
-        return result;
-    }
-
     @Override
     public Fragment getItem(final int position) {
-        Contracts.requireInRange(position, 0, getCount() - 1, new IndexOutOfBoundsException());
+        final val pageFragment = super.getItem(position);
 
-        final Fragment pageFragment;
+        if (pageFragment instanceof StoryEditorPage) {
+            final val editorFragment = (StoryEditorPage) pageFragment;
 
-        final val pageFactory = getPageFactory();
-
-        if (pageFactory != null) {
-            pageFragment = pageFactory.createPageFragment(position);
-
-            if (pageFragment instanceof StoryEditorPage) {
-                final val editorFragment = (StoryEditorPage) pageFragment;
-
-                editorFragment.setStoryId(getStoryId());
-            }
-        } else {
-            pageFragment = null;
+            editorFragment.setStoryId(getStoryId());
         }
 
         return pageFragment;
@@ -134,15 +93,26 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
         }
     }
 
+    @Override
     protected void onDestroyFragment(@NonNull final Fragment fragment, final int position) {
-        Contracts.requireNonNull(fragment, "fragment == null");
-
-        getFragments().remove(position);
+        super.onDestroyFragment(Contracts.requireNonNull(fragment, "fragment == null"), position);
 
         if (fragment instanceof StoryEditorPage) {
             final val editorPage = (StoryEditorPage) fragment;
 
             onDestroyStoryEditorPage(editorPage, position);
+        }
+    }
+
+    @Override
+    protected void onInstantiateFragment(@NonNull final Fragment fragment, final int position) {
+        super.onInstantiateFragment(Contracts.requireNonNull(fragment, "fragment == null"),
+                                    position);
+
+        if (fragment instanceof StoryEditorPage) {
+            final val editorPage = (StoryEditorPage) fragment;
+
+            onInstantiateStoryEditorPage(editorPage, position);
         }
     }
 
@@ -157,23 +127,11 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
         }
     }
 
-    protected void onInstantiateFragment(@NonNull final Fragment fragment, final int position) {
-        Contracts.requireNonNull(fragment, "fragment == null");
-
-        getFragments().append(position, new WeakReference<>(fragment));
-
-        if (fragment instanceof StoryEditorPage) {
-            final val editorPage = (StoryEditorPage) fragment;
-
-            onInstantiateStoryEditorPage(editorPage, position);
-        }
-    }
-
     protected void onInstantiateStoryEditorPage(
         @NonNull final StoryEditorPage editorFragment, final int position) {
         Contracts.requireNonNull(editorFragment, "editorFragment == null");
 
-        NoticeEventHandler internalHandler = getInternalContentChangedHandlers().get(position);
+        var internalHandler = getInternalContentChangedHandlers().get(position);
 
         if (internalHandler == null) {
             internalHandler = new NoticeEventHandler() {
@@ -189,19 +147,12 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
     }
 
     protected void onStoryIdChanged() {
-        final val fragments = getFragments();
+        final int maxPageCount = getCount();
+        for (int i = 0; i < maxPageCount; i++) {
+            final val editorPage = getEditorPage(i);
 
-        for (int i = 0; i < fragments.size(); i++) {
-            final val fragmentRef = fragments.get(fragments.keyAt(i));
-
-            if (fragmentRef != null) {
-                final val fragment = fragmentRef.get();
-
-                if (fragment instanceof StoryEditorPage) {
-                    final val editorPage = (StoryEditorPage) fragment;
-
-                    editorPage.setStoryId(getStoryId());
-                }
+            if (editorPage != null) {
+                editorPage.setStoryId(getStoryId());
             }
         }
     }
@@ -212,17 +163,8 @@ public final class StoryEditorPagesAdapter extends FragmentStatePagerAdapter {
 
     @Getter(value = AccessLevel.PRIVATE)
     @NonNull
-    private final SparseArray<Reference<Fragment>> _fragments = new SparseArray<>();
-
-    @Getter(value = AccessLevel.PRIVATE)
-    @NonNull
     private final SparseArray<NoticeEventHandler> _internalContentChangedHandlers =
         new SparseArray<>();
-
-    @Getter
-    @Setter
-    @Nullable
-    private StoryEditorPageFactory _pageFactory;
 
     @Getter
     @Nullable
