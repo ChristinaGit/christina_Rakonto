@@ -21,6 +21,7 @@ import butterknife.BindView;
 import moe.christina.app.rakonto.R;
 import moe.christina.app.rakonto.core.adpter.storyFrames.StoryFramesAdapter;
 import moe.christina.app.rakonto.core.eventArgs.StoryEventArgs;
+import moe.christina.app.rakonto.core.manager.search.StoryFrameImage;
 import moe.christina.app.rakonto.di.qualifier.PresenterNames;
 import moe.christina.app.rakonto.model.ui.UIStory;
 import moe.christina.app.rakonto.model.ui.UIStoryFrame;
@@ -45,7 +46,7 @@ public final class StoryFramesEditorFragment extends BaseStoryEditorFragment
 
     @Override
     public final void displayStoreFrameImageCandidates(
-        final long storyFrameId, @Nullable final List<String> candidatesUris) {
+        final long storyFrameId, @Nullable final List<StoryFrameImage> candidatesUris) {
         // FIXME: 1/25/2017
     }
 

@@ -15,6 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 @RakontoApplicationScope
 public final class RakontoApplicationRetrofitModule {
+
     @Provides
     @RakontoApplicationScope
     @NonNull

@@ -77,11 +77,6 @@ public final class StoryTextEditorFragment extends BaseStoryEditorFragment
         setStory(story);
         notifyStoryChanged();
 
-        if (_storyTextView != null && !_storyTextView.hasFocus()) {
-            _storyTextView.requestFocus();
-            ImeUtils.showIme(_storyTextView);
-        }
-
         onCompleteStartEditingPreparation();
     }
 
@@ -106,6 +101,21 @@ public final class StoryTextEditorFragment extends BaseStoryEditorFragment
         if (storyId != null) {
             _startEditStoryEvent.rise(new StoryEventArgs(storyId));
         }
+
+        if (_storyTextView != null && !_storyTextView.hasFocus()) {
+            _storyTextView.requestFocus();
+            ImeUtils.showIme(_storyTextView);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (_storyTextView != null && !_storyTextView.hasFocus()) {
+            _storyTextView.requestFocus();
+            ImeUtils.showIme(_storyTextView);
+        }
     }
 
     @CallSuper
@@ -113,7 +123,7 @@ public final class StoryTextEditorFragment extends BaseStoryEditorFragment
     public void notifyStopEditing(@Nullable final ReadyCallback callback) {
         super.notifyStopEditing(callback);
 
-        if (_storyTextView != null && _storyTextView.hasFocus()) {
+        if (_storyTextView != null) {
             ImeUtils.hideIme(_storyTextView);
         }
 

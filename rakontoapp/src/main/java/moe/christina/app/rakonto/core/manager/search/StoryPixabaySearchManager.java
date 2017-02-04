@@ -6,12 +6,13 @@ import android.support.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-
-import rx.Observable;
+import lombok.val;
 
 import moe.christina.app.rakonto.core.api.pixabay.PixabayService;
+import moe.christina.app.rakonto.core.api.pixabay.serachImages.SearchImages;
 import moe.christina.common.contract.Contracts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Accessors(prefix = "_")
@@ -26,51 +27,47 @@ public final class StoryPixabaySearchManager implements StorySearchManager {
 
     @Nullable
     @Override
-    public final Observable<List<StoryFrameImage>> searchFrameImages(@NonNull final String query)
+    public final List<StoryFrameImage> searchFrameImages(@NonNull final String query)
         throws Exception {
 
-        return null;
-
         // TODO: 1/30/2017 Handle locales.
-        //        return getPixabayService().searchImages(
-        //            API_KEY_PIXABAY,
-        //            query,
-        //            SearchImages.Lang.RUSSIAN.getParameterValue(),
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null,
-        //            null).flatMap(new Func1<SearchImagesResponse, SearchImagesResponse.Image>() {
-        //            @Override
-        //            public SearchImagesResponse.Image call(
-        //                final SearchImagesResponse searchImagesResponse) {
-        //                return searchImagesResponse.getImages();
-        //            }
-        //        }).filter(new Func1<Tuple2<String, String>, Boolean>() {
-        //            @Override
-        //            public Boolean call(final Tuple2<String, String> arg) {
-        //                final val previewUri = arg.getFirst();
-        //                final val uri = arg.getSecond();
-        //
-        //                return previewUri != null && uri != null;
-        //            }
-        //        }).map(new Func1<Tuple2<String, String>, StoryFrameImage>() {
-        //            @Override
-        //            public StoryFrameImage call(final Tuple2<String, String> arg) {
-        //                final val previewUri = arg.getFirst();
-        //                final val uri = arg.getSecond();
-        //
-        //                return new StoryFrameImage(previewUri, uri);
-        //            }
-        //        });
+        final val searchImagesResponse = getPixabayService().searchImages(
+            API_KEY_PIXABAY,
+            query,
+            SearchImages.Lang.RUSSIAN.getParameterValue(),
+            SearchImages.ResponseGroup.DEFAULT.getParameterValue(),
+            SearchImages.ImageType.DEFAULT.getParameterValue(),
+            SearchImages.Orientation.HORIZONTAL.getParameterValue(),
+            null,
+            null,
+            null,
+            null,
+            false,
+            null,
+            1,
+            10,
+            null,
+            null).execute().body();
+
+        final val images = searchImagesResponse.getImages();
+
+        final List<StoryFrameImage> storyFrameImages;
+        if (images != null) {
+            storyFrameImages = new ArrayList<>(images.size());
+
+            for (final val image : images) {
+                final val uri = image.getWebUri();
+                final val previewUri = image.getPreviewUri();
+
+                if (uri != null && previewUri != null) {
+                    storyFrameImages.add(new StoryFrameImage(uri, previewUri));
+                }
+            }
+        } else {
+            storyFrameImages = null;
+        }
+
+        return storyFrameImages;
     }
 
     @Getter(AccessLevel.PROTECTED)

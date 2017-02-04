@@ -44,7 +44,7 @@ public final class SearchImagesResponse {
         @Getter
         @Nullable
         @SerializedName("imageHeight")
-        private String _height;
+        private String _originalHeight;
 
         @Getter
         @SerializedName("id")
@@ -62,7 +62,7 @@ public final class SearchImagesResponse {
         @Getter
         @Nullable
         @SerializedName("pageURL")
-        private String _previewUri;
+        private String _pageUri;
 
         @Getter
         @Nullable
@@ -82,7 +82,7 @@ public final class SearchImagesResponse {
         @Getter
         @Nullable
         @SerializedName("previewURL")
-        private String _uri;
+        private String _previewUri;
 
         @Getter
         @SerializedName("user_id")
@@ -90,11 +90,11 @@ public final class SearchImagesResponse {
 
         @Getter
         @SerializedName("userImageURL")
-        private long _userImageUri;
+        private String _userImageUri;
 
         @Getter
         @SerializedName("user")
-        private long _userName;
+        private String _userName;
 
         @Getter
         @SerializedName("views")
@@ -118,6 +118,6 @@ public final class SearchImagesResponse {
         @Getter
         @Nullable
         @SerializedName("imageWidth")
-        private String _width;
+        private String _originalWidth;
     }
 }

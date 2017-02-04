@@ -18,6 +18,7 @@ import io.realm.RealmObject;
 
 import moe.christina.app.rakonto.core.eventArgs.StoryEventArgs;
 import moe.christina.app.rakonto.core.manager.StoryServiceManager;
+import moe.christina.app.rakonto.core.manager.search.StoryFrameImage;
 import moe.christina.app.rakonto.model.Story;
 import moe.christina.app.rakonto.model.StoryFrame;
 import moe.christina.app.rakonto.screen.StoryFramesEditorScreen;
@@ -39,7 +40,7 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
     }
 
     protected final void displayStoreFrameImageCandidates(
-        final long storyFrameId, @Nullable final List<String> candidatesUris) {
+        final long storyFrameId, @Nullable final List<StoryFrameImage> candidatesUris) {
         final val screen = getScreen();
         if (screen != null) {
             screen.displayStoreFrameImageCandidates(storyFrameId, candidatesUris);
@@ -121,10 +122,12 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
                         }
                     })
                     .observeOn(rxManager.getIOScheduler())
-                    .map(new Func1<Tuple2<StoryFrame, String>, Tuple2<StoryFrame, List<String>>>() {
+                    .map(new Func1<Tuple2<StoryFrame, String>, Tuple2<StoryFrame,
+                        List<StoryFrameImage>>>() {
                         @Override
-                        public Tuple2<StoryFrame, List<String>> call(final Tuple2<StoryFrame,
-                            String> arg) {
+                        public Tuple2<StoryFrame, List<StoryFrameImage>> call(final
+                                                                              Tuple2<StoryFrame,
+                                                                                  String> arg) {
                             Contracts.requireWorkerThread();
 
                             final val storyFrame = arg.getFirst();
@@ -132,29 +135,27 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
 
                             Contracts.requireNonNull(storyFrame, "storyFrame == null");
 
-                            List<String> storyFrameImageCandidates = null;
+                            List<StoryFrameImage> candidates = null;
 
                             if (storyFrameText != null) {
                                 try {
-                                    //
-                                    // storyFrameImageCandidates =
-                                    //
-                                    // getStorySearchManager().searchFrameImages(storyFrameText);
+                                    candidates =
+                                        getStorySearchManager().searchFrameImages(storyFrameText);
                                 } catch (final Exception e) {
                                     // TODO: 1/26/2017 Add error dialog.
                                     Log.w(_LOG_TAG, "Error during web search.", e);
 
-                                    storyFrameImageCandidates = null;
+                                    candidates = null;
                                 }
                             }
 
-                            return Tuple.from(storyFrame, storyFrameImageCandidates);
+                            return Tuple.from(storyFrame, candidates);
                         }
                     })
                     .observeOn(rxManager.getUIScheduler())
-                    .filter(new Func1<Tuple2<StoryFrame, List<String>>, Boolean>() {
+                    .filter(new Func1<Tuple2<StoryFrame, List<StoryFrameImage>>, Boolean>() {
                         @Override
-                        public Boolean call(final Tuple2<StoryFrame, List<String>> arg) {
+                        public Boolean call(final Tuple2<StoryFrame, List<StoryFrameImage>> arg) {
                             Contracts.requireMainThread();
 
                             final val storyFrame = arg.getFirst();
@@ -162,20 +163,20 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
                             return RealmObject.isValid(storyFrame);
                         }
                     })
-                    .doOnNext(new Action1<Tuple2<StoryFrame, List<String>>>() {
+                    .doOnNext(new Action1<Tuple2<StoryFrame, List<StoryFrameImage>>>() {
                         @Override
-                        public void call(final Tuple2<StoryFrame, List<String>> arg) {
+                        public void call(final Tuple2<StoryFrame, List<StoryFrameImage>> arg) {
                             Contracts.requireMainThread();
 
                             final val storyFrame = arg.getFirst();
-                            final val storeFrameCandidates = arg.getSecond();
+                            final val candidates = arg.getSecond();
 
                             Contracts.requireNonNull(storyFrame, "storyFrame == null");
 
-                            final val storyFrameImagePreferredCandidate =
-                                storeFrameCandidates == null || storeFrameCandidates.isEmpty()
+                            final val preferredCandidate =
+                                candidates == null || candidates.isEmpty()
                                 ? null
-                                : storeFrameCandidates.get(0);
+                                : candidates.get(0);
                             final long storyFrameId = storyFrame.getId();
 
                             realm.executeTransactionAsync(new Realm.Transaction() {
@@ -187,16 +188,18 @@ public final class StoryFramesEditorPresenter extends BaseStoryPresenter<StoryFr
                                         .findFirst();
 
                                     if (RealmObject.isValid(storyFrame)) {
-                                        storyFrame.setImageUri(storyFrameImagePreferredCandidate);
+                                        if (preferredCandidate != null) {
+                                            storyFrame.setImageUri(preferredCandidate.getUri());
+                                        }
                                     }
                                 }
                             });
                         }
                     })
                     .observeOn(rxManager.getUIScheduler())
-                    .subscribe(new Action1<Tuple2<StoryFrame, List<String>>>() {
+                    .subscribe(new Action1<Tuple2<StoryFrame, List<StoryFrameImage>>>() {
                         @Override
-                        public void call(final Tuple2<StoryFrame, List<String>> arg) {
+                        public void call(final Tuple2<StoryFrame, List<StoryFrameImage>> arg) {
                             Contracts.requireMainThread();
 
                             final val storyFrame = arg.getFirst();

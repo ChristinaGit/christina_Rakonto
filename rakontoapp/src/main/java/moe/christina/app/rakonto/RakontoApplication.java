@@ -21,6 +21,7 @@ import moe.christina.app.rakonto.di.application.module.RakontoApplicationRetrofi
  * TODO:
  * <ul>
  * <li>Animate FAB;</li>
+ * <li>Animate Activity;</li>
  * <li>Implement two-phased loads;</li>
  * <li>Implement card view loading;</li>
  * <li>Implement stories list position restoring;</li>

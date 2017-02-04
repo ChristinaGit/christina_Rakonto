@@ -9,12 +9,12 @@ import moe.christina.common.contract.Contracts;
 
 @Accessors(prefix = "_")
 public final class StoryFrameImage {
-    public StoryFrameImage(@NonNull final String previewUri, @NonNull final String uri) {
-        Contracts.requireNonNull(previewUri, "previewUri == null");
+    public StoryFrameImage(@NonNull final String uri, @NonNull final String previewUri) {
         Contracts.requireNonNull(uri, "uri == null");
+        Contracts.requireNonNull(previewUri, "previewUri == null");
 
-        _previewUri = previewUri;
         _uri = uri;
+        _previewUri = previewUri;
     }
 
     @Getter

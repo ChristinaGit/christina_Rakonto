@@ -7,26 +7,28 @@ import rx.Observable;
 
 import moe.christina.app.rakonto.core.api.pixabay.serachImages.SearchImagesResponse;
 
+import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface PixabayService {
-    @GET
-    Observable<SearchImagesResponse> searchImages(
-        @NonNull @Field("key") String apiKey,
-        @NonNull @Field("q") String query,
-        @Nullable @Field("lang") String language,
-        @Nullable @Field("response_group") String responseGroup,
-        @Nullable @Field("image_type") String imageType,
-        @Nullable @Field("orientation") String orientation,
-        @Nullable @Field("category") String category,
-        @Nullable @Field("min_width") Integer minWidth,
-        @Nullable @Field("min_height") Integer minHeight,
-        @Nullable @Field("editors_choice") Boolean editorsChoice,
-        @Nullable @Field("safesearch") Boolean safeSearch,
-        @Nullable @Field("order") String order,
-        @Nullable @Field("page") Integer page,
-        @Nullable @Field("per_page") Integer perPage,
-        @Nullable @Field("callback") String callback,
-        @Nullable @Field("pretty") Boolean pretty);
+    @GET(".")
+    Call<SearchImagesResponse> searchImages(
+        @NonNull @Query("key") String apiKey,
+        @NonNull @Query("q") String query,
+        @Nullable @Query("lang") String language,
+        @Nullable @Query("response_group") String responseGroup,
+        @Nullable @Query("image_type") String imageType,
+        @Nullable @Query("orientation") String orientation,
+        @Nullable @Query("category") String category,
+        @Nullable @Query("min_width") Integer minWidth,
+        @Nullable @Query("min_height") Integer minHeight,
+        @Nullable @Query("editors_choice") Boolean editorsChoice,
+        @Nullable @Query("safesearch") Boolean safeSearch,
+        @Nullable @Query("order") String order,
+        @Nullable @Query("page") Integer page,
+        @Nullable @Query("per_page") Integer perPage,
+        @Nullable @Query("callback") String callback,
+        @Nullable @Query("pretty") Boolean pretty);
 }
